@@ -43,6 +43,10 @@
         </div>
       </header>
 
+      <!-- Toast Notification Container -->
+      <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+      <!-- DASHBOARD -->
       <section id="dashboard" class="view active-view">
         <div class="welcome-row">
           <div>
@@ -82,55 +86,465 @@
           </button>
         </div>
 
-        <div class="section-heading"><div><span class="eyebrow">LIVE OVERVIEW</span><h2>Operational status</h2></div></div>
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">LIVE OVERVIEW</span>
+            <h2>Operational status</h2>
+          </div>
+        </div>
         <div class="status-grid">
-          <div class="status-card"><span>Site Patrol</span><strong>Ready</strong><small>Awaiting patrol start</small></div>
-          <div class="status-card"><span>East Gate</span><strong class="ok">Active</strong><small>Access control operational</small></div>
-          <div class="status-card"><span>West Gate</span><strong class="ok">Active</strong><small>Access control operational</small></div>
-          <div class="status-card"><span>W2 Gate</span><strong class="ok">Active</strong><small>Access control operational</small></div>
+          <div class="status-card">
+            <span>Site Patrol</span>
+            <strong id="dashPatrolStatus">Ready</strong>
+            <small id="dashPatrolSub">Awaiting patrol start</small>
+          </div>
+          <div class="status-card">
+            <span>East Gate</span>
+            <strong class="ok">Active</strong>
+            <small id="dashEastSub">Access control operational</small>
+          </div>
+          <div class="status-card">
+            <span>West Gate</span>
+            <strong class="ok">Active</strong>
+            <small id="dashWestSub">Access control operational</small>
+          </div>
+          <div class="status-card">
+            <span>W2 Gate</span>
+            <strong class="ok">Active</strong>
+            <small id="dashW2Sub">Access control operational</small>
+          </div>
         </div>
       </section>
 
+      <!-- SITE PATROL -->
       <section id="patrol" class="view">
-        <div class="page-intro"><span class="eyebrow">FUNCTION 01</span><h2>Site Patrol</h2><p>Record and manage general security patrol activity.</p></div>
-        <div class="action-panel"><div><span class="status-badge neutral">NOT STARTED</span><h3>Current patrol</h3><p>Officer: Security Officer · Today</p></div><button class="primary-button">Start Patrol</button></div>
-        <div class="section-heading"><div><span class="eyebrow">CHECKPOINTS</span><h2>Patrol route</h2></div></div>
+        <div class="page-intro">
+          <span class="eyebrow">FUNCTION 01</span>
+          <h2>Site Patrol</h2>
+          <p>Record and manage general security patrol activity.</p>
+        </div>
+
+        <div class="action-panel">
+          <div>
+            <span class="status-badge neutral" id="patrolBadge">NOT STARTED</span>
+            <h3>Current patrol</h3>
+            <div class="form-grid inline-form" style="margin-top: 12px; margin-bottom: 0;">
+              <label>Officer
+                <input type="text" id="patrolOfficer" value="Security Officer">
+              </label>
+              <label>Date / Time
+                <input type="datetime-local" id="patrolDateTime">
+              </label>
+            </div>
+          </div>
+          <div class="patrol-btn-group" style="display: flex; gap: 8px; align-items: center;">
+            <button class="primary-button" id="startPatrolBtn">Start Patrol</button>
+            <button class="secondary-button" id="completePatrolBtn" disabled>Complete Patrol</button>
+          </div>
+        </div>
+
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">CHECKPOINTS</span>
+            <h2>Patrol route</h2>
+          </div>
+        </div>
         <div class="check-grid">
-          <div class="check-card"><span>01</span><strong>Perimeter</strong><em>Pending</em></div>
-          <div class="check-card"><span>02</span><strong>CCTV</strong><em>Pending</em></div>
-          <div class="check-card"><span>03</span><strong>Parking Area</strong><em>Pending</em></div>
-          <div class="check-card"><span>04</span><strong>Buildings</strong><em>Pending</em></div>
+          <button class="check-card" data-checkpoint="Perimeter" type="button">
+            <span>01</span>
+            <strong>Perimeter</strong>
+            <em class="check-status">Pending</em>
+          </button>
+          <button class="check-card" data-checkpoint="CCTV" type="button">
+            <span>02</span>
+            <strong>CCTV</strong>
+            <em class="check-status">Pending</em>
+          </button>
+          <button class="check-card" data-checkpoint="Parking Area" type="button">
+            <span>03</span>
+            <strong>Parking Area</strong>
+            <em class="check-status">Pending</em>
+          </button>
+          <button class="check-card" data-checkpoint="Buildings" type="button">
+            <span>04</span>
+            <strong>Buildings</strong>
+            <em class="check-status">Pending</em>
+          </button>
         </div>
-        <button class="secondary-button">Report Issue</button>
+
+        <div class="patrol-bottom-actions" style="margin-top: 20px;">
+          <button class="secondary-button" id="reportIssueBtn">Report Issue</button>
+        </div>
       </section>
 
+      <!-- ACCESS CONTROL -->
       <section id="access" class="view">
-        <div class="page-intro"><span class="eyebrow">FUNCTION 02</span><h2>Access Control</h2><p>Control site entry and manage vehicle search activity.</p></div>
+        <div class="page-intro">
+          <span class="eyebrow">FUNCTION 02</span>
+          <h2>Access Control</h2>
+          <p>Control site entry and manage vehicle search activity.</p>
+        </div>
         <div class="gate-grid">
-          <button class="operation-card" data-view="gate-east"><span class="operation-number">E</span><div><span class="eyebrow">GATE</span><h3>East Gate</h3><span class="live"><i></i> Active</span></div><b>→</b></button>
-          <button class="operation-card" data-view="gate-west"><span class="operation-number">W</span><div><span class="eyebrow">GATE</span><h3>West Gate</h3><span class="live"><i></i> Active</span></div><b>→</b></button>
-          <button class="operation-card" data-view="gate-w2"><span class="operation-number">W2</span><div><span class="eyebrow">GATE</span><h3>W2 Gate</h3><span class="live"><i></i> Active</span></div><b>→</b></button>
-          <button class="operation-card search-card" data-view="car-search"><span class="operation-number">CS</span><div><span class="eyebrow">SEARCH</span><h3>Car Search</h3><p>Record a vehicle search.</p></div><b>→</b></button>
+          <button class="operation-card" data-view="gate-east">
+            <span class="operation-number">E</span>
+            <div>
+              <span class="eyebrow">GATE</span>
+              <h3>East Gate</h3>
+              <span class="live"><i></i> Active</span>
+            </div>
+            <b>→</b>
+          </button>
+          <button class="operation-card" data-view="gate-west">
+            <span class="operation-number">W</span>
+            <div>
+              <span class="eyebrow">GATE</span>
+              <h3>West Gate</h3>
+              <span class="live"><i></i> Active</span>
+            </div>
+            <b>→</b>
+          </button>
+          <button class="operation-card" data-view="gate-w2">
+            <span class="operation-number">W2</span>
+            <div>
+              <span class="eyebrow">GATE</span>
+              <h3>W2 Gate</h3>
+              <span class="live"><i></i> Active</span>
+            </div>
+            <b>→</b>
+          </button>
+          <button class="operation-card search-card" data-view="car-search">
+            <span class="operation-number">CS</span>
+            <div>
+              <span class="eyebrow">SEARCH</span>
+              <h3>Car Search</h3>
+              <p>Record a vehicle search.</p>
+            </div>
+            <b>→</b>
+          </button>
         </div>
       </section>
 
+      <!-- GATE EAST -->
+      <section id="gate-east" class="view gate-view">
+        <button class="back-button" data-view="access">← Back to Access Control</button>
+        <div class="page-intro">
+          <span class="eyebrow">ACCESS CONTROL</span>
+          <h2>East Gate</h2>
+          <p>Gate activity and access operations. <span class="live" style="display:inline-flex; margin-left:8px;"><i></i> Active</span></p>
+        </div>
+        <div class="gate-actions" data-gate="East Gate">
+          <button class="primary-button" data-gate-action="New Entry">New Entry</button>
+          <button class="secondary-button" data-gate-action="New Exit">New Exit</button>
+          <button class="secondary-button" data-gate-action="Visitor">Visitor</button>
+          <button class="secondary-button" data-gate-action="Vehicle">Vehicle</button>
+          <button class="danger-button" data-gate-action="Access Denied">Access Denied</button>
+        </div>
+        <div class="activity-panel">
+          <h3>Recent activity</h3>
+          <div class="activity-list" id="eastGateActivity">
+            <p>18:42 · Vehicle entry</p>
+            <p>18:37 · Visitor admitted</p>
+            <p>18:31 · Access denied</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- GATE WEST -->
+      <section id="gate-west" class="view gate-view">
+        <button class="back-button" data-view="access">← Back to Access Control</button>
+        <div class="page-intro">
+          <span class="eyebrow">ACCESS CONTROL</span>
+          <h2>West Gate</h2>
+          <p>Gate activity and access operations. <span class="live" style="display:inline-flex; margin-left:8px;"><i></i> Active</span></p>
+        </div>
+        <div class="gate-actions" data-gate="West Gate">
+          <button class="primary-button" data-gate-action="New Entry">New Entry</button>
+          <button class="secondary-button" data-gate-action="New Exit">New Exit</button>
+          <button class="secondary-button" data-gate-action="Visitor">Visitor</button>
+          <button class="secondary-button" data-gate-action="Vehicle">Vehicle</button>
+          <button class="danger-button" data-gate-action="Access Denied">Access Denied</button>
+        </div>
+        <div class="activity-panel">
+          <h3>Recent activity</h3>
+          <div class="activity-list" id="westGateActivity">
+            <p>18:40 · Contractor entry</p>
+            <p>18:26 · Vehicle exit</p>
+            <p>18:18 · Visitor admitted</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- GATE W2 -->
+      <section id="gate-w2" class="view gate-view">
+        <button class="back-button" data-view="access">← Back to Access Control</button>
+        <div class="page-intro">
+          <span class="eyebrow">ACCESS CONTROL</span>
+          <h2>W2 Gate</h2>
+          <p>Gate activity and access operations. <span class="live" style="display:inline-flex; margin-left:8px;"><i></i> Active</span></p>
+        </div>
+        <div class="gate-actions" data-gate="W2 Gate">
+          <button class="primary-button" data-gate-action="New Entry">New Entry</button>
+          <button class="secondary-button" data-gate-action="New Exit">New Exit</button>
+          <button class="secondary-button" data-gate-action="Visitor">Visitor</button>
+          <button class="secondary-button" data-gate-action="Vehicle">Vehicle</button>
+          <button class="danger-button" data-gate-action="Access Denied">Access Denied</button>
+        </div>
+        <div class="activity-panel">
+          <h3>Recent activity</h3>
+          <div class="activity-list" id="w2GateActivity">
+            <p>18:44 · Vehicle entry</p>
+            <p>18:35 · Staff entry</p>
+            <p>18:12 · Vehicle exit</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CAR SEARCH -->
+      <section id="car-search" class="view form-view">
+        <button class="back-button" data-view="access">← Back to Access Control</button>
+        <div class="page-intro">
+          <span class="eyebrow">ACCESS CONTROL</span>
+          <h2>Car Search</h2>
+          <p>Record a vehicle search.</p>
+        </div>
+        <form class="form-panel" id="carSearchForm" onsubmit="return false;">
+          <div class="form-grid">
+            <label>Vehicle Registration
+              <input type="text" id="carReg" placeholder="e.g. AB12 CDE" required>
+            </label>
+            <label>Driver Name
+              <input type="text" id="carDriver" placeholder="Full name">
+            </label>
+            <label>Company
+              <input type="text" id="carCompany" placeholder="Company name">
+            </label>
+            <label>Gate
+              <select id="carGate">
+                <option>East Gate</option>
+                <option>West Gate</option>
+                <option>W2 Gate</option>
+              </select>
+            </label>
+            <label>Search Officer
+              <input type="text" id="carOfficer" placeholder="Officer name" value="Security Officer">
+            </label>
+            <label>Date / Time
+              <input type="datetime-local" id="carDateTime">
+            </label>
+          </div>
+
+          <h3>Search checklist (Vehicle Areas)</h3>
+          <p class="muted-small" style="margin-bottom:10px;">Select all areas inspected:</p>
+          <div class="choice-grid multi-choice" id="carAreasGrid">
+            <button type="button" class="toggle-btn" data-area="Exterior">Exterior</button>
+            <button type="button" class="toggle-btn" data-area="Interior">Interior</button>
+            <button type="button" class="toggle-btn" data-area="Boot/Cargo Area">Boot / Cargo Area</button>
+            <button type="button" class="toggle-btn" data-area="Under Vehicle">Under Vehicle</button>
+            <button type="button" class="toggle-btn" data-area="Engine Area">Engine Area</button>
+            <button type="button" class="toggle-btn" data-area="Other">Other</button>
+          </div>
+
+          <label style="margin-top: 16px;">Remarks
+            <textarea id="carRemarks" rows="4" placeholder="Record observations or items found"></textarea>
+          </label>
+
+          <h3 style="margin-top: 24px;">Search Result</h3>
+          <p class="muted-small" style="margin-bottom:10px;">Select outcome of search:</p>
+          <div class="choice-grid single-choice" id="carResultGrid">
+            <button type="button" class="result-btn choice-clear" data-result="Clear">Clear</button>
+            <button type="button" class="result-btn choice-found" data-result="Item Found">Item Found</button>
+            <button type="button" class="result-btn choice-refused" data-result="Refused">Refused</button>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="secondary-button" data-view="access">Cancel</button>
+            <button type="submit" class="primary-button" id="completeCarSearchBtn">Complete Search</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- JETTY -->
       <section id="jetty" class="view">
-        <div class="page-intro jetty-intro"><span class="eyebrow">FUNCTION 03 · SEPARATE SITE</span><h2>Jetty</h2><p>Dedicated Jetty security operations.</p></div>
+        <div class="page-intro jetty-intro">
+          <span class="eyebrow">FUNCTION 03 · SEPARATE SITE</span>
+          <h2>Jetty</h2>
+          <p>Dedicated Jetty security operations.</p>
+        </div>
         <div class="jetty-grid">
-          <button class="module-card" data-view="jetty-patrol"><div class="module-icon">JP</div><div><span class="module-label">JETTY</span><h3>Jetty Patrol</h3><p>Record Jetty security patrols and observations.</p></div><span class="arrow">→</span></button>
-          <button class="module-card" data-view="visitor-search"><div class="module-icon">VS</div><div><span class="module-label">JETTY</span><h3>Visitor Search</h3><p>Record visitor searches and access checks.</p></div><span class="arrow">→</span></button>
+          <button class="module-card" data-view="jetty-patrol">
+            <div class="module-icon">JP</div>
+            <div>
+              <span class="module-label">JETTY</span>
+              <h3>Jetty Patrol</h3>
+              <p>Record Jetty security patrols and observations.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
+          <button class="module-card" data-view="visitor-search">
+            <div class="module-icon">VS</div>
+            <div>
+              <span class="module-label">JETTY</span>
+              <h3>Visitor Search</h3>
+              <p>Record visitor searches and access checks.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
         </div>
       </section>
 
-      <section id="gate-east" class="view gate-view"><div class="page-intro"><span class="eyebrow">ACCESS CONTROL</span><h2>East Gate</h2><p>Gate activity and access operations.</p></div><div class="gate-actions"><button class="primary-button">New Entry</button><button class="secondary-button">New Exit</button><button class="secondary-button">Visitor</button><button class="secondary-button">Vehicle</button><button class="danger-button">Access Denied</button></div><div class="activity-panel"><h3>Recent activity</h3><p>18:42 · Vehicle entry</p><p>18:37 · Visitor admitted</p><p>18:31 · Access denied</p></div></section>
-      <section id="gate-west" class="view gate-view"><div class="page-intro"><span class="eyebrow">ACCESS CONTROL</span><h2>West Gate</h2><p>Gate activity and access operations.</p></div><div class="gate-actions"><button class="primary-button">New Entry</button><button class="secondary-button">New Exit</button><button class="secondary-button">Visitor</button><button class="secondary-button">Vehicle</button><button class="danger-button">Access Denied</button></div><div class="activity-panel"><h3>Recent activity</h3><p>18:40 · Contractor entry</p><p>18:26 · Vehicle exit</p><p>18:18 · Visitor admitted</p></div></section>
-      <section id="gate-w2" class="view gate-view"><div class="page-intro"><span class="eyebrow">ACCESS CONTROL</span><h2>W2 Gate</h2><p>Gate activity and access operations.</p></div><div class="gate-actions"><button class="primary-button">New Entry</button><button class="secondary-button">New Exit</button><button class="secondary-button">Visitor</button><button class="secondary-button">Vehicle</button><button class="danger-button">Access Denied</button></div><div class="activity-panel"><h3>Recent activity</h3><p>18:44 · Vehicle entry</p><p>18:35 · Staff entry</p><p>18:12 · Vehicle exit</p></div></section>
+      <!-- JETTY PATROL -->
+      <section id="jetty-patrol" class="view form-view">
+        <button class="back-button" data-view="jetty">← Back to Jetty</button>
+        <div class="page-intro">
+          <span class="eyebrow">JETTY · PATROL</span>
+          <h2>Jetty Patrol</h2>
+          <p>Digital Jetty patrol checklist based on the supplied patrol record.</p>
+        </div>
+        <div class="form-panel">
+          <div class="form-grid" style="margin-bottom: 20px;">
+            <label>Officer
+              <input type="text" id="jettyPatrolOfficer" value="Security Officer">
+            </label>
+            <label>Date / Time
+              <input type="datetime-local" id="jettyPatrolDateTime">
+            </label>
+          </div>
 
-      <section id="car-search" class="view form-view"><div class="page-intro"><span class="eyebrow">ACCESS CONTROL</span><h2>Car Search</h2><p>Record a vehicle search.</p></div><div class="form-panel"><div class="form-grid"><label>Vehicle Registration<input placeholder="e.g. AB12 CDE"></label><label>Driver Name<input placeholder="Full name"></label><label>Company<input placeholder="Company name"></label><label>Gate<select><option>East Gate</option><option>West Gate</option><option>W2 Gate</option></select></label><label>Search Officer<input placeholder="Officer name"></label><label>Date / Time<input type="datetime-local"></label></div><h3>Search checklist</h3><div class="choice-grid"><button>Exterior</button><button>Interior</button><button>Boot / Cargo Area</button><button>Under Vehicle</button><button>Engine Area</button><button>Other</button></div><label>Remarks<textarea rows="4" placeholder="Record observations or items found"></textarea></label><div class="form-actions"><button class="secondary-button">Cancel</button><button class="primary-button">Complete Search</button></div></div></section>
+          <div class="patrol-btn-group" style="margin-bottom: 24px; display:flex; gap:12px; align-items:center;">
+            <span class="status-badge neutral" id="jettyPatrolBadge">NOT STARTED</span>
+            <button class="primary-button" id="startJettyPatrolBtn">Start Patrol</button>
+          </div>
 
-      <section id="jetty-patrol" class="view form-view"><div class="page-intro"><span class="eyebrow">JETTY · PATROL</span><h2>Jetty Patrol</h2><p>Digital Jetty patrol checklist based on the supplied patrol record.</p></div><div class="form-panel"><div class="checklist"><div>Perimeter fence &amp; signs <span>OK · ISSUE</span></div><div>Access control points <span>OK · ISSUE</span></div><div>Lighting &amp; CCTV equipment <span>OK · ISSUE</span></div><div>CCTV blind spots <span>OK · ISSUE</span></div><div>Controlled buildings <span>OK · ISSUE</span></div><div>Vehicle parking areas <span>OK · ISSUE</span></div><div>Ship / Port interface <span>OK · ISSUE</span></div><div>Dangerous goods areas <span>OK · ISSUE</span></div><div>Other areas <span>OK · ISSUE</span></div></div><label>Remarks<textarea rows="4" placeholder="Record observations or issues"></textarea></label><button class="primary-button">Complete Patrol</button></div></section>
+          <h3>Inspection Checklist</h3>
+          <div class="checklist-interactive" id="jettyChecklist">
+            <div class="checklist-row" data-item="Perimeter fence & signs">
+              <span class="item-name">Perimeter fence &amp; signs</span>
+              <div class="ok-issue-toggle">
+                <button type="button" class="toggle-ok" data-value="OK">OK</button>
+                <button type="button" class="toggle-issue" data-value="ISSUE">ISSUE</button>
+              </div>
+            </div>
+            <div class="checklist-row" data-item="Access control points">
+              <span class="item-name">Access control points</span>
+              <div class="ok-issue-toggle">
+                <button type="button" class="toggle-ok" data-value="OK">OK</button>
+                <button type="button" class="toggle-issue" data-value="ISSUE">ISSUE</button>
+              </div>
+            </div>
+            <div class="checklist-row" data-item="Lighting & CCTV equipment">
+              <span class="item-name">Lighting &amp; CCTV equipment</span>
+              <div class="ok-issue-toggle">
+                <button type="button" class="toggle-ok" data-value="OK">OK</button>
+                <button type="button" class="toggle-issue" data-value="ISSUE">ISSUE</button>
+              </div>
+            </div>
+            <div class="checklist-row" data-item="CCTV blind spots">
+              <span class="item-name">CCTV blind spots</span>
+              <div class="ok-issue-toggle">
+                <button type="button" class="toggle-ok" data-value="OK">OK</button>
+                <button type="button" class="toggle-issue" data-value="ISSUE">ISSUE</button>
+              </div>
+            </div>
+            <div class="checklist-row" data-item="Controlled buildings">
+              <span class="item-name">Controlled buildings</span>
+              <div class="ok-issue-toggle">
+                <button type="button" class="toggle-ok" data-value="OK">OK</button>
+                <button type="button" class="toggle-issue" data-value="ISSUE">ISSUE</button>
+              </div>
+            </div>
+            <div class="checklist-row" data-item="Vehicle parking areas">
+              <span class="item-name">Vehicle parking areas</span>
+              <div class="ok-issue-toggle">
+                <button type="button" class="toggle-ok" data-value="OK">OK</button>
+                <button type="button" class="toggle-issue" data-value="ISSUE">ISSUE</button>
+              </div>
+            </div>
+            <div class="checklist-row" data-item="Ship/Port interface">
+              <span class="item-name">Ship / Port interface</span>
+              <div class="ok-issue-toggle">
+                <button type="button" class="toggle-ok" data-value="OK">OK</button>
+                <button type="button" class="toggle-issue" data-value="ISSUE">ISSUE</button>
+              </div>
+            </div>
+            <div class="checklist-row" data-item="Dangerous goods areas">
+              <span class="item-name">Dangerous goods areas</span>
+              <div class="ok-issue-toggle">
+                <button type="button" class="toggle-ok" data-value="OK">OK</button>
+                <button type="button" class="toggle-issue" data-value="ISSUE">ISSUE</button>
+              </div>
+            </div>
+            <div class="checklist-row" data-item="Other areas">
+              <span class="item-name">Other areas</span>
+              <div class="ok-issue-toggle">
+                <button type="button" class="toggle-ok" data-value="OK">OK</button>
+                <button type="button" class="toggle-issue" data-value="ISSUE">ISSUE</button>
+              </div>
+            </div>
+          </div>
 
-      <section id="visitor-search" class="view form-view"><div class="page-intro"><span class="eyebrow">JETTY · VISITOR SEARCH</span><h2>Visitor Search</h2><p>Digital visitor search record based on the supplied form.</p></div><div class="form-panel"><div class="form-grid"><label>Name<input placeholder="Visitor name"></label><label>Company<input placeholder="Company"></label><label>Time In<input type="time"></label><label>Time Out<input type="time"></label></div><h3>Search checks</h3><div class="choice-grid"><button>Male Body Search</button><button>Female Body Search</button><button>Male Bag Search</button><button>Female Bag Search</button><button>Documentation Check</button><button>Questioning of Person</button></div><label>Remarks<textarea rows="4" placeholder="Record observations"></textarea></label><div class="form-actions"><button class="secondary-button">Cancel</button><button class="primary-button">Complete Visitor Search</button></div></div></section>
+          <label style="margin-top: 20px;">Remarks
+            <textarea id="jettyPatrolRemarks" rows="4" placeholder="Record observations or issues"></textarea>
+          </label>
+
+          <div class="form-actions" style="margin-top: 20px;">
+            <button type="button" class="secondary-button" data-view="jetty">Cancel</button>
+            <button type="button" class="primary-button" id="completeJettyPatrolBtn">Complete Patrol</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISITOR SEARCH -->
+      <section id="visitor-search" class="view form-view">
+        <button class="back-button" data-view="jetty">← Back to Jetty</button>
+        <div class="page-intro">
+          <span class="eyebrow">JETTY · VISITOR SEARCH</span>
+          <h2>Visitor Search</h2>
+          <p>Digital visitor search record based on the supplied form.</p>
+        </div>
+        <form class="form-panel" id="visitorSearchForm" onsubmit="return false;">
+          <div class="form-grid">
+            <label>Name
+              <input type="text" id="visName" placeholder="Visitor name" required>
+            </label>
+            <label>Company
+              <input type="text" id="visCompany" placeholder="Company">
+            </label>
+            <label>Time In
+              <input type="time" id="visTimeIn">
+            </label>
+            <label>Time Out
+              <input type="time" id="visTimeOut">
+            </label>
+            <label>Searcher / Officer
+              <input type="text" id="visSearcher" placeholder="Officer name" value="Security Officer">
+            </label>
+            <label>Date / Time
+              <input type="datetime-local" id="visDateTime">
+            </label>
+          </div>
+
+          <h3>Search checks</h3>
+          <p class="muted-small" style="margin-bottom:10px;">Select checks performed:</p>
+          <div class="choice-grid multi-choice" id="visitorChecksGrid">
+            <button type="button" class="toggle-btn" data-check="Male Body Search">Male Body Search</button>
+            <button type="button" class="toggle-btn" data-check="Female Body Search">Female Body Search</button>
+            <button type="button" class="toggle-btn" data-check="Male Bag Search">Male Bag Search</button>
+            <button type="button" class="toggle-btn" data-check="Female Bag Search">Female Bag Search</button>
+            <button type="button" class="toggle-btn" data-check="Documentation Check">Documentation Check</button>
+            <button type="button" class="toggle-btn" data-check="Questioning of Person">Questioning of Person</button>
+          </div>
+
+          <label style="margin-top: 16px;">Remarks
+            <textarea id="visRemarks" rows="4" placeholder="Record observations"></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button type="button" class="secondary-button" data-view="jetty">Cancel</button>
+            <button type="submit" class="primary-button" id="completeVisitorSearchBtn">Complete Visitor Search</button>
+          </div>
+        </form>
+      </section>
+
     </main>
   </div>
   <script src="app.js"></script>
