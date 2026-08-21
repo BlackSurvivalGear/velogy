@@ -62,7 +62,7 @@
             <div>
               <span class="module-label">PRIMARY FUNCTION</span>
               <h3>Site Patrol</h3>
-              <p>Monitor and record general site security patrols.</p>
+              <p>Monitor and record 8 nightly patrol rounds &amp; 16 site checkpoints.</p>
             </div>
             <span class="arrow">→</span>
           </button>
@@ -121,13 +121,13 @@
         <div class="page-intro">
           <span class="eyebrow">FUNCTION 01</span>
           <h2>Site Patrol</h2>
-          <p>Record and manage general security patrol activity.</p>
+          <p>Record and manage 8 nightly patrol rounds across 16 site checkpoints.</p>
         </div>
 
         <div class="action-panel">
           <div>
             <span class="status-badge neutral" id="patrolBadge">NOT STARTED</span>
-            <h3>Current patrol</h3>
+            <h3>Current Nightly Patrol</h3>
             <div class="form-grid inline-form" style="margin-top: 12px; margin-bottom: 0;">
               <label>Officer
                 <input type="text" id="patrolOfficer" value="Security Officer">
@@ -143,37 +143,50 @@
           </div>
         </div>
 
+        <!-- NIGHTLY PATROL ROUNDS SELECTOR -->
         <div class="section-heading">
           <div>
-            <span class="eyebrow">CHECKPOINTS</span>
-            <h2>Patrol route</h2>
+            <span class="eyebrow">NIGHTLY SCHEDULE</span>
+            <h2>Patrol Rounds (8 Rounds Required)</h2>
           </div>
         </div>
-        <div class="check-grid">
-          <button class="check-card" data-checkpoint="Perimeter" type="button">
-            <span>01</span>
-            <strong>Perimeter</strong>
-            <em class="check-status">Pending</em>
-          </button>
-          <button class="check-card" data-checkpoint="CCTV" type="button">
-            <span>02</span>
-            <strong>CCTV</strong>
-            <em class="check-status">Pending</em>
-          </button>
-          <button class="check-card" data-checkpoint="Parking Area" type="button">
-            <span>03</span>
-            <strong>Parking Area</strong>
-            <em class="check-status">Pending</em>
-          </button>
-          <button class="check-card" data-checkpoint="Buildings" type="button">
-            <span>04</span>
-            <strong>Buildings</strong>
-            <em class="check-status">Pending</em>
-          </button>
+        <div class="round-selector-grid" id="roundSelectorGrid">
+          <!-- Rendered via JS: Round 1 through Round 8 -->
         </div>
 
-        <div class="patrol-bottom-actions" style="margin-top: 20px;">
+        <!-- CHECKPOINTS FOR ACTIVE ROUND -->
+        <div class="section-heading" style="display:flex; justify-content:space-between; align-items:flex-end;">
+          <div>
+            <span class="eyebrow" id="activeRoundSubtitle">ROUND 1 CHECKPOINTS</span>
+            <h2>16 Site Checkpoints</h2>
+          </div>
+          <div style="font-size:12px; font-weight:700; color:var(--muted);">
+            Round Progress: <span id="roundProgressText" style="color:var(--navy); font-size:14px;">0 / 16 Checked</span>
+          </div>
+        </div>
+
+        <div class="check-grid 16-checkpoints" id="checkpointGrid">
+          <!-- 16 Checkpoints rendered dynamically or structured in JS -->
+        </div>
+
+        <div class="patrol-bottom-actions" style="margin-top: 20px; display:flex; gap:12px;">
           <button class="secondary-button" id="reportIssueBtn">Report Issue</button>
+          <button class="secondary-button" id="toggleReportSummaryBtn">View Round &amp; Checkpoint Summary</button>
+        </div>
+
+        <!-- REPORTING / SUMMARY PANEL -->
+        <div class="activity-panel" id="patrolSummaryPanel" style="margin-top: 24px;">
+          <h3 style="margin-bottom:16px;">Patrol Completion &amp; Reporting Summary</h3>
+          <div class="summary-tabs-grid" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px;">
+            <div>
+              <h4 style="margin:0 0 10px; font-size:14px; color:var(--navy);">Completion by Patrol Round</h4>
+              <div id="roundSummaryList" class="summary-list"></div>
+            </div>
+            <div>
+              <h4 style="margin:0 0 10px; font-size:14px; color:var(--navy);">Completion by Checkpoint (All 8 Rounds)</h4>
+              <div id="checkpointSummaryList" class="summary-list" style="max-height: 280px; overflow-y: auto;"></div>
+            </div>
+          </div>
         </div>
       </section>
 

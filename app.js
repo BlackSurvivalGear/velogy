@@ -107,22 +107,202 @@ if (menuButton) {
 }
 
 /* ==========================================================================
-   1. SITE PATROL MODULE
+   1. SITE PATROL MODULE (8 NIGHTLY ROUNDS & 16 CHECKPOINTS)
    ========================================================================== */
 
+const CHECKPOINT_NAMES = [
+  "Garden Center", "Daveyhulme", "FLX Lamp Post", "East Fence",
+  "Double Gates", "Warehouse 800 / Mess Hall", "Warehouse 700", "Warehouse 600",
+  "Lone Worker Check", "West Lot", "Cooling Towers", "Railhead",
+  "Flare", "W5", "Stores", "W50"
+];
+
+// Local state for 8 Rounds x 16 Checkpoints
+// State per checkpoint: 'Pending' | 'Checked' | 'Issue'
+let activeRoundIndex = 0; // 0 to 7
+const patrolRounds = Array.from({ length: 8 }, (_, rIdx) => ({
+  roundNumber: rIdx + 1,
+  timeLabel: `Round ${rIdx + 1}`,
+  status: 'Pending', // 'Pending' | 'In Progress' | 'Completed'
+  checkpoints: CHECKPOINT_NAMES.map(name => ({ name, status: 'Pending' }))
+}));
+
 let patrolState = 'NOT STARTED'; // 'NOT STARTED' | 'PATROL ACTIVE' | 'COMPLETED'
+
 const patrolBadge = document.getElementById('patrolBadge');
 const startPatrolBtn = document.getElementById('startPatrolBtn');
 const completePatrolBtn = document.getElementById('completePatrolBtn');
 const dashPatrolStatus = document.getElementById('dashPatrolStatus');
 const dashPatrolSub = document.getElementById('dashPatrolSub');
-const checkpointCards = document.querySelectorAll('.check-card');
 const reportIssueBtn = document.getElementById('reportIssueBtn');
+
+const roundSelectorGrid = document.getElementById('roundSelectorGrid');
+const checkpointGrid = document.getElementById('checkpointGrid');
+const activeRoundSubtitle = document.getElementById('activeRoundSubtitle');
+const roundProgressText = document.getElementById('roundProgressText');
+const roundSummaryList = document.getElementById('roundSummaryList');
+const checkpointSummaryList = document.getElementById('checkpointSummaryList');
+const toggleReportSummaryBtn = document.getElementById('toggleReportSummaryBtn');
+const patrolSummaryPanel = document.getElementById('patrolSummaryPanel');
+
+function renderRoundSelectors() {
+  if (!roundSelectorGrid) return;
+  roundSelectorGrid.innerHTML = '';
+
+  patrolRounds.forEach((round, idx) => {
+    const checkedCount = round.checkpoints.filter(c => c.status === 'Checked').length;
+    const issueCount = round.checkpoints.filter(c => c.status === 'Issue').length;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `round-card ${idx === activeRoundIndex ? 'active-round' : ''}`;
+
+    let badgeClass = 'round-pending';
+    let statusLabel = 'Pending';
+    if (checkedCount === 16) {
+      badgeClass = 'round-completed';
+      statusLabel = '16/16 Completed';
+    } else if (checkedCount > 0 || issueCount > 0) {
+      badgeClass = 'round-in-progress';
+      statusLabel = `${checkedCount}/16 Checked`;
+    }
+
+    if (issueCount > 0) {
+      statusLabel += ` (${issueCount} Issue)`;
+    }
+
+    btn.innerHTML = `
+      <span class="round-num">0${round.roundNumber}</span>
+      <strong>Round ${round.roundNumber}</strong>
+      <em class="${badgeClass}">${statusLabel}</em>
+    `;
+
+    btn.addEventListener('click', () => {
+      activeRoundIndex = idx;
+      renderRoundSelectors();
+      renderCheckpoints();
+      updatePatrolUI();
+    });
+
+    roundSelectorGrid.appendChild(btn);
+  });
+}
+
+function renderCheckpoints() {
+  if (!checkpointGrid) return;
+  checkpointGrid.innerHTML = '';
+
+  const activeRound = patrolRounds[activeRoundIndex];
+  if (activeRoundSubtitle) {
+    activeRoundSubtitle.textContent = `ROUND ${activeRound.roundNumber} CHECKPOINTS`;
+  }
+
+  const checkedCount = activeRound.checkpoints.filter(c => c.status === 'Checked').length;
+  if (roundProgressText) {
+    roundProgressText.textContent = `${checkedCount} / 16 Checked`;
+  }
+
+  activeRound.checkpoints.forEach((cp, cpIdx) => {
+    const card = document.createElement('div');
+    card.className = `check-card ${cp.status === 'Checked' ? 'checked' : cp.status === 'Issue' ? 'has-issue' : ''}`;
+
+    const padIdx = (cpIdx + 1).toString().padStart(2, '0');
+    card.innerHTML = `
+      <span>${padIdx}</span>
+      <strong>${cp.name}</strong>
+      <div class="cp-actions">
+        <button type="button" class="cp-btn cp-check ${cp.status === 'Checked' ? 'active' : ''}">Checked</button>
+        <button type="button" class="cp-btn cp-issue ${cp.status === 'Issue' ? 'active' : ''}">Issue</button>
+      </div>
+    `;
+
+    const checkBtn = card.querySelector('.cp-check');
+    const issueBtn = card.querySelector('.cp-issue');
+
+    checkBtn.addEventListener('click', () => {
+      if (cp.status === 'Checked') {
+        cp.status = 'Pending';
+      } else {
+        cp.status = 'Checked';
+      }
+      onCheckpointStatusChange();
+    });
+
+    issueBtn.addEventListener('click', () => {
+      if (cp.status === 'Issue') {
+        cp.status = 'Pending';
+      } else {
+        cp.status = 'Issue';
+      }
+      onCheckpointStatusChange();
+    });
+
+    checkpointGrid.appendChild(card);
+  });
+}
+
+function onCheckpointStatusChange() {
+  const activeRound = patrolRounds[activeRoundIndex];
+  const checkedCount = activeRound.checkpoints.filter(c => c.status === 'Checked').length;
+
+  if (checkedCount === 16) {
+    activeRound.status = 'Completed';
+  } else if (checkedCount > 0 || activeRound.checkpoints.some(c => c.status === 'Issue')) {
+    activeRound.status = 'In Progress';
+  } else {
+    activeRound.status = 'Pending';
+  }
+
+  // Auto-set patrol active if user interacts
+  if (patrolState === 'NOT STARTED') {
+    patrolState = 'PATROL ACTIVE';
+  }
+
+  renderRoundSelectors();
+  renderCheckpoints();
+  renderSummaryLists();
+  updatePatrolUI();
+}
+
+function renderSummaryLists() {
+  if (roundSummaryList) {
+    roundSummaryList.innerHTML = patrolRounds.map(r => {
+      const checked = r.checkpoints.filter(c => c.status === 'Checked').length;
+      const issues = r.checkpoints.filter(c => c.status === 'Issue').length;
+      const pct = Math.round((checked / 16) * 100);
+      return `
+        <div class="summary-row">
+          <span><strong>Round ${r.roundNumber}</strong> (${pct}%)</span>
+          <span>${checked}/16 Checked ${issues > 0 ? `<b style="color:var(--red); margin-left:6px;">(${issues} Issue)</b>` : ''}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  if (checkpointSummaryList) {
+    checkpointSummaryList.innerHTML = CHECKPOINT_NAMES.map((name, idx) => {
+      let totalCheckedAcrossRounds = 0;
+      let totalIssuesAcrossRounds = 0;
+      patrolRounds.forEach(r => {
+        if (r.checkpoints[idx].status === 'Checked') totalCheckedAcrossRounds++;
+        if (r.checkpoints[idx].status === 'Issue') totalIssuesAcrossRounds++;
+      });
+      return `
+        <div class="summary-row">
+          <span>${name}</span>
+          <span><b>${totalCheckedAcrossRounds}/8 Rounds</b> ${totalIssuesAcrossRounds > 0 ? `<em style="color:var(--red); font-style:normal;">(${totalIssuesAcrossRounds} Issue)</em>` : ''}</span>
+        </div>
+      `;
+    }).join('');
+  }
+}
 
 function updatePatrolUI() {
   if (!patrolBadge) return;
   patrolBadge.textContent = patrolState;
   patrolBadge.className = 'status-badge';
+
+  const totalCheckedAllRounds = patrolRounds.reduce((acc, r) => acc + r.checkpoints.filter(c => c.status === 'Checked').length, 0);
 
   if (patrolState === 'NOT STARTED') {
     patrolBadge.classList.add('neutral');
@@ -132,7 +312,7 @@ function updatePatrolUI() {
       dashPatrolStatus.textContent = 'Ready';
       dashPatrolStatus.className = '';
     }
-    if (dashPatrolSub) dashPatrolSub.textContent = 'Awaiting patrol start';
+    if (dashPatrolSub) dashPatrolSub.textContent = '8 Rounds pending (128 checkpoints)';
   } else if (patrolState === 'PATROL ACTIVE') {
     patrolBadge.classList.add('active');
     startPatrolBtn.disabled = true;
@@ -141,7 +321,7 @@ function updatePatrolUI() {
       dashPatrolStatus.textContent = 'In Progress';
       dashPatrolStatus.className = 'active-text';
     }
-    if (dashPatrolSub) dashPatrolSub.textContent = 'Patrol actively underway';
+    if (dashPatrolSub) dashPatrolSub.textContent = `${totalCheckedAllRounds} / 128 Total Checkpoints Cleared`;
   } else if (patrolState === 'COMPLETED') {
     patrolBadge.classList.add('completed');
     startPatrolBtn.disabled = false;
@@ -150,7 +330,7 @@ function updatePatrolUI() {
       dashPatrolStatus.textContent = 'Completed';
       dashPatrolStatus.className = 'ok';
     }
-    if (dashPatrolSub) dashPatrolSub.textContent = 'All checkpoints cleared';
+    if (dashPatrolSub) dashPatrolSub.textContent = 'All 8 Nightly Patrol Rounds Completed';
   }
 }
 
@@ -158,48 +338,38 @@ if (startPatrolBtn) {
   startPatrolBtn.addEventListener('click', () => {
     patrolState = 'PATROL ACTIVE';
     updatePatrolUI();
-    showToast('Site Patrol started.', 'success');
+    showToast('Site Patrol started. Select rounds and check off checkpoints.', 'success');
   });
 }
 
 if (completePatrolBtn) {
   completePatrolBtn.addEventListener('click', () => {
-    // Auto-check any remaining pending checkpoints
-    checkpointCards.forEach(card => {
-      const statusEm = card.querySelector('.check-status');
-      if (statusEm && statusEm.textContent === 'Pending') {
-        statusEm.textContent = 'Checked';
-        card.classList.add('checked');
-      }
+    // Mark all remaining checkpoints as checked
+    patrolRounds.forEach(r => {
+      r.status = 'Completed';
+      r.checkpoints.forEach(c => {
+        if (c.status !== 'Issue') c.status = 'Checked';
+      });
     });
+
     patrolState = 'COMPLETED';
+    renderRoundSelectors();
+    renderCheckpoints();
+    renderSummaryLists();
     updatePatrolUI();
-    showToast('Site Patrol completed successfully.', 'success');
+    showToast('All 8 Patrol Rounds completed successfully.', 'success');
   });
 }
 
-// Checkpoint interactive click
-checkpointCards.forEach(card => {
-  card.addEventListener('click', () => {
-    const statusEm = card.querySelector('.check-status');
-    const checkpointName = card.dataset.checkpoint || 'Checkpoint';
-    if (!statusEm) return;
-
-    if (statusEm.textContent === 'Pending') {
-      statusEm.textContent = 'Checked';
-      card.classList.add('checked');
-      showToast(`${checkpointName} checkpoint checked.`, 'info');
-    } else {
-      statusEm.textContent = 'Pending';
-      card.classList.remove('checked');
-      showToast(`${checkpointName} reset to pending.`, 'info');
-    }
-  });
-});
-
 if (reportIssueBtn) {
   reportIssueBtn.addEventListener('click', () => {
-    showToast('Issue reported and logged for Security Supervisor.', 'warning');
+    showToast('Issue logged for current patrol round.', 'warning');
+  });
+}
+
+if (toggleReportSummaryBtn && patrolSummaryPanel) {
+  toggleReportSummaryBtn.addEventListener('click', () => {
+    patrolSummaryPanel.scrollIntoView({ behavior: 'smooth' });
   });
 }
 
@@ -272,7 +442,6 @@ if (carSearchForm) {
     const toastType = resultVal === 'Clear' ? 'success' : resultVal === 'Item Found' ? 'warning' : 'danger';
     showToast(`Car Search completed for ${regVal || 'Vehicle'}. Result: ${resultVal}`, toastType);
 
-    // Reset non-essential fields or navigate back after short delay
     setTimeout(() => {
       showView('access');
     }, 1200);
@@ -347,4 +516,7 @@ if (visitorSearchForm) {
 
 // Initial initialization
 initializeDateTimeFields();
+renderRoundSelectors();
+renderCheckpoints();
+renderSummaryLists();
 updatePatrolUI();
