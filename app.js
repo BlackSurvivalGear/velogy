@@ -237,8 +237,44 @@ if (menuButton) {
 }
 
 /* ==========================================================================
-   1. SITE PATROL MODULE & NIGHT PATROL MODEL (8 Rounds x 16 Checkpoints)
+   1. SITE PATROL MODULE (DAY & NIGHT PATROL + DAILY CHECKS)
    ========================================================================== */
+
+// Patrol Mode State ('DAY' | 'NIGHT')
+let currentPatrolMode = 'DAY';
+
+// Day Patrol State (3 Rounds)
+let dayPatrolState = {
+  1: { status: 'PENDING', startTime: null, completeTime: null },
+  2: { status: 'PENDING', startTime: null, completeTime: null },
+  3: { status: 'PENDING', startTime: null, completeTime: null }
+};
+
+// Daily Checks State (Independent from Patrol Rounds)
+let pumpOilState = {
+  status: 'PENDING', // 'PENDING' | 'COMPLETED'
+  completeTime: null,
+  pumps: {
+    1: 'OK',
+    2: 'OK',
+    3: 'OK',
+    4: 'OK',
+    5: 'OK'
+  }
+};
+
+let carParkState = {
+  status: 'OK', // 'OK' | 'ISSUE'
+  isCompleted: false,
+  completeTime: null,
+  remarks: ''
+};
+
+let dailyJettyPatrolState = {
+  vesselStatus: 'NO_VESSEL', // 'NO_VESSEL' | 'VESSEL_PRESENT'
+  status: 'PENDING', // 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
+  completeTime: null
+};
 
 function getPatrolStats() {
   let totalChecksRequired = 8 * 16; // 128
@@ -284,6 +320,94 @@ function getPatrolStats() {
 }
 
 function renderPatrolDashboard() {
+  // Update Mode Switcher Tabs UI
+  const modeTabs = document.querySelectorAll('#patrolModeToggleGroup .mode-tab');
+  modeTabs.forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.patrolMode === currentPatrolMode);
+  });
+
+  const daySection = document.getElementById('dayPatrolSection');
+  const nightSection = document.getElementById('nightPatrolSection');
+
+  if (daySection && nightSection) {
+    if (currentPatrolMode === 'DAY') {
+      daySection.style.display = 'block';
+      nightSection.style.display = 'none';
+      renderDayPatrolSection();
+    } else {
+      daySection.style.display = 'none';
+      nightSection.style.display = 'block';
+      renderNightPatrolSection();
+    }
+  }
+
+  // Always render Daily Checks Section below patrol controls
+  renderDailyChecksSection();
+}
+
+// 1A. DAY PATROL RENDER & LOGIC
+function renderDayPatrolSection() {
+  const dayRoundsGrid = document.getElementById('dayRoundsGrid');
+  if (!dayRoundsGrid) return;
+
+  dayRoundsGrid.innerHTML = '';
+
+  let completedRoundsCount = 0;
+
+  for (let r = 1; r <= 3; r++) {
+    const roundData = dayPatrolState[r];
+    if (roundData.status === 'COMPLETED') completedRoundsCount++;
+
+    const card = document.createElement('div');
+    card.className = `day-round-card ${roundData.status.toLowerCase()}`;
+
+    let statusBadge = `<span class="status-badge neutral">PENDING</span>`;
+    if (roundData.status === 'IN_PROGRESS') {
+      statusBadge = `<span class="status-badge active">IN PROGRESS (${roundData.startTime})</span>`;
+    } else if (roundData.status === 'COMPLETED') {
+      statusBadge = `<span class="status-badge completed">COMPLETED (${roundData.completeTime})</span>`;
+    }
+
+    card.innerHTML = `
+      <div class="day-round-header">
+        <div>
+          <span class="eyebrow">DAY PATROL</span>
+          <h4 style="margin: 2px 0 0; color: var(--navy); font-size: 18px;">Round ${r} of 3</h4>
+        </div>
+        ${statusBadge}
+      </div>
+      <div class="day-round-actions">
+        <button type="button" class="secondary-button" ${roundData.status !== 'PENDING' ? 'disabled' : ''} onclick="startDayRound(${r})">START</button>
+        <button type="button" class="primary-button" ${roundData.status === 'COMPLETED' ? 'disabled' : ''} onclick="completeDayRound(${r})">COMPLETE</button>
+      </div>
+    `;
+
+    dayRoundsGrid.appendChild(card);
+  }
+
+  const dayPatrolBadge = document.getElementById('dayPatrolBadge');
+  if (dayPatrolBadge) {
+    dayPatrolBadge.textContent = `${completedRoundsCount} / 3 ROUNDS COMPLETED`;
+    dayPatrolBadge.className = completedRoundsCount === 3 ? 'status-badge completed' : 'status-badge active';
+  }
+}
+
+function startDayRound(roundNum) {
+  dayPatrolState[roundNum].status = 'IN_PROGRESS';
+  dayPatrolState[roundNum].startTime = getTimeString();
+  showToast(`Day Patrol Round ${roundNum} started at ${dayPatrolState[roundNum].startTime}.`, 'info');
+  renderPatrolDashboard();
+}
+
+function completeDayRound(roundNum) {
+  dayPatrolState[roundNum].status = 'COMPLETED';
+  dayPatrolState[roundNum].completeTime = getTimeString();
+  showToast(`Day Patrol Round ${roundNum} completed at ${dayPatrolState[roundNum].completeTime}.`, 'success');
+  renderPatrolDashboard();
+}
+
+// 1B. NIGHT PATROL RENDER & LOGIC (8 Rounds x 16 Checkpoints = 128 Checks)
+function renderNightPatrolSection() {
   const stats = getPatrolStats();
 
   // Update Night Patrol Summary Status Box
@@ -305,7 +429,7 @@ function renderPatrolDashboard() {
   const dashPatrolStatus = document.getElementById('dashPatrolStatus');
   const dashPatrolSub = document.getElementById('dashPatrolSub');
   if (dashPatrolStatus) {
-    dashPatrolStatus.textContent = `Round ${currentSelectedRound} Active`;
+    dashPatrolStatus.textContent = `Night Round ${currentSelectedRound} Active`;
   }
   if (dashPatrolSub) {
     dashPatrolSub.textContent = `${stats.totalChecked + stats.totalIssues} / 128 Checkpoints Cleared (${stats.completionPct}%)`;
@@ -338,7 +462,7 @@ function renderPatrolDashboard() {
   const activeRoundSub = document.getElementById('activeRoundSub');
   const checkpointGrid = document.getElementById('checkpointGrid');
 
-  if (activeRoundTitle) activeRoundTitle.textContent = `PATROL ROUND ${currentSelectedRound}`;
+  if (activeRoundTitle) activeRoundTitle.textContent = `NIGHT PATROL ROUND ${currentSelectedRound}`;
 
   let roundCheckedCount = 0;
   let roundIssueCount = 0;
@@ -398,6 +522,180 @@ function renderPatrolDashboard() {
       checkpointGrid.appendChild(card);
     });
   }
+}
+
+// 1C. DAILY CHECKS RENDER & LOGIC (INDEPENDENT FROM PATROL ROUNDS)
+function renderDailyChecksSection() {
+  // 1. Pump Oil Checks
+  const pumpListContainer = document.getElementById('pumpListContainer');
+  const pumpStatusBadge = document.getElementById('pumpStatusBadge');
+
+  if (pumpListContainer) {
+    pumpListContainer.innerHTML = '';
+    for (let p = 1; p <= 5; p++) {
+      const currentLevel = pumpOilState.pumps[p];
+      const row = document.createElement('div');
+      row.className = 'pump-row';
+      row.innerHTML = `
+        <span class="pump-name">Pump ${p}</span>
+        <div class="pump-level-selector" data-pump="${p}">
+          <button type="button" class="level-btn ${currentLevel === 'OK' ? 'active-ok' : ''}" data-level="OK">OK</button>
+          <button type="button" class="level-btn ${currentLevel === 'Low' ? 'active-low' : ''}" data-level="Low">Low</button>
+          <button type="button" class="level-btn ${currentLevel === 'Critical' ? 'active-critical' : ''}" data-level="Critical">Critical</button>
+        </div>
+      `;
+
+      row.querySelectorAll('.level-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          pumpOilState.pumps[p] = btn.dataset.level;
+          renderDailyChecksSection();
+        });
+      });
+
+      pumpListContainer.appendChild(row);
+    }
+  }
+
+  if (pumpStatusBadge) {
+    if (pumpOilState.status === 'COMPLETED') {
+      pumpStatusBadge.textContent = `COMPLETED (${pumpOilState.completeTime})`;
+      pumpStatusBadge.className = 'status-badge completed';
+    } else {
+      pumpStatusBadge.textContent = 'PENDING';
+      pumpStatusBadge.className = 'status-badge neutral';
+    }
+  }
+
+  // 2. Car Park Check
+  const carParkStatusBadge = document.getElementById('carParkStatusBadge');
+  const carParkRemarks = document.getElementById('carParkRemarks');
+
+  if (carParkStatusBadge) {
+    if (carParkState.isCompleted) {
+      carParkStatusBadge.textContent = `COMPLETED (${carParkState.status}) · ${carParkState.completeTime}`;
+      carParkStatusBadge.className = carParkState.status === 'OK' ? 'status-badge completed' : 'status-badge active';
+    } else {
+      carParkStatusBadge.textContent = 'PENDING';
+      carParkStatusBadge.className = 'status-badge neutral';
+    }
+  }
+
+  const cpGridBtns = document.querySelectorAll('#carParkStatusGrid button');
+  cpGridBtns.forEach(btn => {
+    const statusVal = btn.dataset.carParkStatus;
+    btn.classList.toggle('selected', carParkState.status === statusVal);
+  });
+
+  // 3. Jetty Patrol Daily Duty
+  const jettyDailyBadge = document.getElementById('jettyDailyStatusBadge');
+  const jettyNoVesselActions = document.getElementById('jettyNoVesselActions');
+  const jettyVesselPresentNotice = document.getElementById('jettyVesselPresentNotice');
+
+  const jvBtns = document.querySelectorAll('#jettyVesselStatusGrid button');
+  jvBtns.forEach(btn => {
+    btn.classList.toggle('selected', dailyJettyPatrolState.vesselStatus === btn.dataset.vesselStatus);
+  });
+
+  if (dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT') {
+    if (jettyNoVesselActions) jettyNoVesselActions.style.display = 'none';
+    if (jettyVesselPresentNotice) jettyVesselPresentNotice.style.display = 'block';
+    if (jettyDailyBadge) {
+      jettyDailyBadge.textContent = 'VESSEL PRESENT (NOT REQUIRED)';
+      jettyDailyBadge.className = 'status-badge neutral';
+    }
+  } else {
+    if (jettyNoVesselActions) jettyNoVesselActions.style.display = 'block';
+    if (jettyVesselPresentNotice) jettyVesselPresentNotice.style.display = 'none';
+    if (jettyDailyBadge) {
+      if (dailyJettyPatrolState.status === 'COMPLETED') {
+        jettyDailyBadge.textContent = `COMPLETED (${dailyJettyPatrolState.completeTime})`;
+        jettyDailyBadge.className = 'status-badge completed';
+      } else if (dailyJettyPatrolState.status === 'IN_PROGRESS') {
+        jettyDailyBadge.textContent = 'PATROL IN PROGRESS';
+        jettyDailyBadge.className = 'status-badge active';
+      } else {
+        jettyDailyBadge.textContent = 'NO VESSEL (PATROL REQUIRED)';
+        jettyDailyBadge.className = 'status-badge neutral';
+      }
+    }
+  }
+}
+
+// Mode Switcher Tab Click Listeners
+document.addEventListener('click', (e) => {
+  const modeTab = e.target.closest('#patrolModeToggleGroup .mode-tab');
+  if (modeTab) {
+    currentPatrolMode = modeTab.dataset.patrolMode;
+    renderPatrolDashboard();
+  }
+});
+
+// Complete Pump Oil Check Handler
+const completePumpCheckBtn = document.getElementById('completePumpCheckBtn');
+if (completePumpCheckBtn) {
+  completePumpCheckBtn.addEventListener('click', () => {
+    pumpOilState.status = 'COMPLETED';
+    pumpOilState.completeTime = getTimeString();
+    showToast(`Pump Oil Check completed at ${pumpOilState.completeTime}. All 5 pumps recorded.`, 'success');
+    renderPatrolDashboard();
+  });
+}
+
+// Car Park Status Select Toggle
+document.querySelectorAll('#carParkStatusGrid button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    carParkState.status = btn.dataset.carParkStatus;
+    renderDailyChecksSection();
+  });
+});
+
+// Complete Car Park Check Handler
+const completeCarParkCheckBtn = document.getElementById('completeCarParkCheckBtn');
+if (completeCarParkCheckBtn) {
+  completeCarParkCheckBtn.addEventListener('click', () => {
+    const remarksEl = document.getElementById('carParkRemarks');
+    if (remarksEl) carParkState.remarks = remarksEl.value.trim();
+
+    carParkState.isCompleted = true;
+    carParkState.completeTime = getTimeString();
+
+    const toastType = carParkState.status === 'OK' ? 'success' : 'warning';
+    showToast(`Car Park Check completed at ${carParkState.completeTime} (Status: ${carParkState.status}).`, toastType);
+    renderPatrolDashboard();
+  });
+}
+
+// Jetty Vessel Status Select Toggle
+document.querySelectorAll('#jettyVesselStatusGrid button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    dailyJettyPatrolState.vesselStatus = btn.dataset.vesselStatus;
+    if (dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT') {
+      showToast('Vessel Present selected. Daily Jetty patrol not required.', 'info');
+    } else {
+      showToast('No Vessel selected. Daily Jetty patrol enabled.', 'info');
+    }
+    renderDailyChecksSection();
+  });
+});
+
+// Start & Complete Daily Jetty Patrol Handlers
+const startDailyJettyPatrolBtn = document.getElementById('startDailyJettyPatrolBtn');
+if (startDailyJettyPatrolBtn) {
+  startDailyJettyPatrolBtn.addEventListener('click', () => {
+    dailyJettyPatrolState.status = 'IN_PROGRESS';
+    showToast('Daily Jetty Patrol started.', 'info');
+    renderDailyChecksSection();
+  });
+}
+
+const completeDailyJettyPatrolBtn = document.getElementById('completeDailyJettyPatrolBtn');
+if (completeDailyJettyPatrolBtn) {
+  completeDailyJettyPatrolBtn.addEventListener('click', () => {
+    dailyJettyPatrolState.status = 'COMPLETED';
+    dailyJettyPatrolState.completeTime = getTimeString();
+    showToast(`Daily Jetty Patrol completed at ${dailyJettyPatrolState.completeTime}.`, 'success');
+    renderDailyChecksSection();
+  });
 }
 
 function handleCheckpointClick(roundNum, cpName) {

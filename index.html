@@ -66,7 +66,7 @@
             <div>
               <span class="module-label">PRIMARY FUNCTION</span>
               <h3>Site Patrol</h3>
-              <p>8 nightly rounds × 16 checkpoints = 128 checks.</p>
+              <p>3 Day Rounds · 8 Night Rounds (128 Checks) · Daily Checks</p>
             </div>
             <span class="arrow">→</span>
           </button>
@@ -161,77 +161,200 @@
         <div class="page-intro">
           <span class="eyebrow">FUNCTION 01</span>
           <h2>Site Patrol</h2>
-          <p>8 Nightly Patrol Rounds × 16 Checkpoints (128 Total Required Checks)</p>
+          <p>Day Patrol (3 rounds) · Night Patrol (8 rounds × 16 checkpoints) · Daily Checks</p>
         </div>
 
-        <!-- Night Patrol Dashboard Status Card -->
-        <div class="patrol-dashboard-summary">
-          <div class="patrol-summary-header">
+        <!-- PATROL MODE SWITCHER -->
+        <div class="patrol-mode-header">
+          <div class="mode-toggle-group" id="patrolModeToggleGroup">
+            <button type="button" class="mode-tab active" data-patrol-mode="DAY">DAY PATROL (3 Rounds)</button>
+            <button type="button" class="mode-tab" data-patrol-mode="NIGHT">NIGHT PATROL (8 Rounds × 16 Checkpoints)</button>
+          </div>
+        </div>
+
+        <!-- DAY PATROL MODE CONTENT -->
+        <div id="dayPatrolSection" class="patrol-section-view">
+          <div class="patrol-dashboard-summary">
+            <div class="patrol-summary-header">
+              <div>
+                <span class="eyebrow">DAY PATROL STATUS</span>
+                <h3 style="margin: 4px 0 0; color: var(--navy);">Day Patrol Overview</h3>
+              </div>
+              <span class="status-badge active" id="dayPatrolBadge">3 PATROL ROUNDS</span>
+            </div>
+            <p class="muted" style="margin-top: 0;">Day patrol allows recording completion of each of the 3 daily patrol rounds.</p>
+
+            <div class="day-rounds-grid" id="dayRoundsGrid">
+              <!-- Day Patrol Rounds rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- NIGHT PATROL MODE CONTENT -->
+        <div id="nightPatrolSection" class="patrol-section-view" style="display: none;">
+          <!-- Night Patrol Dashboard Status Card -->
+          <div class="patrol-dashboard-summary">
+            <div class="patrol-summary-header">
+              <div>
+                <span class="eyebrow">NIGHT PATROL STATUS</span>
+                <h3 style="margin: 4px 0 0; color: var(--navy);">Night Patrol Overview</h3>
+              </div>
+              <span class="status-badge active" id="patrolBadge">ROUND 5 ACTIVE</span>
+            </div>
+
+            <div class="patrol-stats-grid">
+              <div class="p-stat-box">
+                <span class="p-stat-label">Rounds Completed</span>
+                <strong class="p-stat-val" id="statRoundsCompleted">5 / 8</strong>
+                <small class="p-stat-sub" id="statRoundsOutstanding">3 rounds outstanding</small>
+              </div>
+              <div class="p-stat-box">
+                <span class="p-stat-label">Checkpoint Checks</span>
+                <strong class="p-stat-val" id="statChecksCompleted">80 / 128</strong>
+                <small class="p-stat-sub" id="statChecksOutstanding">48 checks remaining</small>
+              </div>
+              <div class="p-stat-box">
+                <span class="p-stat-label">Overall Completion</span>
+                <strong class="p-stat-val" id="statCompletionPct">62.5%</strong>
+                <small class="p-stat-sub">Target: 100%</small>
+              </div>
+              <div class="p-stat-box">
+                <span class="p-stat-label">Issues Reported</span>
+                <strong class="p-stat-val amber-text" id="statIssuesCount">2</strong>
+                <small class="p-stat-sub">Requires supervisor review</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Patrol Round Navigation Selector -->
+          <div class="round-selector-panel">
+            <div class="round-selector-header">
+              <h4>Select Patrol Round</h4>
+              <span class="muted-small">Click a round to view and tag checkpoints</span>
+            </div>
+            <div class="round-pills" id="roundPillsContainer">
+              <!-- 8 Rounds dynamically rendered or styled -->
+              <button type="button" class="round-pill active" data-round="1">Round 1</button>
+              <button type="button" class="round-pill" data-round="2">Round 2</button>
+              <button type="button" class="round-pill" data-round="3">Round 3</button>
+              <button type="button" class="round-pill" data-round="4">Round 4</button>
+              <button type="button" class="round-pill" data-round="5">Round 5</button>
+              <button type="button" class="round-pill" data-round="6">Round 6</button>
+              <button type="button" class="round-pill" data-round="7">Round 7</button>
+              <button type="button" class="round-pill" data-round="8">Round 8</button>
+            </div>
+          </div>
+
+          <!-- Patrol Round Active Screen -->
+          <div class="round-details-header">
             <div>
-              <span class="eyebrow">NIGHT PATROL STATUS</span>
-              <h3 style="margin: 4px 0 0; color: var(--navy);">Night Patrol Overview</h3>
+              <span class="eyebrow" id="activeRoundEyebrow">ACTIVE ROUND</span>
+              <h2 id="activeRoundTitle">PATROL ROUND 1</h2>
+              <p class="muted-small" id="activeRoundSub">16 / 16 checkpoints checked</p>
             </div>
-            <span class="status-badge active" id="patrolBadge">ROUND 5 ACTIVE</span>
+            <div class="round-header-actions">
+              <button type="button" class="primary-button" id="tagAllBtn">Tag All Remaining</button>
+              <button type="button" class="danger-button" id="openIssueModalBtn">Report Issue</button>
+            </div>
           </div>
 
-          <div class="patrol-stats-grid">
-            <div class="p-stat-box">
-              <span class="p-stat-label">Rounds Completed</span>
-              <strong class="p-stat-val" id="statRoundsCompleted">5 / 8</strong>
-              <small class="p-stat-sub" id="statRoundsOutstanding">3 rounds outstanding</small>
-            </div>
-            <div class="p-stat-box">
-              <span class="p-stat-label">Checkpoint Checks</span>
-              <strong class="p-stat-val" id="statChecksCompleted">80 / 128</strong>
-              <small class="p-stat-sub" id="statChecksOutstanding">48 checks remaining</small>
-            </div>
-            <div class="p-stat-box">
-              <span class="p-stat-label">Overall Completion</span>
-              <strong class="p-stat-val" id="statCompletionPct">62.5%</strong>
-              <small class="p-stat-sub">Target: 100%</small>
-            </div>
-            <div class="p-stat-box">
-              <span class="p-stat-label">Issues Reported</span>
-              <strong class="p-stat-val amber-text" id="statIssuesCount">2</strong>
-              <small class="p-stat-sub">Requires supervisor review</small>
-            </div>
+          <div class="check-grid 16-checkpoints-grid" id="checkpointGrid">
+            <!-- 16 Checkpoints loaded via JS -->
           </div>
         </div>
 
-        <!-- Patrol Round Navigation Selector -->
-        <div class="round-selector-panel">
-          <div class="round-selector-header">
-            <h4>Select Patrol Round</h4>
-            <span class="muted-small">Click a round to view and tag checkpoints</span>
+        <!-- DAILY CHECKS SECTION (INDEPENDENT FROM PATROL ROUNDS) -->
+        <div class="daily-checks-container">
+          <div class="section-heading" style="margin-top: 40px;">
+            <div>
+              <span class="eyebrow">INDEPENDENT DAILY DUTIES</span>
+              <h2>Daily Checks</h2>
+              <p class="muted-small">Daily checks are independent duties and are NOT part of patrol rounds or checkpoint totals.</p>
+            </div>
           </div>
-          <div class="round-pills" id="roundPillsContainer">
-            <!-- 8 Rounds dynamically rendered or styled -->
-            <button type="button" class="round-pill active" data-round="1">Round 1</button>
-            <button type="button" class="round-pill" data-round="2">Round 2</button>
-            <button type="button" class="round-pill" data-round="3">Round 3</button>
-            <button type="button" class="round-pill" data-round="4">Round 4</button>
-            <button type="button" class="round-pill" data-round="5">Round 5</button>
-            <button type="button" class="round-pill" data-round="6">Round 6</button>
-            <button type="button" class="round-pill" data-round="7">Round 7</button>
-            <button type="button" class="round-pill" data-round="8">Round 8</button>
-          </div>
-        </div>
 
-        <!-- Patrol Round Active Screen -->
-        <div class="round-details-header">
-          <div>
-            <span class="eyebrow" id="activeRoundEyebrow">ACTIVE ROUND</span>
-            <h2 id="activeRoundTitle">PATROL ROUND 1</h2>
-            <p class="muted-small" id="activeRoundSub">16 / 16 checkpoints checked</p>
-          </div>
-          <div class="round-header-actions">
-            <button type="button" class="primary-button" id="tagAllBtn">Tag All Remaining</button>
-            <button type="button" class="danger-button" id="openIssueModalBtn">Report Issue</button>
-          </div>
-        </div>
+          <div class="daily-checks-grid">
+            <!-- 1. PUMP OIL CHECKS CARD -->
+            <div class="daily-check-card" id="pumpCheckCard">
+              <div class="daily-card-header">
+                <div>
+                  <span class="eyebrow">PUMP OIL CHECK</span>
+                  <h3>Pump Oil Checks</h3>
+                  <p class="muted-small">5 pumps · Checked once daily</p>
+                </div>
+                <span class="status-badge neutral" id="pumpStatusBadge">PENDING</span>
+              </div>
 
-        <div class="check-grid 16-checkpoints-grid" id="checkpointGrid">
-          <!-- 16 Checkpoints loaded via JS -->
+              <div class="pump-list" id="pumpListContainer">
+                <!-- 5 pumps rendered via JS -->
+              </div>
+
+              <div class="daily-card-actions">
+                <button type="button" class="primary-button" id="completePumpCheckBtn">COMPLETE PUMP CHECK</button>
+              </div>
+            </div>
+
+            <!-- 2. CAR PARK CHECK CARD -->
+            <div class="daily-check-card" id="carParkCheckCard">
+              <div class="daily-card-header">
+                <div>
+                  <span class="eyebrow">CAR PARK CHECK</span>
+                  <h3>Car Park Check</h3>
+                  <p class="muted-small">Checked once daily</p>
+                </div>
+                <span class="status-badge neutral" id="carParkStatusBadge">PENDING</span>
+              </div>
+
+              <div class="car-park-controls">
+                <label>Status
+                  <div class="choice-grid single-choice" id="carParkStatusGrid" style="margin-top: 6px; margin-bottom: 12px;">
+                    <button type="button" class="result-btn choice-clear selected" data-car-park-status="OK">OK</button>
+                    <button type="button" class="result-btn choice-found" data-car-park-status="ISSUE">ISSUE</button>
+                  </div>
+                </label>
+
+                <label>Remarks
+                  <textarea id="carParkRemarks" rows="3" placeholder="Record car park observations or issues..."></textarea>
+                </label>
+              </div>
+
+              <div class="daily-card-actions">
+                <button type="button" class="primary-button" id="completeCarParkCheckBtn">COMPLETE CHECK</button>
+              </div>
+            </div>
+
+            <!-- 3. JETTY PATROL CARD -->
+            <div class="daily-check-card" id="jettyDailyCheckCard">
+              <div class="daily-card-header">
+                <div>
+                  <span class="eyebrow">JETTY PATROL</span>
+                  <h3>Jetty Patrol</h3>
+                  <p class="muted-small">Once daily when no vessel is present</p>
+                </div>
+                <span class="status-badge neutral" id="jettyDailyStatusBadge">NO VESSEL</span>
+              </div>
+
+              <div class="jetty-vessel-controls">
+                <label>Vessel Status
+                  <div class="choice-grid single-choice" id="jettyVesselStatusGrid" style="margin-top: 6px; margin-bottom: 12px;">
+                    <button type="button" class="result-btn choice-clear selected" data-vessel-status="NO_VESSEL">NO VESSEL</button>
+                    <button type="button" class="result-btn choice-found" data-vessel-status="VESSEL_PRESENT">VESSEL PRESENT</button>
+                  </div>
+                </label>
+
+                <div id="jettyNoVesselActions" class="jetty-action-box">
+                  <div class="patrol-btn-group" style="display:flex; gap:10px; margin-top:8px;">
+                    <button type="button" class="secondary-button" id="startDailyJettyPatrolBtn">START JETTY PATROL</button>
+                    <button type="button" class="primary-button" id="completeDailyJettyPatrolBtn">COMPLETE JETTY PATROL</button>
+                  </div>
+                </div>
+
+                <div id="jettyVesselPresentNotice" class="vessel-notice-box" style="display: none;">
+                  <p class="notice-text">Jetty patrol not required while vessel is present.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
