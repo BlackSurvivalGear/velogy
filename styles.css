@@ -425,15 +425,7 @@ nav {
   color: var(--navy);
 }
 
-/* Action Panel & Buttons */
-.action-panel {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
+/* Buttons & Badges */
 .status-badge {
   display: inline-block;
   border-radius: 99px;
@@ -514,60 +506,628 @@ nav {
   background: #fee2e2;
 }
 
-/* Checkpoints Grid */
+/* ==========================================================================
+   PATROL DASHBOARD & 16-CHECKPOINT WORKFLOW STYLES
+   ========================================================================== */
+
+.patrol-dashboard-summary {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+
+.patrol-summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+
+.patrol-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.p-stat-box {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.p-stat-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.p-stat-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--navy);
+  margin: 6px 0 2px;
+}
+
+.p-stat-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.amber-text { color: var(--amber) !important; }
+.green-text { color: var(--green) !important; }
+.red-text { color: var(--red) !important; }
+.ok-text { color: var(--green) !important; }
+
+/* Round Selector Panel */
+.round-selector-panel {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+
+.round-selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.round-selector-header h4 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.round-pills {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+}
+
+.round-pill {
+  background: #f1f5f9;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  min-height: 44px;
+  text-align: center;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.round-pill:hover {
+  border-color: var(--blue);
+  background: var(--blue-bg);
+}
+
+.round-pill.active {
+  background: var(--navy);
+  color: #ffffff;
+  border-color: var(--navy);
+  box-shadow: 0 4px 12px rgba(7, 17, 31, 0.2);
+}
+
+.round-pill .pill-sub {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.round-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+
+.round-details-header h2 {
+  margin: 2px 0 0;
+  font-size: 22px;
+  color: var(--navy);
+}
+
+.round-header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* 16 Checkpoints Grid */
 .check-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 18px;
+  gap: 14px;
+  margin-bottom: 24px;
 }
 
 .check-card {
   background: #ffffff;
   border: 1px solid var(--line);
-  border-radius: 13px;
-  padding: 18px;
+  border-radius: 14px;
+  padding: 16px;
   text-align: left;
   width: 100%;
-  min-height: 100px;
+  min-height: 140px;
   transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(7, 17, 31, 0.04);
+  position: relative;
 }
 
 .check-card:hover {
   border-color: var(--blue);
+  transform: translateY(-2px);
 }
 
-.check-card.checked {
+/* Checkpoint States */
+.check-card.state-pending {
+  border-left: 4px solid #94a3b8;
+}
+
+.check-card.state-checked {
   background: var(--green-bg);
   border-color: #86efac;
+  border-left: 4px solid var(--green);
 }
 
-.check-card span {
-  display: block;
-  font-size: 10px;
+.check-card.state-issue {
+  background: var(--amber-bg);
+  border-color: #fcd34d;
+  border-left: 4px solid var(--amber);
+}
+
+.check-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.check-card-num {
+  font-size: 11px;
   color: var(--muted);
   font-weight: 800;
 }
 
+.check-card-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.state-pending .check-card-badge {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.state-checked .check-card-badge {
+  background: #dcfce7;
+  color: var(--green);
+}
+
+.state-issue .check-card-badge {
+  background: #fef3c7;
+  color: var(--amber);
+}
+
 .check-card strong {
   display: block;
-  margin-top: 14px;
+  margin-top: 8px;
   font-size: 15px;
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.check-card-meta {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.check-card-btn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--navy);
+  min-height: 38px;
+  transition: all 0.15s ease;
+}
+
+.check-card.state-checked .check-card-btn {
+  background: #ffffff;
+  border-color: #bbf7d0;
+  color: var(--green);
+}
+
+.check-card.state-issue .check-card-btn {
+  background: #ffffff;
+  border-color: #fde68a;
+  color: var(--amber);
+}
+
+.check-card-btn:hover {
+  background: var(--navy);
+  color: #ffffff;
+  border-color: var(--navy);
+}
+
+/* ==========================================================================
+   ADMIN REPORTS STYLES
+   ========================================================================== */
+
+.reports-filter-panel {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+
+.reports-filter-panel h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
   color: var(--navy);
 }
 
-.check-card em {
-  display: block;
-  margin-top: 6px;
+.filter-grid {
+  grid-template-columns: repeat(3, 1fr);
+  margin-bottom: 0;
+  gap: 14px;
+}
+
+.reports-summary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.report-summary-card, .report-performance-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.report-summary-card h3, .report-performance-card h3 {
+  margin: 4px 0 16px;
+  font-size: 20px;
+  color: var(--navy);
+}
+
+.summary-metrics-list {
+  display: grid;
+  gap: 12px;
+}
+
+.metric-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+}
+
+.metric-line:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.metric-line span {
   color: var(--muted);
-  font-size: 12px;
-  font-style: normal;
   font-weight: 600;
 }
 
-.check-card.checked em {
-  color: var(--green);
+.metric-line strong {
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--navy);
+}
+
+.performance-badge-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.perf-box {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+}
+
+.perf-num {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.perf-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.completion-rate-box {
+  background: var(--navy);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+}
+
+.rate-val {
+  display: block;
+  font-size: 32px;
+  font-weight: 800;
+  color: #22c55e;
+}
+
+.rate-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+/* Checkpoint Report Matrix Table */
+.report-table-wrapper {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+.checkpoint-report-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  font-size: 14px;
+}
+
+.checkpoint-report-table th, .checkpoint-report-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.checkpoint-report-table th {
+  background: #f8fafc;
+  color: var(--navy);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.checkpoint-report-table th.col-checkpoint, .checkpoint-report-table td.col-checkpoint {
+  text-align: left;
+  padding-left: 20px;
   font-weight: 700;
+  color: var(--navy);
+}
+
+.checkpoint-report-table tr:last-child td {
+  border-bottom: none;
+}
+
+.checkpoint-report-table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.checkpoint-report-table tbody tr:hover {
+  background: #f1f5f9;
+}
+
+/* Table Visual Status Cells */
+.cell-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.cell-status.status-checked {
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid #86efac;
+}
+
+.cell-status.status-issue {
+  background: var(--amber-bg);
+  color: var(--amber);
+  border: 1px solid #fcd34d;
+}
+
+.cell-status.status-pending {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-detail-link {
+  background: none;
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--blue);
+}
+
+.btn-detail-link:hover {
+  background: var(--blue-bg);
+  border-color: var(--blue);
+}
+
+/* ==========================================================================
+   MODALS
+   ========================================================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 17, 31, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.modal-overlay[aria-hidden="false"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: var(--radius);
+  max-width: 580px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content.modal-lg {
+  max-width: 720px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--navy);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: var(--muted);
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.modal-close:hover {
+  color: var(--navy);
+  background: #f1f5f9;
+}
+
+/* Checkpoint Detail View Inside Modal */
+.detail-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.detail-box {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.detail-box-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  display: block;
+}
+
+.detail-box-val {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-top: 4px;
+  display: block;
+}
+
+.detail-history-list {
+  display: grid;
+  gap: 10px;
+}
+
+.detail-history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.detail-history-item .h-round {
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.detail-history-item .h-time {
+  font-size: 12px;
+  color: var(--muted);
 }
 
 /* Gate Actions & Activity */
@@ -771,7 +1331,7 @@ input:focus, select:focus, textarea:focus {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  z-index: 2000;
+  z-index: 4000;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -815,6 +1375,20 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* Media Queries for Mobile First & Responsive Design */
+@media (max-width: 1024px) {
+  .patrol-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .check-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .filter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 900px) {
   .sidebar {
     transform: translateX(-100%);
@@ -857,12 +1431,16 @@ input:focus, select:focus, textarea:focus {
     display: none;
   }
 
-  .module-grid, .status-grid {
+  .module-grid, .status-grid, .reports-summary-row {
     grid-template-columns: 1fr;
   }
 
   .gate-grid, .jetty-grid {
     grid-template-columns: 1fr;
+  }
+
+  .round-pills {
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .check-grid {
@@ -913,19 +1491,18 @@ input:focus, select:focus, textarea:focus {
     font-size: 24px;
   }
 
-  .action-panel {
-    align-items: stretch;
-    gap: 16px;
-    flex-direction: column;
+  .patrol-stats-grid, .filter-grid, .detail-summary-grid {
+    grid-template-columns: 1fr;
   }
 
-  .patrol-btn-group {
-    flex-direction: column;
-    width: 100%;
+  .round-pills {
+    grid-template-columns: repeat(4, 1fr);
   }
 
-  .patrol-btn-group button {
-    width: 100%;
+  .round-details-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 
   .check-grid {
