@@ -455,10 +455,45 @@
         <button class="back-button" data-view="jetty">← Back to Jetty</button>
         <div class="page-intro">
           <span class="eyebrow">JETTY · PATROL</span>
-          <h2>Jetty Patrol</h2>
-          <p>Digital Jetty patrol checklist based on the supplied patrol record.</p>
+          <h2 id="jettyOperatingPeriodTitle">Jetty Patrol</h2>
+          <p id="jettyOperatingPeriodSub">20 Patrols per 24 Hours (10 Day Patrols / 10 Night Patrols)</p>
         </div>
+
+        <!-- Shift & Patrol Navigation Panel -->
+        <div class="jetty-shift-panel">
+          <div class="jetty-shift-header">
+            <div>
+              <span class="eyebrow">OPERATING PERIOD</span>
+              <h3 id="jettyCurrentShiftHeader" style="margin: 4px 0 0; color: var(--navy);">DAY SHIFT — 10 PATROLS</h3>
+            </div>
+            <div class="shift-toggle-group" id="jettyShiftToggleGroup">
+              <button type="button" class="shift-tab active" data-shift="DAY">Day Shift (06:00 - 18:00)</button>
+              <button type="button" class="shift-tab" data-shift="NIGHT">Night Shift (18:00 - 06:00)</button>
+            </div>
+          </div>
+
+          <div class="round-selector-header" style="margin-top: 16px;">
+            <h4>Select Patrol (10 Patrols per Shift)</h4>
+            <span class="muted-small">Every ~72 minutes</span>
+          </div>
+          <div class="jetty-patrol-pills" id="jettyPatrolPillsContainer">
+            <!-- 10 Patrol pills dynamically rendered -->
+          </div>
+        </div>
+
         <div class="form-panel">
+          <div class="patrol-active-header">
+            <div>
+              <span class="eyebrow" id="jettyActivePatrolEyebrow">ACTIVE PATROL</span>
+              <h2 id="jettyActivePatrolTitle" style="margin: 2px 0 0; color: var(--navy);">DAY PATROL 1</h2>
+              <p class="muted-small" id="jettyActivePatrolTime">Expected Start: 06:00 | 0 / 9 Tag Points Tagged</p>
+            </div>
+            <div class="patrol-btn-group" style="display:flex; gap:12px; align-items:center;">
+              <span class="status-badge active" id="jettyPatrolBadge">DAY PATROL 1 — ACTIVE</span>
+              <button class="primary-button" id="startJettyPatrolBtn">Start Patrol</button>
+            </div>
+          </div>
+
           <div class="form-grid" style="margin-bottom: 20px;">
             <label>Officer
               <input type="text" id="jettyPatrolOfficer" value="Security Officer">
@@ -466,11 +501,6 @@
             <label>Date / Time
               <input type="datetime-local" id="jettyPatrolDateTime">
             </label>
-          </div>
-
-          <div class="patrol-btn-group" style="margin-bottom: 24px; display:flex; gap:12px; align-items:center;">
-            <span class="status-badge neutral" id="jettyPatrolBadge">NOT STARTED</span>
-            <button class="primary-button" id="startJettyPatrolBtn">Start Patrol</button>
           </div>
 
           <h3>Inspection Checklist</h3>
