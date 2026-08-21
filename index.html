@@ -23,6 +23,7 @@
         <button class="nav-item" data-view="patrol">Site Patrol</button>
         <button class="nav-item" data-view="access">Access Control</button>
         <button class="nav-item" data-view="jetty">Jetty</button>
+        <button class="nav-item" data-view="reports">Admin Reports</button>
       </nav>
       <div class="sidebar-footer">
         <span class="status-dot"></span>
@@ -62,7 +63,7 @@
             <div>
               <span class="module-label">PRIMARY FUNCTION</span>
               <h3>Site Patrol</h3>
-              <p>Monitor and record general site security patrols.</p>
+              <p>8 nightly rounds × 16 checkpoints = 128 checks.</p>
             </div>
             <span class="arrow">→</span>
           </button>
@@ -94,9 +95,9 @@
         </div>
         <div class="status-grid">
           <div class="status-card">
-            <span>Site Patrol</span>
-            <strong id="dashPatrolStatus">Ready</strong>
-            <small id="dashPatrolSub">Awaiting patrol start</small>
+            <span>Night Patrol</span>
+            <strong id="dashPatrolStatus" class="active-text">Round 5 Active</strong>
+            <small id="dashPatrolSub">80 / 128 Checkpoints Cleared (62.5%)</small>
           </div>
           <div class="status-card">
             <span>East Gate</span>
@@ -121,59 +122,77 @@
         <div class="page-intro">
           <span class="eyebrow">FUNCTION 01</span>
           <h2>Site Patrol</h2>
-          <p>Record and manage general security patrol activity.</p>
+          <p>8 Nightly Patrol Rounds × 16 Checkpoints (128 Total Required Checks)</p>
         </div>
 
-        <div class="action-panel">
-          <div>
-            <span class="status-badge neutral" id="patrolBadge">NOT STARTED</span>
-            <h3>Current patrol</h3>
-            <div class="form-grid inline-form" style="margin-top: 12px; margin-bottom: 0;">
-              <label>Officer
-                <input type="text" id="patrolOfficer" value="Security Officer">
-              </label>
-              <label>Date / Time
-                <input type="datetime-local" id="patrolDateTime">
-              </label>
+        <!-- Night Patrol Dashboard Status Card -->
+        <div class="patrol-dashboard-summary">
+          <div class="patrol-summary-header">
+            <div>
+              <span class="eyebrow">NIGHT PATROL STATUS</span>
+              <h3 style="margin: 4px 0 0; color: var(--navy);">Night Patrol Overview</h3>
+            </div>
+            <span class="status-badge active" id="patrolBadge">ROUND 5 ACTIVE</span>
+          </div>
+
+          <div class="patrol-stats-grid">
+            <div class="p-stat-box">
+              <span class="p-stat-label">Rounds Completed</span>
+              <strong class="p-stat-val" id="statRoundsCompleted">5 / 8</strong>
+              <small class="p-stat-sub" id="statRoundsOutstanding">3 rounds outstanding</small>
+            </div>
+            <div class="p-stat-box">
+              <span class="p-stat-label">Checkpoint Checks</span>
+              <strong class="p-stat-val" id="statChecksCompleted">80 / 128</strong>
+              <small class="p-stat-sub" id="statChecksOutstanding">48 checks remaining</small>
+            </div>
+            <div class="p-stat-box">
+              <span class="p-stat-label">Overall Completion</span>
+              <strong class="p-stat-val" id="statCompletionPct">62.5%</strong>
+              <small class="p-stat-sub">Target: 100%</small>
+            </div>
+            <div class="p-stat-box">
+              <span class="p-stat-label">Issues Reported</span>
+              <strong class="p-stat-val amber-text" id="statIssuesCount">2</strong>
+              <small class="p-stat-sub">Requires supervisor review</small>
             </div>
           </div>
-          <div class="patrol-btn-group" style="display: flex; gap: 8px; align-items: center;">
-            <button class="primary-button" id="startPatrolBtn">Start Patrol</button>
-            <button class="secondary-button" id="completePatrolBtn" disabled>Complete Patrol</button>
+        </div>
+
+        <!-- Patrol Round Navigation Selector -->
+        <div class="round-selector-panel">
+          <div class="round-selector-header">
+            <h4>Select Patrol Round</h4>
+            <span class="muted-small">Click a round to view and tag checkpoints</span>
+          </div>
+          <div class="round-pills" id="roundPillsContainer">
+            <!-- 8 Rounds dynamically rendered or styled -->
+            <button type="button" class="round-pill active" data-round="1">Round 1</button>
+            <button type="button" class="round-pill" data-round="2">Round 2</button>
+            <button type="button" class="round-pill" data-round="3">Round 3</button>
+            <button type="button" class="round-pill" data-round="4">Round 4</button>
+            <button type="button" class="round-pill" data-round="5">Round 5</button>
+            <button type="button" class="round-pill" data-round="6">Round 6</button>
+            <button type="button" class="round-pill" data-round="7">Round 7</button>
+            <button type="button" class="round-pill" data-round="8">Round 8</button>
           </div>
         </div>
 
-        <div class="section-heading">
+        <!-- Patrol Round Active Screen -->
+        <div class="round-details-header">
           <div>
-            <span class="eyebrow">CHECKPOINTS</span>
-            <h2>Patrol route</h2>
+            <span class="eyebrow" id="activeRoundEyebrow">ACTIVE ROUND</span>
+            <h2 id="activeRoundTitle">PATROL ROUND 1</h2>
+            <p class="muted-small" id="activeRoundSub">16 / 16 checkpoints checked</p>
+          </div>
+          <div class="round-header-actions">
+            <button type="button" class="primary-button" id="tagAllBtn">Tag All Remaining</button>
+            <button type="button" class="danger-button" id="openIssueModalBtn">Report Issue</button>
           </div>
         </div>
-        <div class="check-grid">
-          <button class="check-card" data-checkpoint="Perimeter" type="button">
-            <span>01</span>
-            <strong>Perimeter</strong>
-            <em class="check-status">Pending</em>
-          </button>
-          <button class="check-card" data-checkpoint="CCTV" type="button">
-            <span>02</span>
-            <strong>CCTV</strong>
-            <em class="check-status">Pending</em>
-          </button>
-          <button class="check-card" data-checkpoint="Parking Area" type="button">
-            <span>03</span>
-            <strong>Parking Area</strong>
-            <em class="check-status">Pending</em>
-          </button>
-          <button class="check-card" data-checkpoint="Buildings" type="button">
-            <span>04</span>
-            <strong>Buildings</strong>
-            <em class="check-status">Pending</em>
-          </button>
-        </div>
 
-        <div class="patrol-bottom-actions" style="margin-top: 20px;">
-          <button class="secondary-button" id="reportIssueBtn">Report Issue</button>
+        <div class="check-grid 16-checkpoints-grid" id="checkpointGrid">
+          <!-- 16 Checkpoints loaded via JS -->
         </div>
       </section>
 
@@ -545,8 +564,214 @@
         </form>
       </section>
 
+      <!-- ADMIN REPORTS SECTION -->
+      <section id="reports" class="view">
+        <div class="page-intro">
+          <span class="eyebrow">ADMINISTRATION</span>
+          <h2>Admin Reports</h2>
+          <p>Night Patrol operations breakdown based on 8 nightly rounds and 16 checkpoints.</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="reports-filter-panel">
+          <h3>Patrol Report Filters</h3>
+          <div class="form-grid filter-grid">
+            <label>Date
+              <input type="date" id="filterDate" value="2026-08-21">
+            </label>
+            <label>Night
+              <select id="filterNight">
+                <option value="21 Aug 2026">21 Aug 2026</option>
+                <option value="20 Aug 2026">20 Aug 2026</option>
+                <option value="19 Aug 2026">19 Aug 2026</option>
+              </select>
+            </label>
+            <label>Patrol Round
+              <select id="filterRound">
+                <option value="ALL">All Rounds (1–8)</option>
+                <option value="1">Round 1</option>
+                <option value="2">Round 2</option>
+                <option value="3">Round 3</option>
+                <option value="4">Round 4</option>
+                <option value="5">Round 5</option>
+                <option value="6">Round 6</option>
+                <option value="7">Round 7</option>
+                <option value="8">Round 8</option>
+              </select>
+            </label>
+            <label>Checkpoint
+              <select id="filterCheckpoint">
+                <option value="ALL">All 16 Checkpoints</option>
+              </select>
+            </label>
+            <label>Officer
+              <select id="filterOfficer">
+                <option value="ALL">All Officers</option>
+                <option value="Security Officer J. Vance">Security Officer J. Vance</option>
+                <option value="Officer S. Miller">Officer S. Miller</option>
+                <option value="Officer A. Taylor">Officer A. Taylor</option>
+              </select>
+            </label>
+            <label>Status
+              <select id="filterStatus">
+                <option value="ALL">All Statuses</option>
+                <option value="CHECKED">Checked</option>
+                <option value="ISSUE">Issue</option>
+                <option value="PENDING">Pending / Missed</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <!-- Night Summary & Patrol Performance -->
+        <div class="reports-summary-row">
+          <div class="report-summary-card">
+            <span class="eyebrow">NIGHT SUMMARY</span>
+            <h3 id="reportNightLabel">Night: 21 Aug 2026</h3>
+            <div class="summary-metrics-list">
+              <div class="metric-line">
+                <span>Patrol Rounds</span>
+                <strong id="repPatrolRounds">8</strong>
+              </div>
+              <div class="metric-line">
+                <span>Required Checkpoint Checks</span>
+                <strong id="repRequiredChecks">128</strong>
+              </div>
+              <div class="metric-line">
+                <span>Completed</span>
+                <strong class="ok-text" id="repCompletedChecks">121</strong>
+              </div>
+              <div class="metric-line">
+                <span>Issues</span>
+                <strong class="amber-text" id="repIssuesCount">4</strong>
+              </div>
+              <div class="metric-line">
+                <span>Outstanding / Missed</span>
+                <strong class="red-text" id="repOutstandingChecks">3</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-performance-card">
+            <span class="eyebrow">PATROL PERFORMANCE</span>
+            <h3>Nightly Metrics</h3>
+            <div class="performance-badge-grid">
+              <div class="perf-box">
+                <span class="perf-num ok-text" id="perfChecked">121</span>
+                <span class="perf-label">CHECKED</span>
+              </div>
+              <div class="perf-box">
+                <span class="perf-num amber-text" id="perfIssues">4</span>
+                <span class="perf-label">ISSUES</span>
+              </div>
+              <div class="perf-box">
+                <span class="perf-num red-text" id="perfMissed">3</span>
+                <span class="perf-label">MISSED</span>
+              </div>
+            </div>
+            <div class="completion-rate-box">
+              <span class="rate-val" id="perfPct">94.5%</span>
+              <span class="rate-label">OVERALL COMPLETION</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checkpoint Report Matrix Table -->
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">CHECKPOINT REPORT</span>
+            <h2>16 Checkpoint Matrix (Rounds 1–8)</h2>
+            <p class="muted-small">Click any checkpoint row to open detailed history and issue details.</p>
+          </div>
+        </div>
+
+        <div class="report-table-wrapper">
+          <table class="checkpoint-report-table" id="reportMatrixTable">
+            <thead>
+              <tr>
+                <th class="col-checkpoint">Checkpoint</th>
+                <th>R1</th>
+                <th>R2</th>
+                <th>R3</th>
+                <th>R4</th>
+                <th>R5</th>
+                <th>R6</th>
+                <th>R7</th>
+                <th>R8</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reportTableBody">
+              <!-- Dynamically built by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
     </main>
   </div>
+
+  <!-- REPORT ISSUE MODAL -->
+  <div id="issueModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="issueModalTitle">
+      <div class="modal-header">
+        <h3 id="issueModalTitle">Report Checkpoint Issue</h3>
+        <button type="button" class="modal-close" id="closeIssueModalBtn">&times;</button>
+      </div>
+      <form id="issueForm" onsubmit="return false;">
+        <div class="form-grid">
+          <label>Patrol Round
+            <select id="issueRoundSelect" required>
+              <option value="1">Round 1</option>
+              <option value="2">Round 2</option>
+              <option value="3">Round 3</option>
+              <option value="4">Round 4</option>
+              <option value="5">Round 5</option>
+              <option value="6">Round 6</option>
+              <option value="7">Round 7</option>
+              <option value="8">Round 8</option>
+            </select>
+          </label>
+          <label>Checkpoint
+            <select id="issueCheckpointSelect" required>
+              <!-- Populated by JS -->
+            </select>
+          </label>
+          <label>Severity
+            <select id="issueSeveritySelect" required>
+              <option value="HIGH">HIGH</option>
+              <option value="MEDIUM">MEDIUM</option>
+              <option value="LOW">LOW</option>
+            </select>
+          </label>
+          <label>Officer
+            <input type="text" id="issueOfficerInput" value="Security Officer J. Vance" required>
+          </label>
+        </div>
+        <label style="margin-top: 12px;">Issue Description
+          <textarea id="issueDescInput" rows="3" placeholder="Describe the fault or incident (e.g. Lamp not functioning)" required></textarea>
+        </label>
+        <div class="form-actions" style="margin-top: 20px;">
+          <button type="button" class="secondary-button" id="cancelIssueBtn">Cancel</button>
+          <button type="submit" class="danger-button">Submit Issue Report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CHECKPOINT DETAIL MODAL / DRAWER -->
+  <div id="detailModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content modal-lg" role="dialog" aria-labelledby="detailModalTitle">
+      <div class="modal-header">
+        <h3 id="detailModalTitle">FLX LAMP POST</h3>
+        <button type="button" class="modal-close" id="closeDetailModalBtn">&times;</button>
+      </div>
+      <div class="modal-body" id="detailModalBody">
+        <!-- Dynamically rendered detailed info for selected checkpoint -->
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
