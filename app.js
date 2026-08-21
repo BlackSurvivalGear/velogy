@@ -204,6 +204,8 @@ function showView(id) {
 
   if (id === 'patrol') {
     renderPatrolDashboard();
+  } else if (id === 'jetty-patrol') {
+    renderJettyPatrolView();
   } else if (id === 'reports') {
     renderAdminReports();
   } else if (id === 'admin-dashboard') {
@@ -758,46 +760,300 @@ if (carSearchForm) {
 }
 
 /* ==========================================================================
-   6. JETTY PATROL & VISITOR SEARCH MODULES
+   6. JETTY PATROL & VISITOR SEARCH MODULES (20 Patrols per 24 Hours)
    ========================================================================== */
 
-let jettyPatrolActive = false;
-const startJettyPatrolBtn = document.getElementById('startJettyPatrolBtn');
-const jettyPatrolBadge = document.getElementById('jettyPatrolBadge');
-const completeJettyPatrolBtn = document.getElementById('completeJettyPatrolBtn');
+const JETTY_TAG_POINTS = [
+  "Perimeter fence & signs",
+  "Access control points",
+  "Lighting & CCTV equipment",
+  "CCTV blind spots",
+  "Controlled buildings",
+  "Vehicle parking areas",
+  "Ship/Port interface",
+  "Dangerous goods areas",
+  "Other areas"
+];
 
-if (startJettyPatrolBtn) {
-  startJettyPatrolBtn.addEventListener('click', () => {
-    jettyPatrolActive = true;
-    if (jettyPatrolBadge) {
-      jettyPatrolBadge.textContent = 'PATROL ACTIVE';
-      jettyPatrolBadge.className = 'status-badge active';
+// Pre-calculated 72-minute expected patrol start times
+// Day Shift: 06:00 to 18:00 (10 patrols)
+const DAY_PATROL_TIMES = [
+  "06:00", "07:12", "08:24", "09:36", "10:48",
+  "12:00", "13:12", "14:24", "15:36", "16:48"
+];
+
+// Night Shift: 18:00 to 06:00 (10 patrols)
+const NIGHT_PATROL_TIMES = [
+  "18:00", "19:12", "20:24", "21:36", "22:48",
+  "00:00", "01:12", "02:24", "03:36", "04:48"
+];
+
+// Determine current operating shift and patrol based on system time
+function getSystemShiftAndPatrol() {
+  const now = new Date();
+  const minsFromMidnight = now.getHours() * 60 + now.getMinutes();
+  const dayStartMins = 6 * 60;   // 06:00 = 360 mins
+  const nightStartMins = 18 * 60; // 18:00 = 1080 mins
+
+  let shift = 'DAY';
+  let patrolNum = 1;
+
+  if (minsFromMidnight >= dayStartMins && minsFromMidnight < nightStartMins) {
+    shift = 'DAY';
+    const elapsed = minsFromMidnight - dayStartMins;
+    patrolNum = Math.min(10, Math.floor(elapsed / 72) + 1);
+  } else {
+    shift = 'NIGHT';
+    let elapsed = 0;
+    if (minsFromMidnight >= nightStartMins) {
+      elapsed = minsFromMidnight - nightStartMins;
+    } else {
+      elapsed = minsFromMidnight + (6 * 60);
     }
-    showToast('Jetty Patrol started.', 'success');
+    patrolNum = Math.min(10, Math.floor(elapsed / 72) + 1);
+  }
+
+  return { shift, patrolNum };
+}
+
+// 20 Patrols State Store (10 Day + 10 Night)
+let currentJettyShift = 'DAY';
+let currentJettyPatrolNum = 1;
+
+let jettyPatrolsState = {
+  DAY: {},
+  NIGHT: {}
+};
+
+function initJettyPatrolData() {
+  const systemInfo = getSystemShiftAndPatrol();
+  currentJettyShift = systemInfo.shift;
+  currentJettyPatrolNum = systemInfo.patrolNum;
+
+  ['DAY', 'NIGHT'].forEach(shift => {
+    const times = shift === 'DAY' ? DAY_PATROL_TIMES : NIGHT_PATROL_TIMES;
+    for (let p = 1; p <= 10; p++) {
+      let tags = {};
+      JETTY_TAG_POINTS.forEach(tp => {
+        tags[tp] = null; // null | 'OK' | 'ISSUE'
+      });
+
+      let isCompleted = false;
+      let isStarted = false;
+
+      // Mock completion status for earlier patrols in current shift to show realistic state
+      if (shift === systemInfo.shift && p < systemInfo.patrolNum) {
+        isStarted = true;
+        isCompleted = true;
+        JETTY_TAG_POINTS.forEach(tp => {
+          tags[tp] = 'OK';
+        });
+      } else if (shift === systemInfo.shift && p === systemInfo.patrolNum) {
+        isStarted = true;
+      }
+
+      jettyPatrolsState[shift][p] = {
+        shift: shift,
+        patrolNum: p,
+        expectedTime: times[p - 1],
+        isStarted: isStarted,
+        isCompleted: isCompleted,
+        tags: tags,
+        remarks: ''
+      };
+    }
   });
 }
 
-// Checklist OK / ISSUE toggles
-document.querySelectorAll('.ok-issue-toggle button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const toggleGroup = btn.closest('.ok-issue-toggle');
-    toggleGroup.querySelectorAll('button').forEach(b => b.classList.remove('active-ok', 'active-issue'));
+initJettyPatrolData();
 
-    if (btn.dataset.value === 'OK') {
-      btn.classList.add('active-ok');
-    } else {
-      btn.classList.add('active-issue');
+function renderJettyPatrolView() {
+  const currentPatrol = jettyPatrolsState[currentJettyShift][currentJettyPatrolNum];
+
+  // Update Operating Period Titles
+  const jettyCurrentShiftHeader = document.getElementById('jettyCurrentShiftHeader');
+  if (jettyCurrentShiftHeader) {
+    jettyCurrentShiftHeader.textContent = `${currentJettyShift} SHIFT — 10 PATROLS`;
+  }
+
+  // Update Shift Toggle Tabs
+  const shiftTabs = document.querySelectorAll('#jettyShiftToggleGroup .shift-tab');
+  shiftTabs.forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.shift === currentJettyShift);
+  });
+
+  // Render 10 Patrol Pills
+  const pillsContainer = document.getElementById('jettyPatrolPillsContainer');
+  if (pillsContainer) {
+    pillsContainer.innerHTML = '';
+    const times = currentJettyShift === 'DAY' ? DAY_PATROL_TIMES : NIGHT_PATROL_TIMES;
+
+    for (let p = 1; p <= 10; p++) {
+      const pData = jettyPatrolsState[currentJettyShift][p];
+      let taggedCount = 0;
+      JETTY_TAG_POINTS.forEach(tp => {
+        if (pData.tags[tp]) taggedCount++;
+      });
+
+      const pill = document.createElement('button');
+      pill.type = 'button';
+      let pillClass = 'jetty-patrol-pill';
+      if (p === currentJettyPatrolNum) pillClass += ' active';
+      if (pData.isCompleted) pillClass += ' completed-pill';
+
+      pill.className = pillClass;
+      pill.dataset.patrol = p;
+      pill.innerHTML = `
+        <span>P${p} (${times[p - 1]})</span>
+        <span class="pill-sub">${pData.isCompleted ? '✓ Done' : `${taggedCount}/9`}</span>
+      `;
+
+      pill.addEventListener('click', () => {
+        currentJettyPatrolNum = p;
+        renderJettyPatrolView();
+      });
+
+      pillsContainer.appendChild(pill);
     }
+  }
+
+  // Update Active Patrol Header & Badge
+  const titleEl = document.getElementById('jettyActivePatrolTitle');
+  const eyebrowEl = document.getElementById('jettyActivePatrolEyebrow');
+  const timeEl = document.getElementById('jettyActivePatrolTime');
+  const badgeEl = document.getElementById('jettyPatrolBadge');
+  const startBtn = document.getElementById('startJettyPatrolBtn');
+
+  let taggedCount = 0;
+  JETTY_TAG_POINTS.forEach(tp => {
+    if (currentPatrol.tags[tp]) taggedCount++;
+  });
+
+  const patrolName = `${currentJettyShift} PATROL ${currentJettyPatrolNum}`;
+
+  if (titleEl) titleEl.textContent = patrolName;
+  if (eyebrowEl) eyebrowEl.textContent = `EXPECTED START ${currentPatrol.expectedTime}`;
+  if (timeEl) {
+    timeEl.textContent = `Expected Start: ${currentPatrol.expectedTime} | ${taggedCount} / ${JETTY_TAG_POINTS.length} Tag Points Completed ${currentPatrol.isCompleted ? '(Patrol Completed)' : ''}`;
+  }
+
+  if (badgeEl) {
+    if (currentPatrol.isCompleted) {
+      badgeEl.textContent = `${patrolName} — COMPLETED`;
+      badgeEl.className = 'status-badge completed';
+    } else if (currentPatrol.isStarted) {
+      badgeEl.textContent = `${patrolName} — ACTIVE`;
+      badgeEl.className = 'status-badge active';
+    } else {
+      badgeEl.textContent = `${patrolName} — NOT STARTED`;
+      badgeEl.className = 'status-badge neutral';
+    }
+  }
+
+  if (startBtn) {
+    if (currentPatrol.isStarted || currentPatrol.isCompleted) {
+      startBtn.textContent = 'Patrol In Progress';
+      startBtn.disabled = true;
+    } else {
+      startBtn.textContent = 'Start Patrol';
+      startBtn.disabled = false;
+    }
+  }
+
+  // Update Checklist Buttons State
+  const checklistContainer = document.getElementById('jettyChecklist');
+  if (checklistContainer) {
+    const rows = checklistContainer.querySelectorAll('.checklist-row');
+    rows.forEach(row => {
+      const itemKey = row.dataset.item;
+      const val = currentPatrol.tags[itemKey];
+
+      const okBtn = row.querySelector('.toggle-ok');
+      const issueBtn = row.querySelector('.toggle-issue');
+
+      if (okBtn) okBtn.classList.toggle('active-ok', val === 'OK');
+      if (issueBtn) issueBtn.classList.toggle('active-issue', val === 'ISSUE');
+    });
+  }
+
+  const remarksInput = document.getElementById('jettyPatrolRemarks');
+  if (remarksInput) {
+    remarksInput.value = currentPatrol.remarks || '';
+  }
+}
+
+// Shift Toggle Listeners
+document.querySelectorAll('#jettyShiftToggleGroup .shift-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    currentJettyShift = tab.dataset.shift;
+    currentJettyPatrolNum = 1;
+    renderJettyPatrolView();
   });
 });
 
+// Start Patrol Button Action
+const startJettyPatrolBtn = document.getElementById('startJettyPatrolBtn');
+if (startJettyPatrolBtn) {
+  startJettyPatrolBtn.addEventListener('click', () => {
+    const patrol = jettyPatrolsState[currentJettyShift][currentJettyPatrolNum];
+    patrol.isStarted = true;
+    showToast(`${currentJettyShift} Patrol ${currentJettyPatrolNum} started.`, 'success');
+    renderJettyPatrolView();
+  });
+}
+
+// Tag Point Click Interactivity
+document.querySelectorAll('#jettyChecklist .checklist-row').forEach(row => {
+  const itemKey = row.dataset.item;
+
+  row.querySelectorAll('.ok-issue-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const patrol = jettyPatrolsState[currentJettyShift][currentJettyPatrolNum];
+      patrol.isStarted = true;
+
+      const clickVal = btn.dataset.value; // 'OK' or 'ISSUE'
+      if (patrol.tags[itemKey] === clickVal) {
+        patrol.tags[itemKey] = null; // Toggle off if clicked again
+      } else {
+        patrol.tags[itemKey] = clickVal;
+      }
+
+      // Check if all tag points are completed
+      let allTagged = true;
+      JETTY_TAG_POINTS.forEach(tp => {
+        if (!patrol.tags[tp]) allTagged = false;
+      });
+
+      if (allTagged) {
+        patrol.isCompleted = true;
+      } else {
+        patrol.isCompleted = false;
+      }
+
+      renderJettyPatrolView();
+    });
+  });
+});
+
+// Complete Patrol Button Action
+const completeJettyPatrolBtn = document.getElementById('completeJettyPatrolBtn');
 if (completeJettyPatrolBtn) {
   completeJettyPatrolBtn.addEventListener('click', () => {
-    if (jettyPatrolBadge) {
-      jettyPatrolBadge.textContent = 'COMPLETED';
-      jettyPatrolBadge.className = 'status-badge completed';
-    }
-    showToast('Jetty Patrol record submitted.', 'success');
+    const patrol = jettyPatrolsState[currentJettyShift][currentJettyPatrolNum];
+    const remarksInput = document.getElementById('jettyPatrolRemarks');
+    if (remarksInput) patrol.remarks = remarksInput.value;
+
+    // Tag remaining items as OK if completing patrol directly
+    JETTY_TAG_POINTS.forEach(tp => {
+      if (!patrol.tags[tp]) patrol.tags[tp] = 'OK';
+    });
+
+    patrol.isStarted = true;
+    patrol.isCompleted = true;
+
+    showToast(`${currentJettyShift} Patrol ${currentJettyPatrolNum} completed.`, 'success');
+    renderJettyPatrolView();
+
     setTimeout(() => {
       showView('jetty');
     }, 1200);
