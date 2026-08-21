@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <meta name="description" content="Velogy Security operations interface">
+  <title>Velogy Security</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="brand">
+        <div class="brand-mark">V</div>
+        <div>
+          <strong>VELOGY</strong>
+          <span>SECURITY</span>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-item active" data-view="dashboard">Dashboard</button>
+        <button class="nav-item" data-view="patrol">Site Patrol</button>
+        <button class="nav-item" data-view="access">Access Control</button>
+        <button class="nav-item" data-view="jetty">Jetty</button>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="status-dot"></span>
+        System operational
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-button" id="menuButton" aria-label="Open navigation">☰</button>
+        <div>
+          <p class="eyebrow">SECURITY OPERATIONS</p>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="operator">
+          <span class="operator-avatar">SO</span>
+          <span class="operator-name">Security Officer</span>
+        </div>
+      </header>
+
+      <section id="dashboard" class="view active-view">
+        <div class="welcome-row">
+          <div>
+            <p class="muted">Welcome back</p>
+            <h2>Good evening.</h2>
+          </div>
+          <div class="system-status"><span class="status-dot"></span> Operational</div>
+        </div>
+
+        <div class="module-grid">
+          <button class="module-card patrol-card" data-view="patrol">
+            <div class="module-icon">01</div>
+            <div>
+              <span class="module-label">PRIMARY FUNCTION</span>
+              <h3>Site Patrol</h3>
+              <p>Monitor and record general site security patrols.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
+          <button class="module-card access-card" data-view="access">
+            <div class="module-icon">02</div>
+            <div>
+              <span class="module-label">PRIMARY FUNCTION</span>
+              <h3>Access Control</h3>
+              <p>Manage gates, site access and vehicle searches.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
+          <button class="module-card jetty-card" data-view="jetty">
+            <div class="module-icon">03</div>
+            <div>
+              <span class="module-label">SEPARATE SITE</span>
+              <h3>Jetty</h3>
+              <p>Manage Jetty patrols and visitor searches.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
+        </div>
+
+        <div class="section-heading"><div><span class="eyebrow">LIVE OVERVIEW</span><h2>Operational status</h2></div></div>
+        <div class="status-grid">
+          <div class="status-card"><span>Site Patrol</span><strong>Ready</strong><small>Awaiting patrol start</small></div>
+          <div class="status-card"><span>East Gate</span><strong class="ok">Active</strong><small>Access control operational</small></div>
+          <div class="status-card"><span>West Gate</span><strong class="ok">Active</strong><small>Access control operational</small></div>
+          <div class="status-card"><span>W2 Gate</span><strong class="ok">Active</strong><small>Access control operational</small></div>
+        </div>
+      </section>
+
+      <section id="patrol" class="view">
+        <div class="page-intro"><span class="eyebrow">FUNCTION 01</span><h2>Site Patrol</h2><p>Record and manage general security patrol activity.</p></div>
+        <div class="action-panel"><div><span class="status-badge neutral">NOT STARTED</span><h3>Current patrol</h3><p>Officer: Security Officer · Today</p></div><button class="primary-button">Start Patrol</button></div>
+        <div class="section-heading"><div><span class="eyebrow">CHECKPOINTS</span><h2>Patrol route</h2></div></div>
+        <div class="check-grid">
+          <div class="check-card"><span>01</span><strong>Perimeter</strong><em>Pending</em></div>
+          <div class="check-card"><span>02</span><strong>CCTV</strong><em>Pending</em></div>
+          <div class="check-card"><span>03</span><strong>Parking Area</strong><em>Pending</em></div>
+          <div class="check-card"><span>04</span><strong>Buildings</strong><em>Pending</em></div>
+        </div>
+        <button class="secondary-button">Report Issue</button>
+      </section>
+
+      <section id="access" class="view">
+        <div class="page-intro"><span class="eyebrow">FUNCTION 02</span><h2>Access Control</h2><p>Control site entry and manage vehicle search activity.</p></div>
+        <div class="gate-grid">
+          <button class="operation-card" data-view="gate-east"><span class="operation-number">E</span><div><span class="eyebrow">GATE</span><h3>East Gate</h3><span class="live"><i></i> Active</span></div><b>→</b></button>
+          <button class="operation-card" data-view="gate-west"><span class="operation-number">W</span><div><span class="eyebrow">GATE</span><h3>West Gate</h3><span class="live"><i></i> Active</span></div><b>→</b></button>
+          <button class="operation-card" data-view="gate-w2"><span class="operation-number">W2</span><div><span class="eyebrow">GATE</span><h3>W2 Gate</h3><span class="live"><i></i> Active</span></div><b>→</b></button>
+          <button class="operation-card search-card" data-view="car-search"><span class="operation-number">CS</span><div><span class="eyebrow">SEARCH</span><h3>Car Search</h3><p>Record a vehicle search.</p></div><b>→</b></button>
+        </div>
+      </section>
+
+      <section id="jetty" class="view">
+        <div class="page-intro jetty-intro"><span class="eyebrow">FUNCTION 03 · SEPARATE SITE</span><h2>Jetty</h2><p>Dedicated Jetty security operations.</p></div>
+        <div class="jetty-grid">
+          <button class="module-card" data-view="jetty-patrol"><div class="module-icon">JP</div><div><span class="module-label">JETTY</span><h3>Jetty Patrol</h3><p>Record Jetty security patrols and observations.</p></div><span class="arrow">→</span></button>
+          <button class="module-card" data-view="visitor-search"><div class="module-icon">VS</div><div><span class="module-label">JETTY</span><h3>Visitor Search</h3><p>Record visitor searches and access checks.</p></div><span class="arrow">→</span></button>
+        </div>
+      </section>
+
+      <section id="gate-east" class="view gate-view"><div class="page-intro"><span class="eyebrow">ACCESS CONTROL</span><h2>East Gate</h2><p>Gate activity and access operations.</p></div><div class="gate-actions"><button class="primary-button">New Entry</button><button class="secondary-button">New Exit</button><button class="secondary-button">Visitor</button><button class="secondary-button">Vehicle</button><button class="danger-button">Access Denied</button></div><div class="activity-panel"><h3>Recent activity</h3><p>18:42 · Vehicle entry</p><p>18:37 · Visitor admitted</p><p>18:31 · Access denied</p></div></section>
+      <section id="gate-west" class="view gate-view"><div class="page-intro"><span class="eyebrow">ACCESS CONTROL</span><h2>West Gate</h2><p>Gate activity and access operations.</p></div><div class="gate-actions"><button class="primary-button">New Entry</button><button class="secondary-button">New Exit</button><button class="secondary-button">Visitor</button><button class="secondary-button">Vehicle</button><button class="danger-button">Access Denied</button></div><div class="activity-panel"><h3>Recent activity</h3><p>18:40 · Contractor entry</p><p>18:26 · Vehicle exit</p><p>18:18 · Visitor admitted</p></div></section>
+      <section id="gate-w2" class="view gate-view"><div class="page-intro"><span class="eyebrow">ACCESS CONTROL</span><h2>W2 Gate</h2><p>Gate activity and access operations.</p></div><div class="gate-actions"><button class="primary-button">New Entry</button><button class="secondary-button">New Exit</button><button class="secondary-button">Visitor</button><button class="secondary-button">Vehicle</button><button class="danger-button">Access Denied</button></div><div class="activity-panel"><h3>Recent activity</h3><p>18:44 · Vehicle entry</p><p>18:35 · Staff entry</p><p>18:12 · Vehicle exit</p></div></section>
+
+      <section id="car-search" class="view form-view"><div class="page-intro"><span class="eyebrow">ACCESS CONTROL</span><h2>Car Search</h2><p>Record a vehicle search.</p></div><div class="form-panel"><div class="form-grid"><label>Vehicle Registration<input placeholder="e.g. AB12 CDE"></label><label>Driver Name<input placeholder="Full name"></label><label>Company<input placeholder="Company name"></label><label>Gate<select><option>East Gate</option><option>West Gate</option><option>W2 Gate</option></select></label><label>Search Officer<input placeholder="Officer name"></label><label>Date / Time<input type="datetime-local"></label></div><h3>Search checklist</h3><div class="choice-grid"><button>Exterior</button><button>Interior</button><button>Boot / Cargo Area</button><button>Under Vehicle</button><button>Engine Area</button><button>Other</button></div><label>Remarks<textarea rows="4" placeholder="Record observations or items found"></textarea></label><div class="form-actions"><button class="secondary-button">Cancel</button><button class="primary-button">Complete Search</button></div></div></section>
+
+      <section id="jetty-patrol" class="view form-view"><div class="page-intro"><span class="eyebrow">JETTY · PATROL</span><h2>Jetty Patrol</h2><p>Digital Jetty patrol checklist based on the supplied patrol record.</p></div><div class="form-panel"><div class="checklist"><div>Perimeter fence &amp; signs <span>OK · ISSUE</span></div><div>Access control points <span>OK · ISSUE</span></div><div>Lighting &amp; CCTV equipment <span>OK · ISSUE</span></div><div>CCTV blind spots <span>OK · ISSUE</span></div><div>Controlled buildings <span>OK · ISSUE</span></div><div>Vehicle parking areas <span>OK · ISSUE</span></div><div>Ship / Port interface <span>OK · ISSUE</span></div><div>Dangerous goods areas <span>OK · ISSUE</span></div><div>Other areas <span>OK · ISSUE</span></div></div><label>Remarks<textarea rows="4" placeholder="Record observations or issues"></textarea></label><button class="primary-button">Complete Patrol</button></div></section>
+
+      <section id="visitor-search" class="view form-view"><div class="page-intro"><span class="eyebrow">JETTY · VISITOR SEARCH</span><h2>Visitor Search</h2><p>Digital visitor search record based on the supplied form.</p></div><div class="form-panel"><div class="form-grid"><label>Name<input placeholder="Visitor name"></label><label>Company<input placeholder="Company"></label><label>Time In<input type="time"></label><label>Time Out<input type="time"></label></div><h3>Search checks</h3><div class="choice-grid"><button>Male Body Search</button><button>Female Body Search</button><button>Male Bag Search</button><button>Female Bag Search</button><button>Documentation Check</button><button>Questioning of Person</button></div><label>Remarks<textarea rows="4" placeholder="Record observations"></textarea></label><div class="form-actions"><button class="secondary-button">Cancel</button><button class="primary-button">Complete Visitor Search</button></div></div></section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
