@@ -17,8 +17,28 @@ const titles = {
   'gate-w2': 'W2 Gate',
   'car-search': 'Car Search',
   'jetty-patrol': 'Jetty Patrol',
-  'visitor-search': 'Visitor Search'
+  'visitor-search': 'Visitor Search',
+  'admin-dashboard': 'Admin Dashboard',
+  'staff-management': 'Staff Management',
+  'client-management': 'Client Management'
 };
+
+// INITIAL MOCK DATA FOR STAFF & CLIENTS
+let mockStaff = [
+  { id: 'staff-1', name: 'John Smith', company: 'Velogy', status: 'IN' },
+  { id: 'staff-2', name: 'David Brown', company: 'Altrad', status: 'OUT' },
+  { id: 'staff-3', name: 'Michael Cole', company: 'Pinnacle', status: 'IN' },
+  { id: 'staff-4', name: 'James Taylor', company: 'Contractors', status: 'IN' }
+];
+
+let mockClients = [
+  { id: 'client-1', name: 'TIP', contact: 'Client Contact', status: 'ACTIVE', passwordStatus: 'ACTIVE', password: '••••••••', nextChangeDate: '01 September 2026' },
+  { id: 'client-2', name: 'DEN HARTOG', contact: 'Client Contact', status: 'ACTIVE', passwordStatus: 'ACTIVE', password: '••••••••', nextChangeDate: '01 September 2026' },
+  { id: 'client-3', name: 'CISSION', contact: 'Client Contact', status: 'ACTIVE', passwordStatus: 'ACTIVE', password: '••••••••', nextChangeDate: '01 September 2026' }
+];
+
+let nextStaffId = 5;
+let nextClientId = 4;
 
 // 16 REAL PATROL CHECKPOINTS
 const CHECKPOINTS = [
@@ -186,6 +206,12 @@ function showView(id) {
     renderPatrolDashboard();
   } else if (id === 'reports') {
     renderAdminReports();
+  } else if (id === 'admin-dashboard') {
+    renderAdminDashboard();
+  } else if (id === 'staff-management') {
+    renderStaffManagement();
+  } else if (id === 'client-management') {
+    renderClientManagement();
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -793,6 +819,592 @@ if (visitorSearchForm) {
   });
 }
 
+/* ==========================================================================
+   7. STAFF MANAGEMENT LOGIC
+   ========================================================================== */
+
+let currentStaffStatusFilter = 'ALL';
+let currentStaffCompanyFilter = 'ALL';
+let pendingRemoveStaffId = null;
+
+function renderStaffManagement() {
+  const tableBody = document.getElementById('staffTableBody');
+  const cardsContainer = document.getElementById('staffCardsContainer');
+  const searchVal = (document.getElementById('staffSearchInput')?.value || '').toLowerCase().trim();
+
+  const filteredStaff = mockStaff.filter(item => {
+    // Search by Name or Company
+    const matchSearch = !searchVal || item.name.toLowerCase().includes(searchVal) || item.company.toLowerCase().includes(searchVal);
+    // Filter by Status (ALL, IN, OUT)
+    const matchStatus = currentStaffStatusFilter === 'ALL' || item.status === currentStaffStatusFilter;
+    // Filter by Company (ALL, VELOGY, ALTRAD, PINNACLE, CONTRACTORS)
+    const matchCompany = currentStaffCompanyFilter === 'ALL' || item.company.toUpperCase() === currentStaffCompanyFilter;
+
+    return matchSearch && matchStatus && matchCompany;
+  });
+
+  // Render Desktop Table
+  if (tableBody) {
+    tableBody.innerHTML = '';
+    if (filteredStaff.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="4" class="muted" style="text-align:center; padding:24px;">No staff records found matching criteria.</td></tr>`;
+    } else {
+      filteredStaff.forEach(item => {
+        const tr = document.createElement('tr');
+        const badgeClass = item.status === 'IN' ? 'badge-in' : 'badge-out';
+        const toggleBtnLabel = item.status === 'IN' ? 'MARK OUT' : 'MARK IN';
+        const toggleBtnClass = item.status === 'IN' ? 'btn-out' : 'btn-in';
+
+        tr.innerHTML = `
+          <td style="font-weight: 700; color: var(--navy);">${item.name}</td>
+          <td>${item.company}</td>
+          <td><span class="${badgeClass}">${item.status}</span></td>
+          <td style="text-align: right;">
+            <div class="action-btn-group">
+              <button type="button" class="table-action-btn ${toggleBtnClass}" onclick="toggleStaffStatus('${item.id}')">${toggleBtnLabel}</button>
+              <button type="button" class="table-action-btn" onclick="openEditStaffModal('${item.id}')">EDIT</button>
+              <button type="button" class="table-action-btn btn-danger" onclick="openRemoveStaffModal('${item.id}')">REMOVE</button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+  }
+
+  // Render Mobile Cards
+  if (cardsContainer) {
+    cardsContainer.innerHTML = '';
+    if (filteredStaff.length === 0) {
+      cardsContainer.innerHTML = `<div class="admin-card muted" style="text-align:center;">No staff records found matching criteria.</div>`;
+    } else {
+      filteredStaff.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'admin-card';
+        const badgeClass = item.status === 'IN' ? 'badge-in' : 'badge-out';
+        const toggleBtnLabel = item.status === 'IN' ? 'MARK OUT' : 'MARK IN';
+        const toggleBtnClass = item.status === 'IN' ? 'btn-out' : 'btn-in';
+
+        card.innerHTML = `
+          <div class="admin-card-header">
+            <div>
+              <h4 class="admin-card-title">${item.name}</h4>
+              <div class="admin-card-company">${item.company}</div>
+            </div>
+            <span class="${badgeClass}">${item.status}</span>
+          </div>
+          <div class="admin-card-actions">
+            <button type="button" class="table-action-btn ${toggleBtnClass}" onclick="toggleStaffStatus('${item.id}')">${toggleBtnLabel}</button>
+            <button type="button" class="table-action-btn" onclick="openEditStaffModal('${item.id}')">EDIT</button>
+            <button type="button" class="table-action-btn btn-danger" onclick="openRemoveStaffModal('${item.id}')">REMOVE</button>
+          </div>
+        `;
+        cardsContainer.appendChild(card);
+      });
+    }
+  }
+
+  renderAdminDashboard();
+}
+
+// Toggle Mark IN / MARK OUT
+function toggleStaffStatus(staffId) {
+  const staff = mockStaff.find(s => s.id === staffId);
+  if (!staff) return;
+
+  if (staff.status === 'IN') {
+    staff.status = 'OUT';
+    showToast(`${staff.name} (${staff.company}) marked OUT.`, 'info');
+  } else {
+    staff.status = 'IN';
+    showToast(`${staff.name} (${staff.company}) marked IN.`, 'success');
+  }
+
+  renderStaffManagement();
+}
+
+// Search & Filter Attachments for Staff
+const staffSearchInput = document.getElementById('staffSearchInput');
+if (staffSearchInput) {
+  staffSearchInput.addEventListener('input', renderStaffManagement);
+}
+
+document.querySelectorAll('#staffStatusFilterGroup .filter-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#staffStatusFilterGroup .filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentStaffStatusFilter = btn.dataset.filterStatus;
+    renderStaffManagement();
+  });
+});
+
+document.querySelectorAll('#staffCompanyFilterGroup .filter-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#staffCompanyFilterGroup .filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentStaffCompanyFilter = btn.dataset.filterCompany;
+    renderStaffManagement();
+  });
+});
+
+// Staff Modal Setup (Add / Edit)
+const staffModal = document.getElementById('staffModal');
+const openAddStaffModalBtn = document.getElementById('openAddStaffModalBtn');
+const closeStaffModalBtn = document.getElementById('closeStaffModalBtn');
+const cancelStaffBtn = document.getElementById('cancelStaffBtn');
+const staffForm = document.getElementById('staffForm');
+
+if (openAddStaffModalBtn) {
+  openAddStaffModalBtn.addEventListener('click', () => {
+    document.getElementById('staffModalTitle').textContent = 'Add Staff';
+    document.getElementById('staffEditId').value = '';
+    document.getElementById('staffNameInput').value = '';
+    document.getElementById('staffCompanySelect').value = 'Velogy';
+    document.getElementById('submitStaffBtn').textContent = 'Add Staff';
+    if (staffModal) staffModal.setAttribute('aria-hidden', 'false');
+  });
+}
+
+function closeStaffModal() {
+  if (staffModal) staffModal.setAttribute('aria-hidden', 'true');
+}
+
+if (closeStaffModalBtn) closeStaffModalBtn.addEventListener('click', closeStaffModal);
+if (cancelStaffBtn) cancelStaffBtn.addEventListener('click', closeStaffModal);
+
+function openEditStaffModal(staffId) {
+  const staff = mockStaff.find(s => s.id === staffId);
+  if (!staff) return;
+
+  document.getElementById('staffModalTitle').textContent = 'Edit Staff';
+  document.getElementById('staffEditId').value = staff.id;
+  document.getElementById('staffNameInput').value = staff.name;
+  document.getElementById('staffCompanySelect').value = staff.company;
+  document.getElementById('submitStaffBtn').textContent = 'Save Changes';
+
+  if (staffModal) staffModal.setAttribute('aria-hidden', 'false');
+}
+
+if (staffForm) {
+  staffForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const editId = document.getElementById('staffEditId').value;
+    const nameVal = document.getElementById('staffNameInput').value.trim();
+    const companyVal = document.getElementById('staffCompanySelect').value;
+
+    if (editId) {
+      // Edit existing staff
+      const staff = mockStaff.find(s => s.id === editId);
+      if (staff) {
+        staff.name = nameVal;
+        staff.company = companyVal;
+        showToast(`Staff record updated for ${nameVal}.`, 'success');
+      }
+    } else {
+      // Add new staff (defaults to OUT)
+      const newStaff = {
+        id: `staff-${nextStaffId++}`,
+        name: nameVal,
+        company: companyVal,
+        status: 'OUT'
+      };
+      mockStaff.push(newStaff);
+      showToast(`New staff member ${nameVal} added (Status: OUT).`, 'success');
+    }
+
+    closeStaffModal();
+    renderStaffManagement();
+  });
+}
+
+// Confirm Remove Staff Modal Setup
+const confirmRemoveStaffModal = document.getElementById('confirmRemoveStaffModal');
+const closeRemoveStaffModalBtn = document.getElementById('closeRemoveStaffModalBtn');
+const cancelRemoveStaffBtn = document.getElementById('cancelRemoveStaffBtn');
+const confirmRemoveStaffBtn = document.getElementById('confirmRemoveStaffBtn');
+
+function openRemoveStaffModal(staffId) {
+  const staff = mockStaff.find(s => s.id === staffId);
+  if (!staff) return;
+
+  pendingRemoveStaffId = staffId;
+  const nameTextEl = document.getElementById('removeStaffNameText');
+  if (nameTextEl) nameTextEl.textContent = staff.name;
+
+  if (confirmRemoveStaffModal) confirmRemoveStaffModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeRemoveStaffModal() {
+  if (confirmRemoveStaffModal) confirmRemoveStaffModal.setAttribute('aria-hidden', 'true');
+  pendingRemoveStaffId = null;
+}
+
+if (closeRemoveStaffModalBtn) closeRemoveStaffModalBtn.addEventListener('click', closeRemoveStaffModal);
+if (cancelRemoveStaffBtn) cancelRemoveStaffBtn.addEventListener('click', closeRemoveStaffModal);
+
+if (confirmRemoveStaffBtn) {
+  confirmRemoveStaffBtn.addEventListener('click', () => {
+    if (pendingRemoveStaffId) {
+      const staff = mockStaff.find(s => s.id === pendingRemoveStaffId);
+      const name = staff ? staff.name : 'Staff';
+      mockStaff = mockStaff.filter(s => s.id !== pendingRemoveStaffId);
+      showToast(`${name} removed from staff list.`, 'warning');
+      closeRemoveStaffModal();
+      renderStaffManagement();
+    }
+  });
+}
+
+/* ==========================================================================
+   8. CLIENT MANAGEMENT & ADMIN DASHBOARD CALCULATIONS
+   ========================================================================== */
+
+let currentClientStatusFilter = 'ALL';
+let pendingDeactivateClientId = null;
+
+function renderAdminDashboard() {
+  const staffInCount = mockStaff.filter(s => s.status === 'IN').length;
+  const staffOutCount = mockStaff.filter(s => s.status === 'OUT').length;
+  const totalStaffCount = mockStaff.length;
+  const activeClientsCount = mockClients.filter(c => c.status === 'ACTIVE').length;
+
+  const kpiStaffIn = document.getElementById('kpiStaffIn');
+  const kpiStaffOut = document.getElementById('kpiStaffOut');
+  const kpiTotalStaff = document.getElementById('kpiTotalStaff');
+  const kpiActiveClients = document.getElementById('kpiActiveClients');
+
+  if (kpiStaffIn) kpiStaffIn.textContent = staffInCount;
+  if (kpiStaffOut) kpiStaffOut.textContent = staffOutCount;
+  if (kpiTotalStaff) kpiTotalStaff.textContent = totalStaffCount;
+  if (kpiActiveClients) kpiActiveClients.textContent = activeClientsCount;
+}
+
+function renderClientManagement() {
+  const tableBody = document.getElementById('clientTableBody');
+  const cardsContainer = document.getElementById('clientCardsContainer');
+  const searchVal = (document.getElementById('clientSearchInput')?.value || '').toLowerCase().trim();
+
+  const filteredClients = mockClients.filter(item => {
+    const matchSearch = !searchVal || item.name.toLowerCase().includes(searchVal) || item.contact.toLowerCase().includes(searchVal);
+    const matchStatus = currentClientStatusFilter === 'ALL' || item.status === currentClientStatusFilter;
+    return matchSearch && matchStatus;
+  });
+
+  // Render Desktop Table
+  if (tableBody) {
+    tableBody.innerHTML = '';
+    if (filteredClients.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="5" class="muted" style="text-align:center; padding:24px;">No client records found matching criteria.</td></tr>`;
+    } else {
+      filteredClients.forEach(item => {
+        const tr = document.createElement('tr');
+        const badgeClass = item.status === 'ACTIVE' ? 'badge-active' : 'badge-inactive';
+        const deactivateBtnText = item.status === 'ACTIVE' ? 'DEACTIVATE' : 'REACTIVATE';
+        const deactivateBtnClass = item.status === 'ACTIVE' ? 'btn-danger' : 'btn-in';
+
+        tr.innerHTML = `
+          <td style="font-weight: 700; color: var(--navy); cursor: pointer;" onclick="openClientDetailModal('${item.id}')">${item.name}</td>
+          <td>${item.contact}</td>
+          <td><span class="${badgeClass}">${item.status}</span></td>
+          <td><span class="badge-active">ACTIVE</span></td>
+          <td style="text-align: right;">
+            <div class="action-btn-group">
+              <button type="button" class="table-action-btn" onclick="openClientDetailModal('${item.id}')">VIEW</button>
+              <button type="button" class="table-action-btn" onclick="openEditClientModal('${item.id}')">EDIT</button>
+              <button type="button" class="table-action-btn" onclick="openChangePasswordModal('${item.id}')">PASSWORD</button>
+              <button type="button" class="table-action-btn ${deactivateBtnClass}" onclick="handleClientDeactivateToggle('${item.id}')">${deactivateBtnText}</button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+  }
+
+  // Render Mobile Cards
+  if (cardsContainer) {
+    cardsContainer.innerHTML = '';
+    if (filteredClients.length === 0) {
+      cardsContainer.innerHTML = `<div class="admin-card muted" style="text-align:center;">No client records found matching criteria.</div>`;
+    } else {
+      filteredClients.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'admin-card';
+        const badgeClass = item.status === 'ACTIVE' ? 'badge-active' : 'badge-inactive';
+        const deactivateBtnText = item.status === 'ACTIVE' ? 'DEACTIVATE' : 'REACTIVATE';
+        const deactivateBtnClass = item.status === 'ACTIVE' ? 'btn-danger' : 'btn-in';
+
+        card.innerHTML = `
+          <div class="admin-card-header">
+            <div>
+              <h4 class="admin-card-title" style="cursor: pointer;" onclick="openClientDetailModal('${item.id}')">${item.name}</h4>
+              <div class="admin-card-company">Contact: ${item.contact}</div>
+            </div>
+            <span class="${badgeClass}">${item.status}</span>
+          </div>
+          <div class="admin-card-detail-row">
+            <span class="muted">Monthly Password Status:</span>
+            <span class="badge-active">ACTIVE</span>
+          </div>
+          <div class="admin-card-actions">
+            <button type="button" class="table-action-btn" onclick="openClientDetailModal('${item.id}')">VIEW</button>
+            <button type="button" class="table-action-btn" onclick="openEditClientModal('${item.id}')">EDIT</button>
+            <button type="button" class="table-action-btn" onclick="openChangePasswordModal('${item.id}')">PASSWORD</button>
+            <button type="button" class="table-action-btn ${deactivateBtnClass}" onclick="handleClientDeactivateToggle('${item.id}')">${deactivateBtnText}</button>
+          </div>
+        `;
+        cardsContainer.appendChild(card);
+      });
+    }
+  }
+
+  renderAdminDashboard();
+}
+
+// Search & Filter Attachments for Clients
+const clientSearchInput = document.getElementById('clientSearchInput');
+if (clientSearchInput) {
+  clientSearchInput.addEventListener('input', renderClientManagement);
+}
+
+document.querySelectorAll('#clientStatusFilterGroup .filter-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#clientStatusFilterGroup .filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentClientStatusFilter = btn.dataset.filterClientStatus;
+    renderClientManagement();
+  });
+});
+
+// Client Modal Setup (Add / Edit)
+const clientModal = document.getElementById('clientModal');
+const openAddClientModalBtn = document.getElementById('openAddClientModalBtn');
+const closeClientModalBtn = document.getElementById('closeClientModalBtn');
+const cancelClientBtn = document.getElementById('cancelClientBtn');
+const clientForm = document.getElementById('clientForm');
+
+if (openAddClientModalBtn) {
+  openAddClientModalBtn.addEventListener('click', () => {
+    document.getElementById('clientModalTitle').textContent = 'Add Client';
+    document.getElementById('clientEditId').value = '';
+    document.getElementById('clientNameInput').value = '';
+    document.getElementById('clientContactInput').value = '';
+    document.getElementById('clientStatusSelect').value = 'ACTIVE';
+    document.getElementById('submitClientBtn').textContent = 'Add Client';
+    if (clientModal) clientModal.setAttribute('aria-hidden', 'false');
+  });
+}
+
+function closeClientModal() {
+  if (clientModal) clientModal.setAttribute('aria-hidden', 'true');
+}
+
+if (closeClientModalBtn) closeClientModalBtn.addEventListener('click', closeClientModal);
+if (cancelClientBtn) cancelClientBtn.addEventListener('click', closeClientModal);
+
+function openEditClientModal(clientId) {
+  const client = mockClients.find(c => c.id === clientId);
+  if (!client) return;
+
+  document.getElementById('clientModalTitle').textContent = 'Edit Client';
+  document.getElementById('clientEditId').value = client.id;
+  document.getElementById('clientNameInput').value = client.name;
+  document.getElementById('clientContactInput').value = client.contact;
+  document.getElementById('clientStatusSelect').value = client.status;
+  document.getElementById('submitClientBtn').textContent = 'Save Changes';
+
+  if (clientModal) clientModal.setAttribute('aria-hidden', 'false');
+}
+
+if (clientForm) {
+  clientForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const editId = document.getElementById('clientEditId').value;
+    const nameVal = document.getElementById('clientNameInput').value.trim();
+    const contactVal = document.getElementById('clientContactInput').value.trim() || 'Client Contact';
+    const statusVal = document.getElementById('clientStatusSelect').value;
+
+    if (editId) {
+      // Edit existing client
+      const client = mockClients.find(c => c.id === editId);
+      if (client) {
+        client.name = nameVal;
+        client.contact = contactVal;
+        client.status = statusVal;
+        showToast(`Client record updated for ${nameVal}.`, 'success');
+      }
+    } else {
+      // Add new client (defaults to ACTIVE)
+      const newClient = {
+        id: `client-${nextClientId++}`,
+        name: nameVal,
+        contact: contactVal,
+        status: statusVal,
+        passwordStatus: 'ACTIVE',
+        password: '••••••••',
+        nextChangeDate: '01 September 2026'
+      };
+      mockClients.push(newClient);
+      showToast(`New client company ${nameVal} added (Status: ACTIVE).`, 'success');
+    }
+
+    closeClientModal();
+    renderClientManagement();
+  });
+}
+
+// Client Deactivation Workflow
+function handleClientDeactivateToggle(clientId) {
+  const client = mockClients.find(c => c.id === clientId);
+  if (!client) return;
+
+  if (client.status === 'ACTIVE') {
+    openDeactivateClientModal(clientId);
+  } else {
+    // Reactivate client
+    client.status = 'ACTIVE';
+    showToast(`${client.name} reactivated successfully.`, 'success');
+    renderClientManagement();
+  }
+}
+
+const confirmDeactivateClientModal = document.getElementById('confirmDeactivateClientModal');
+const closeDeactivateClientModalBtn = document.getElementById('closeDeactivateClientModalBtn');
+const cancelDeactivateClientBtn = document.getElementById('cancelDeactivateClientBtn');
+const confirmDeactivateClientBtn = document.getElementById('confirmDeactivateClientBtn');
+
+function openDeactivateClientModal(clientId) {
+  const client = mockClients.find(c => c.id === clientId);
+  if (!client) return;
+
+  pendingDeactivateClientId = clientId;
+  const nameTextEl = document.getElementById('deactivateClientNameText');
+  if (nameTextEl) nameTextEl.textContent = client.name;
+
+  if (confirmDeactivateClientModal) confirmDeactivateClientModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeDeactivateClientModal() {
+  if (confirmDeactivateClientModal) confirmDeactivateClientModal.setAttribute('aria-hidden', 'true');
+  pendingDeactivateClientId = null;
+}
+
+if (closeDeactivateClientModalBtn) closeDeactivateClientModalBtn.addEventListener('click', closeDeactivateClientModal);
+if (cancelDeactivateClientBtn) cancelDeactivateClientBtn.addEventListener('click', closeDeactivateClientModal);
+
+if (confirmDeactivateClientBtn) {
+  confirmDeactivateClientBtn.addEventListener('click', () => {
+    if (pendingDeactivateClientId) {
+      const client = mockClients.find(c => c.id === pendingDeactivateClientId);
+      if (client) {
+        client.status = 'INACTIVE';
+        showToast(`${client.name} deactivated (Status: INACTIVE).`, 'warning');
+      }
+      closeDeactivateClientModal();
+      renderClientManagement();
+    }
+  });
+}
+
+// Client Detail Modal View
+const clientDetailModal = document.getElementById('clientDetailModal');
+const closeClientDetailModalBtn = document.getElementById('closeClientDetailModalBtn');
+const closeClientDetailBtn = document.getElementById('closeClientDetailBtn');
+
+function openClientDetailModal(clientId) {
+  const client = mockClients.find(c => c.id === clientId);
+  if (!client || !clientDetailModal) return;
+
+  const contentEl = document.getElementById('clientDetailContent');
+  const badgeClass = client.status === 'ACTIVE' ? 'badge-active' : 'badge-inactive';
+
+  if (contentEl) {
+    contentEl.innerHTML = `
+      <div style="border-bottom: 1px solid var(--line); padding-bottom: 12px;">
+        <span class="eyebrow">COMPANY NAME</span>
+        <h3 style="margin: 4px 0 0; color: var(--navy); font-size: 22px;">${client.name}</h3>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div>
+          <span class="muted-small">Contact:</span>
+          <div style="font-weight:700; color:var(--navy); font-size:15px; margin-top:2px;">${client.contact}</div>
+        </div>
+        <div>
+          <span class="muted-small">Status:</span>
+          <div style="margin-top:2px;"><span class="${badgeClass}">${client.status}</span></div>
+        </div>
+      </div>
+      <div style="background: #f8fafc; border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-top: 8px;">
+        <span class="eyebrow">MONTHLY CLIENT PASSWORD</span>
+        <div class="password-display-box" style="margin-top: 10px;">
+          <div>
+            <span class="masked-password">••••••••</span>
+          </div>
+          <span class="badge-active">PASSWORD ACTIVE</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+          <div>
+            <span class="muted-small">NEXT CHANGE</span>
+            <div style="font-weight: 700; color: var(--navy); font-size: 13px;">${client.nextChangeDate}</div>
+          </div>
+          <button type="button" class="primary-button" onclick="closeClientDetailModal(); openChangePasswordModal('${client.id}');">CHANGE PASSWORD</button>
+        </div>
+      </div>
+    `;
+  }
+
+  clientDetailModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeClientDetailModal() {
+  if (clientDetailModal) clientDetailModal.setAttribute('aria-hidden', 'true');
+}
+
+if (closeClientDetailModalBtn) closeClientDetailModalBtn.addEventListener('click', closeClientDetailModal);
+if (closeClientDetailBtn) closeClientDetailBtn.addEventListener('click', closeClientDetailModal);
+
+// Change Password Modal Workflow
+const changePasswordModal = document.getElementById('changePasswordModal');
+const closeChangePasswordModalBtn = document.getElementById('closeChangePasswordModalBtn');
+const cancelChangePasswordBtn = document.getElementById('cancelChangePasswordBtn');
+const changePasswordForm = document.getElementById('changePasswordForm');
+
+function openChangePasswordModal(clientId) {
+  const client = mockClients.find(c => c.id === clientId);
+  if (!client || !changePasswordModal) return;
+
+  document.getElementById('changePasswordClientId').value = client.id;
+  document.getElementById('changePasswordClientName').textContent = client.name;
+  document.getElementById('newPasswordInput').value = '';
+
+  changePasswordModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeChangePasswordModal() {
+  if (changePasswordModal) changePasswordModal.setAttribute('aria-hidden', 'true');
+}
+
+if (closeChangePasswordModalBtn) closeChangePasswordModalBtn.addEventListener('click', closeChangePasswordModal);
+if (cancelChangePasswordBtn) cancelChangePasswordBtn.addEventListener('click', closeChangePasswordModal);
+
+if (changePasswordForm) {
+  changePasswordForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const clientId = document.getElementById('changePasswordClientId').value;
+    const client = mockClients.find(c => c.id === clientId);
+
+    if (client) {
+      client.passwordStatus = 'ACTIVE';
+      client.nextChangeDate = '01 October 2026';
+      showToast(`Monthly password updated for ${client.name}. Status: ACTIVE. Next change: 01 October 2026`, 'success');
+    }
+
+    closeChangePasswordModal();
+    renderClientManagement();
+  });
+}
+
 // Initial Initialization
 initializeDateTimeFields();
 renderPatrolDashboard();
+renderAdminDashboard();

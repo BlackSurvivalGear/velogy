@@ -23,7 +23,10 @@
         <button class="nav-item" data-view="patrol">Site Patrol</button>
         <button class="nav-item" data-view="access">Access Control</button>
         <button class="nav-item" data-view="jetty">Jetty</button>
-        <button class="nav-item" data-view="reports">Admin Reports</button>
+        <div class="nav-section-title">ADMINISTRATION</div>
+        <button class="nav-item" data-view="admin-dashboard">Admin Dashboard</button>
+        <button class="nav-item" data-view="staff-management">Staff Management</button>
+        <button class="nav-item" data-view="client-management">Client Management</button>
       </nav>
       <div class="sidebar-footer">
         <span class="status-dot"></span>
@@ -82,6 +85,42 @@
               <span class="module-label">SEPARATE SITE</span>
               <h3>Jetty</h3>
               <p>Manage Jetty patrols and visitor searches.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
+        </div>
+
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">ADMINISTRATION</span>
+            <h2>Admin Management</h2>
+          </div>
+        </div>
+        <div class="admin-quick-grid">
+          <button class="module-card" data-view="admin-dashboard">
+            <div class="module-icon">AD</div>
+            <div>
+              <span class="module-label">OVERVIEW</span>
+              <h3>Admin Dashboard</h3>
+              <p>Live metrics for staff on site and active yard clients.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
+          <button class="module-card" data-view="staff-management">
+            <div class="module-icon">SM</div>
+            <div>
+              <span class="module-label">PERSONNEL</span>
+              <h3>Staff Management</h3>
+              <p>Track personnel status (IN/OUT) across companies.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
+          <button class="module-card" data-view="client-management">
+            <div class="module-icon">CM</div>
+            <div>
+              <span class="module-label">YARD SPACE</span>
+              <h3>Client Management</h3>
+              <p>Manage yard-space clients and monthly passwords.</p>
             </div>
             <span class="arrow">→</span>
           </button>
@@ -564,6 +603,181 @@
         </form>
       </section>
 
+      <!-- ADMIN DASHBOARD -->
+      <section id="admin-dashboard" class="view">
+        <div class="page-intro">
+          <span class="eyebrow">ADMINISTRATION</span>
+          <h2>Admin Dashboard</h2>
+          <p>Real-time overview of personnel on site and active yard-space clients.</p>
+        </div>
+
+        <div class="admin-kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-label">STAFF ON SITE</span>
+            <strong class="kpi-val green-text" id="kpiStaffIn">0</strong>
+            <small class="kpi-sub">Currently marked IN</small>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">STAFF OUT</span>
+            <strong class="kpi-val muted" id="kpiStaffOut">0</strong>
+            <small class="kpi-sub">Currently marked OUT</small>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">TOTAL STAFF</span>
+            <strong class="kpi-val navy-text" id="kpiTotalStaff">0</strong>
+            <small class="kpi-sub">Total staff records</small>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">ACTIVE CLIENTS</span>
+            <strong class="kpi-val blue-text" id="kpiActiveClients">0</strong>
+            <small class="kpi-sub">Active yard-space clients</small>
+          </div>
+        </div>
+
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">QUICK ACTIONS</span>
+            <h2>Admin Management</h2>
+          </div>
+        </div>
+        <div class="jetty-grid">
+          <button class="module-card" data-view="staff-management">
+            <div class="module-icon">SM</div>
+            <div>
+              <span class="module-label">STAFF MANAGEMENT</span>
+              <h3>Manage Personnel</h3>
+              <p>View staff list, mark IN/OUT status, add, edit or remove staff.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
+          <button class="module-card" data-view="client-management">
+            <div class="module-icon">CM</div>
+            <div>
+              <span class="module-label">CLIENT MANAGEMENT</span>
+              <h3>Manage Clients</h3>
+              <p>View yard-space clients, manage passwords and activate/deactivate accounts.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STAFF MANAGEMENT -->
+      <section id="staff-management" class="view">
+        <div class="page-intro">
+          <span class="eyebrow">ADMINISTRATION</span>
+          <h2>Staff Management</h2>
+          <p>Personnel working on site across Velogy, Altrad, Pinnacle and Contractors.</p>
+        </div>
+
+        <!-- Controls / Search & Filters -->
+        <div class="admin-controls-panel">
+          <div class="controls-top">
+            <div class="search-box">
+              <input type="text" id="staffSearchInput" placeholder="Search staff by name or company...">
+            </div>
+            <button type="button" class="primary-button" id="openAddStaffModalBtn">+ ADD STAFF</button>
+          </div>
+
+          <div class="filter-row">
+            <div class="filter-group">
+              <span class="filter-label">Status:</span>
+              <div class="pill-filter-buttons" id="staffStatusFilterGroup">
+                <button type="button" class="filter-pill active" data-filter-status="ALL">ALL</button>
+                <button type="button" class="filter-pill" data-filter-status="IN">IN</button>
+                <button type="button" class="filter-pill" data-filter-status="OUT">OUT</button>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label">Company:</span>
+              <div class="pill-filter-buttons" id="staffCompanyFilterGroup">
+                <button type="button" class="filter-pill active" data-filter-company="ALL">ALL</button>
+                <button type="button" class="filter-pill" data-filter-company="VELOGY">VELOGY</button>
+                <button type="button" class="filter-pill" data-filter-company="ALTRAD">ALTRAD</button>
+                <button type="button" class="filter-pill" data-filter-company="PINNACLE">PINNACLE</button>
+                <button type="button" class="filter-pill" data-filter-company="CONTRACTORS">CONTRACTORS</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Staff Table -->
+        <div class="admin-table-wrapper desktop-only">
+          <table class="admin-data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Company</th>
+                <th>Status</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="staffTableBody">
+              <!-- Dynamically populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Staff Cards Container -->
+        <div class="admin-cards-wrapper mobile-only" id="staffCardsContainer">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </section>
+
+      <!-- CLIENT MANAGEMENT -->
+      <section id="client-management" class="view">
+        <div class="page-intro">
+          <span class="eyebrow">ADMINISTRATION</span>
+          <h2>Client Management</h2>
+          <p>Companies with yard space and monthly access passwords.</p>
+        </div>
+
+        <!-- Controls / Search & Filters -->
+        <div class="admin-controls-panel">
+          <div class="controls-top">
+            <div class="search-box">
+              <input type="text" id="clientSearchInput" placeholder="Search clients by company name or contact...">
+            </div>
+            <button type="button" class="primary-button" id="openAddClientModalBtn">+ ADD CLIENT</button>
+          </div>
+
+          <div class="filter-row">
+            <div class="filter-group">
+              <span class="filter-label">Status:</span>
+              <div class="pill-filter-buttons" id="clientStatusFilterGroup">
+                <button type="button" class="filter-pill active" data-filter-client-status="ALL">ALL</button>
+                <button type="button" class="filter-pill" data-filter-client-status="ACTIVE">ACTIVE</button>
+                <button type="button" class="filter-pill" data-filter-client-status="INACTIVE">INACTIVE</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Client Table -->
+        <div class="admin-table-wrapper desktop-only">
+          <table class="admin-data-table">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Contact</th>
+                <th>Status</th>
+                <th>Password Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="clientTableBody">
+              <!-- Dynamically populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Client Cards Container -->
+        <div class="admin-cards-wrapper mobile-only" id="clientCardsContainer">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </section>
+
       <!-- ADMIN REPORTS SECTION -->
       <section id="reports" class="view">
         <div class="page-intro">
@@ -769,6 +983,137 @@
       <div class="modal-body" id="detailModalBody">
         <!-- Dynamically rendered detailed info for selected checkpoint -->
       </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT STAFF MODAL -->
+  <div id="staffModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="staffModalTitle">
+      <div class="modal-header">
+        <h3 id="staffModalTitle">Add Staff</h3>
+        <button type="button" class="modal-close" id="closeStaffModalBtn">&times;</button>
+      </div>
+      <form id="staffForm" onsubmit="return false;">
+        <input type="hidden" id="staffEditId" value="">
+        <div class="form-grid" style="grid-template-columns: 1fr; margin-bottom: 16px;">
+          <label>Name
+            <input type="text" id="staffNameInput" placeholder="Full name" required>
+          </label>
+          <label>Company
+            <select id="staffCompanySelect" required>
+              <option value="Velogy">Velogy</option>
+              <option value="Altrad">Altrad</option>
+              <option value="Pinnacle">Pinnacle</option>
+              <option value="Contractors">Contractors</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-actions" style="margin-top: 20px;">
+          <button type="button" class="secondary-button" id="cancelStaffBtn">Cancel</button>
+          <button type="submit" class="primary-button" id="submitStaffBtn">Add Staff</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONFIRM REMOVE STAFF MODAL -->
+  <div id="confirmRemoveStaffModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="confirmRemoveStaffTitle">
+      <div class="modal-header">
+        <h3 id="confirmRemoveStaffTitle">Confirm Removal</h3>
+        <button type="button" class="modal-close" id="closeRemoveStaffModalBtn">&times;</button>
+      </div>
+      <p>Are you sure you want to remove <strong id="removeStaffNameText">this staff member</strong> from the record?</p>
+      <div class="form-actions" style="margin-top: 24px;">
+        <button type="button" class="secondary-button" id="cancelRemoveStaffBtn">Cancel</button>
+        <button type="button" class="danger-button" id="confirmRemoveStaffBtn">Remove Staff</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT CLIENT MODAL -->
+  <div id="clientModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="clientModalTitle">
+      <div class="modal-header">
+        <h3 id="clientModalTitle">Add Client</h3>
+        <button type="button" class="modal-close" id="closeClientModalBtn">&times;</button>
+      </div>
+      <form id="clientForm" onsubmit="return false;">
+        <input type="hidden" id="clientEditId" value="">
+        <div class="form-grid" style="grid-template-columns: 1fr; margin-bottom: 16px;">
+          <label>Company Name
+            <input type="text" id="clientNameInput" placeholder="Company Name" required>
+          </label>
+          <label>Contact
+            <input type="text" id="clientContactInput" placeholder="Client Contact Name" required>
+          </label>
+          <label>Status
+            <select id="clientStatusSelect" required>
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-actions" style="margin-top: 20px;">
+          <button type="button" class="secondary-button" id="cancelClientBtn">Cancel</button>
+          <button type="submit" class="primary-button" id="submitClientBtn">Add Client</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONFIRM DEACTIVATE CLIENT MODAL -->
+  <div id="confirmDeactivateClientModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="confirmDeactivateTitle">
+      <div class="modal-header">
+        <h3 id="confirmDeactivateTitle">Deactivate Client</h3>
+        <button type="button" class="modal-close" id="closeDeactivateClientModalBtn">&times;</button>
+      </div>
+      <p>Are you sure you want to deactivate <strong id="deactivateClientNameText">this client</strong>?</p>
+      <p class="muted-small">The client record will remain visible in the list marked as INACTIVE.</p>
+      <div class="form-actions" style="margin-top: 24px;">
+        <button type="button" class="secondary-button" id="cancelDeactivateClientBtn">Cancel</button>
+        <button type="button" class="danger-button" id="confirmDeactivateClientBtn">Deactivate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENT DETAIL MODAL -->
+  <div id="clientDetailModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="clientDetailModalTitle">
+      <div class="modal-header">
+        <h3 id="clientDetailModalTitle">Client Details</h3>
+        <button type="button" class="modal-close" id="closeClientDetailModalBtn">&times;</button>
+      </div>
+      <div id="clientDetailContent" style="display: grid; gap: 16px;">
+        <!-- Dynamically rendered by app.js -->
+      </div>
+      <div class="form-actions" style="margin-top: 24px;">
+        <button type="button" class="secondary-button" id="closeClientDetailBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANGE PASSWORD MODAL -->
+  <div id="changePasswordModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="changePasswordTitle">
+      <div class="modal-header">
+        <h3 id="changePasswordTitle">Change Monthly Password</h3>
+        <button type="button" class="modal-close" id="closeChangePasswordModalBtn">&times;</button>
+      </div>
+      <form id="changePasswordForm" onsubmit="return false;">
+        <input type="hidden" id="changePasswordClientId" value="">
+        <p class="muted-small" style="margin-bottom: 12px;">Generating/updating monthly access password for <strong id="changePasswordClientName">Client</strong>.</p>
+        <div class="form-grid" style="grid-template-columns: 1fr; margin-bottom: 16px;">
+          <label>New Monthly Password
+            <input type="password" id="newPasswordInput" placeholder="Enter new password or leave blank to auto-generate">
+          </label>
+        </div>
+        <div class="form-actions" style="margin-top: 20px;">
+          <button type="button" class="secondary-button" id="cancelChangePasswordBtn">Cancel</button>
+          <button type="submit" class="primary-button">Update Password</button>
+        </div>
+      </form>
     </div>
   </div>
 
