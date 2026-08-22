@@ -34,6 +34,361 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Smooth theme transitions */
+body, .sidebar, .main-content, .topbar, .module-card, .status-card, .operation-card, .form-panel,
+.activity-panel, .action-panel, .site-patrol-summary-card, .subtle-patrol-mode-bar,
+.round-selector-panel, .check-card, .reports-filter-panel, .report-summary-card,
+.report-performance-card, .report-table-wrapper, .modal-content, .gate-counter-card,
+.gate-controls-panel, .company-group-section, .staff-gate-card, .admin-controls-panel,
+.admin-table-wrapper, .admin-card, .kpi-card, .jetty-shift-panel, .breakdown-box,
+.p-stat-box, .perf-box, .daily-check-card, .pump-row, .vessel-notice-box, .detail-box,
+.detail-history-item, input, select, textarea, button {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* ==========================================================================
+   SUBTLE NIGHT THEME OVERRIDES
+   ========================================================================== */
+body.night-theme {
+  --navy: #f1f5f9;
+  --navy-2: #e2e8f0;
+  --navy-light: #1e2f47;
+  --ink: #e2e8f0;
+  --muted: #94a3b8;
+  --line: #1c2c44;
+  --surface: #0f1826;
+  --bg: #070d18;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body.night-theme .sidebar {
+  background: #050a12;
+  border-right: 1px solid #142032;
+}
+
+body.night-theme .topbar {
+  border-bottom-color: var(--line);
+}
+
+body.night-theme .topbar h1,
+body.night-theme .site-identity-header .client-name,
+body.night-theme .site-identity-header .operations-title {
+  color: #ffffff;
+}
+
+body.night-theme .site-identity-header .site-name {
+  color: #94a3b8;
+}
+
+body.night-theme .menu-button {
+  color: #ffffff;
+}
+
+body.night-theme .module-card,
+body.night-theme .status-card,
+body.night-theme .operation-card,
+body.night-theme .form-panel,
+body.night-theme .activity-panel,
+body.night-theme .action-panel,
+body.night-theme .site-patrol-summary-card,
+body.night-theme .subtle-patrol-mode-bar,
+body.night-theme .round-selector-panel,
+body.night-theme .reports-filter-panel,
+body.night-theme .report-summary-card,
+body.night-theme .report-performance-card,
+body.night-theme .report-table-wrapper,
+body.night-theme .modal-content,
+body.night-theme .gate-counter-card,
+body.night-theme .gate-controls-panel,
+body.night-theme .company-group-section,
+body.night-theme .admin-controls-panel,
+body.night-theme .admin-table-wrapper,
+body.night-theme .admin-card,
+body.night-theme .kpi-card,
+body.night-theme .jetty-shift-panel,
+body.night-theme .daily-check-card {
+  background: #0f1826;
+  border-color: #1e2d44;
+}
+
+body.night-theme .module-icon,
+body.night-theme .operation-number {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+body.night-theme .module-card h3,
+body.night-theme .operation-card h3,
+body.night-theme .page-intro h2,
+body.night-theme .welcome-row h2,
+body.night-theme .section-heading h2,
+body.night-theme .daily-card-header h3,
+body.night-theme .round-selector-header h4,
+body.night-theme .round-details-header h2,
+body.night-theme .reports-filter-panel h3,
+body.night-theme .report-summary-card h3,
+body.night-theme .report-performance-card h3,
+body.night-theme .company-group-header,
+body.night-theme .staff-gate-name,
+body.night-theme .modal-header h3,
+body.night-theme .admin-card-title {
+  color: #f8fafc;
+}
+
+body.night-theme .arrow,
+body.night-theme .operation-card b {
+  color: #38bdf8;
+}
+
+body.night-theme .breakdown-box,
+body.night-theme .p-stat-box,
+body.night-theme .perf-box,
+body.night-theme .pump-row,
+body.night-theme .staff-gate-card,
+body.night-theme .detail-box,
+body.night-theme .password-display-box,
+body.night-theme .vessel-notice-box,
+body.night-theme .checklist-row {
+  background: #142034;
+  border-color: #1c2c44;
+}
+
+body.night-theme .breakdown-title,
+body.night-theme .p-stat-val,
+body.night-theme .metric-line strong,
+body.night-theme .staff-gate-last-access strong,
+body.night-theme .detail-box-val,
+body.night-theme .detail-history-item .h-round,
+body.night-theme .pump-name,
+body.night-theme .checklist-row .item-name {
+  color: #f8fafc;
+}
+
+body.night-theme .subtle-patrol-toggle,
+body.night-theme .shift-toggle-group,
+body.night-theme .in-out-toggle {
+  background: #142034;
+  border-color: #1c2c44;
+}
+
+body.night-theme .subtle-toggle-btn,
+body.night-theme .shift-tab,
+body.night-theme .round-pill,
+body.night-theme .jetty-patrol-pill,
+body.night-theme .filter-pill,
+body.night-theme .table-action-btn,
+body.night-theme .level-btn,
+body.night-theme .choice-grid button,
+body.night-theme .ok-issue-toggle button {
+  background: #142034;
+  border-color: #1c2c44;
+  color: #cbd5e1;
+}
+
+body.night-theme .subtle-toggle-btn.active,
+body.night-theme .shift-tab.active,
+body.night-theme .round-pill.active,
+body.night-theme .jetty-patrol-pill.active,
+body.night-theme .filter-pill.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+body.night-theme .patrol-schedule-badge {
+  background: #142034;
+  border-color: #1c2c44;
+  color: #e2e8f0;
+}
+
+body.night-theme .check-card {
+  background: #0f1826;
+  border-color: #1c2c44;
+}
+
+body.night-theme .check-card.state-pending {
+  border-left-color: #64748b;
+}
+
+body.night-theme .state-pending .check-card-badge {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+body.night-theme .check-card.state-checked {
+  background: #092019;
+  border-color: #166534;
+  border-left-color: #22c55e;
+}
+
+body.night-theme .state-checked .check-card-badge {
+  background: #14532d;
+  color: #4ade80;
+}
+
+body.night-theme .check-card.state-issue {
+  background: #241a08;
+  border-color: #92400e;
+  border-left-color: #f59e0b;
+}
+
+body.night-theme .state-issue .check-card-badge {
+  background: #78350f;
+  color: #fde047;
+}
+
+body.night-theme .check-card strong {
+  color: #f8fafc;
+}
+
+body.night-theme .check-card-btn {
+  background: #142034;
+  border-color: #1c2c44;
+  color: #e2e8f0;
+}
+
+body.night-theme .check-card.state-checked .check-card-btn {
+  background: #142034;
+  border-color: #166534;
+  color: #4ade80;
+}
+
+body.night-theme .check-card.state-issue .check-card-btn {
+  background: #142034;
+  border-color: #92400e;
+  color: #fde047;
+}
+
+body.night-theme .check-card-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+body.night-theme .primary-button {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+body.night-theme .primary-button:hover {
+  background: #0369a1;
+}
+
+body.night-theme .secondary-button {
+  background: #142034;
+  color: #e2e8f0;
+  border-color: #1c2c44;
+}
+
+body.night-theme .secondary-button:hover {
+  background: #1e2d44;
+  border-color: #334155;
+}
+
+body.night-theme input,
+body.night-theme select,
+body.night-theme textarea {
+  background: #142034;
+  border-color: #1c2c44;
+  color: #f8fafc;
+}
+
+body.night-theme input:focus,
+body.night-theme select:focus,
+body.night-theme textarea:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+body.night-theme .checkpoint-report-table th,
+body.night-theme .admin-data-table th {
+  background: #142034;
+  color: #e2e8f0;
+  border-bottom-color: #1c2c44;
+}
+
+body.night-theme .checkpoint-report-table td,
+body.night-theme .admin-data-table td {
+  border-bottom-color: #1c2c44;
+  color: #cbd5e1;
+}
+
+body.night-theme .checkpoint-report-table th.col-checkpoint,
+body.night-theme .checkpoint-report-table td.col-checkpoint {
+  color: #f8fafc;
+}
+
+body.night-theme .checkpoint-report-table tbody tr:hover,
+body.night-theme .admin-data-table tbody tr:hover {
+  background: #142034;
+}
+
+body.night-theme .cell-status.status-pending {
+  background: #1e293b;
+  color: #94a3b8;
+  border-color: #334155;
+}
+
+body.night-theme .status-badge.neutral,
+body.night-theme .badge-out {
+  background: #1e293b;
+  color: #94a3b8;
+  border: 1px solid #334155;
+}
+
+body.night-theme .status-badge.active,
+body.night-theme .badge-active {
+  background: #0c2a4a;
+  color: #38bdf8;
+  border: 1px solid #0369a1;
+}
+
+body.night-theme .status-badge.completed,
+body.night-theme .badge-in {
+  background: #092019;
+  color: #4ade80;
+  border: 1px solid #166534;
+}
+
+body.night-theme .toggle-out-btn.active {
+  background: #1e293b;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+body.night-theme label {
+  color: #cbd5e1;
+}
+
+body.night-theme .metric-line {
+  border-bottom-color: #1c2c44;
+}
+
+body.night-theme .filter-row {
+  border-top-color: #1c2c44;
+}
+
+body.night-theme .detail-history-item {
+  background: #142034;
+  border-color: #1c2c44;
+}
+
+body.night-theme .modal-close:hover {
+  color: #ffffff;
+  background: #142034;
+}
+
+body.night-theme .navy-text {
+  color: #f8fafc !important;
+}
+
+body.night-theme .masked-password {
+  color: #f8fafc;
+}
+
 button, input, select, textarea {
   font: inherit;
 }
