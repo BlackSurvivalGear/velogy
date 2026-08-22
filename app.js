@@ -432,12 +432,17 @@ function renderPatrolDashboard() {
     }
   });
 
+  const patrolMainTitle = document.getElementById('patrolMainTitle');
+  if (patrolMainTitle) {
+    patrolMainTitle.textContent = currentPatrolMode === 'DAY' ? 'DAY PATROLS' : 'NIGHT PATROLS';
+  }
+
   const scheduleBadge = document.getElementById('patrolScheduleBadge');
   if (scheduleBadge) {
     if (currentPatrolMode === 'DAY') {
-      scheduleBadge.textContent = '3 Day Rounds · 13 Checkpoints (39 Total Checks)';
+      scheduleBadge.textContent = '3 Day Patrols · 13 Checkpoints (39 Total Checks)';
     } else {
-      scheduleBadge.textContent = '8 Night Rounds · 16 Checkpoints (128 Total Checks)';
+      scheduleBadge.textContent = '8 Night Patrols · 16 Checkpoints (128 Total Checks)';
     }
   }
 
@@ -474,18 +479,18 @@ function renderDayPatrolSection() {
   const dayPatrolBadge = document.getElementById('dayPatrolBadge');
 
   if (dayStatRoundsCompleted) dayStatRoundsCompleted.textContent = `${dayStats.completedRoundsCount} / 3`;
-  if (dayStatRoundsOutstanding) dayStatRoundsOutstanding.textContent = `${3 - dayStats.completedRoundsCount} rounds outstanding`;
+  if (dayStatRoundsOutstanding) dayStatRoundsOutstanding.textContent = `${3 - dayStats.completedRoundsCount} patrols outstanding`;
   if (dayStatChecksCompleted) dayStatChecksCompleted.textContent = `${dayStats.totalChecked + dayStats.totalIssues} / 39`;
   if (dayStatChecksOutstanding) dayStatChecksOutstanding.textContent = `${dayStats.totalPending} checks remaining`;
   if (dayStatCompletionPct) dayStatCompletionPct.textContent = `${dayStats.completionPct}%`;
   if (dayStatIssuesCount) dayStatIssuesCount.textContent = `${dayStats.totalIssues}`;
 
   if (dayPatrolBadge) {
-    dayPatrolBadge.textContent = `DAY ROUND ${currentSelectedDayRound} ACTIVE`;
+    dayPatrolBadge.textContent = `DAY PATROL ${currentSelectedDayRound} ACTIVE`;
     dayPatrolBadge.className = dayStats.completedRoundsCount === 3 ? 'status-badge completed' : 'status-badge active';
   }
 
-  // Render Day Patrol Round Selector Pills
+  // Render Day Patrol Selector Pills
   const dayRoundPillsContainer = document.getElementById('dayRoundPillsContainer');
   if (dayRoundPillsContainer) {
     dayRoundPillsContainer.innerHTML = '';
@@ -498,7 +503,7 @@ function renderDayPatrolSection() {
       btn.type = 'button';
       btn.className = `round-pill ${r === currentSelectedDayRound ? 'active' : ''}`;
       btn.dataset.dayRound = r;
-      btn.innerHTML = `Round ${r} <span class="pill-sub">${rChecked}/13</span>`;
+      btn.innerHTML = `Patrol ${r} <span class="pill-sub">${rChecked}/13</span>`;
       btn.addEventListener('click', () => {
         currentSelectedDayRound = r;
         renderPatrolDashboard();
@@ -507,12 +512,12 @@ function renderDayPatrolSection() {
     }
   }
 
-  // Render Active Day Round Header & Checkpoints
+  // Render Active Day Patrol Header & Checkpoints
   const dayActiveRoundTitle = document.getElementById('dayActiveRoundTitle');
   const dayActiveRoundSub = document.getElementById('dayActiveRoundSub');
   const dayCheckpointGrid = document.getElementById('dayCheckpointGrid');
 
-  if (dayActiveRoundTitle) dayActiveRoundTitle.textContent = `DAY PATROL ROUND ${currentSelectedDayRound}`;
+  if (dayActiveRoundTitle) dayActiveRoundTitle.textContent = `DAY PATROL ${currentSelectedDayRound}`;
 
   let roundCheckedCount = 0;
   let roundIssueCount = 0;
@@ -580,7 +585,7 @@ function handleDayCheckpointClick(roundNum, cpName) {
     data.status = 'CHECKED';
     data.time = getTimeString();
     data.officer = "Security Officer J. Vance";
-    showToast(`${cpName} tagged as CHECKED at ${data.time} (Day Round ${roundNum})`, 'success');
+    showToast(`${cpName} tagged as CHECKED at ${data.time} (Day Patrol ${roundNum})`, 'success');
   } else if (data.status === 'CHECKED') {
     data.status = 'PENDING';
     data.time = '--:--';
@@ -602,7 +607,7 @@ if (dayTagAllBtn) {
         item.time = getTimeString();
       }
     });
-    showToast(`All remaining checkpoints for Day Patrol Round ${currentSelectedDayRound} tagged.`, 'success');
+    showToast(`All remaining checkpoints for Day Patrol ${currentSelectedDayRound} tagged.`, 'success');
     renderPatrolDashboard();
   });
 }
@@ -630,7 +635,7 @@ function renderNightPatrolSection() {
   const statIssuesCount = document.getElementById('statIssuesCount');
 
   if (statRoundsCompleted) statRoundsCompleted.textContent = `${stats.completedRoundsCount} / 8`;
-  if (statRoundsOutstanding) statRoundsOutstanding.textContent = `${8 - stats.completedRoundsCount} rounds outstanding`;
+  if (statRoundsOutstanding) statRoundsOutstanding.textContent = `${8 - stats.completedRoundsCount} patrols outstanding`;
   if (statChecksCompleted) statChecksCompleted.textContent = `${stats.totalChecked + stats.totalIssues} / 128`;
   if (statChecksOutstanding) statChecksOutstanding.textContent = `${stats.totalPending} checks remaining`;
   if (statCompletionPct) statCompletionPct.textContent = `${stats.completionPct}%`;
@@ -640,13 +645,13 @@ function renderNightPatrolSection() {
   const dashPatrolStatus = document.getElementById('dashPatrolStatus');
   const dashPatrolSub = document.getElementById('dashPatrolSub');
   if (dashPatrolStatus) {
-    dashPatrolStatus.textContent = `Night Round ${currentSelectedRound} Active`;
+    dashPatrolStatus.textContent = `Patrol ${currentSelectedRound} Active`;
   }
   if (dashPatrolSub) {
     dashPatrolSub.textContent = `${stats.totalChecked + stats.totalIssues} / 128 Checkpoints Cleared (${stats.completionPct}%)`;
   }
 
-  // Render Round Selector Pills
+  // Render Patrol Selector Pills
   const roundPillsContainer = document.getElementById('roundPillsContainer');
   if (roundPillsContainer) {
     roundPillsContainer.innerHTML = '';
@@ -659,7 +664,7 @@ function renderNightPatrolSection() {
       btn.type = 'button';
       btn.className = `round-pill ${r === currentSelectedRound ? 'active' : ''}`;
       btn.dataset.round = r;
-      btn.innerHTML = `Round ${r} <span class="pill-sub">${rChecked}/16</span>`;
+      btn.innerHTML = `Patrol ${r} <span class="pill-sub">${rChecked}/16</span>`;
       btn.addEventListener('click', () => {
         currentSelectedRound = r;
         renderPatrolDashboard();
@@ -668,12 +673,12 @@ function renderNightPatrolSection() {
     }
   }
 
-  // Render Round Details Header & Checkpoints
+  // Render Active Patrol Header & Checkpoints
   const activeRoundTitle = document.getElementById('activeRoundTitle');
   const activeRoundSub = document.getElementById('activeRoundSub');
   const checkpointGrid = document.getElementById('checkpointGrid');
 
-  if (activeRoundTitle) activeRoundTitle.textContent = `NIGHT PATROL ROUND ${currentSelectedRound}`;
+  if (activeRoundTitle) activeRoundTitle.textContent = `PATROL ${currentSelectedRound}`;
 
   let roundCheckedCount = 0;
   let roundIssueCount = 0;
@@ -938,7 +943,7 @@ if (tagAllBtn) {
         item.time = getTimeString();
       }
     });
-    showToast(`All remaining checkpoints for Round ${currentSelectedRound} tagged.`, 'success');
+    showToast(`All remaining checkpoints for Patrol ${currentSelectedRound} tagged.`, 'success');
     renderPatrolDashboard();
   });
 }
@@ -969,7 +974,7 @@ function populateIssueCheckpointSelect(mode = 'NIGHT') {
     for (let r = 1; r <= numRounds; r++) {
       const opt = document.createElement('option');
       opt.value = r;
-      opt.textContent = `Round ${r}`;
+      opt.textContent = `Patrol ${r}`;
       issueRoundSelect.appendChild(opt);
     }
   }
@@ -1034,7 +1039,7 @@ if (issueForm) {
     }
 
     closeIssueModal();
-    showToast(`Issue reported for ${currentPatrolMode} Patrol Round ${rVal} — ${cpVal} (${severityVal} Severity)`, 'warning');
+    showToast(`Issue reported for ${currentPatrolMode} Patrol ${rVal} — ${cpVal} (${severityVal} Severity)`, 'warning');
     renderPatrolDashboard();
   });
 }
@@ -1179,7 +1184,7 @@ function openCheckpointDetailModal(cpName) {
     historyHtml += `
       <div class="detail-history-item">
         <div>
-          <span class="h-round">Round ${r}</span>
+          <span class="h-round">Patrol ${r}</span>
           <div class="${badgeClass}" style="font-size:13px; font-weight:700; margin-top:2px;">${statusLabel}</div>
         </div>
         <div style="text-align:right;">
@@ -1193,7 +1198,7 @@ function openCheckpointDetailModal(cpName) {
   bodyEl.innerHTML = `
     <div class="detail-summary-grid">
       <div class="detail-box">
-        <span class="detail-box-label">Rounds Checked</span>
+        <span class="detail-box-label">Patrols Checked</span>
         <span class="detail-box-val">${roundsChecked} / 8</span>
       </div>
       <div class="detail-box">
@@ -1211,7 +1216,7 @@ function openCheckpointDetailModal(cpName) {
       <span class="muted" style="font-size:13px;">${[...officersSet].join(', ') || 'None'}</span>
     </div>
 
-    <h4 style="margin: 20px 0 12px; color: var(--navy);">Night Patrol History (Rounds 1–8)</h4>
+    <h4 style="margin: 20px 0 12px; color: var(--navy);">Night Patrol History (Patrols 1–8)</h4>
     <div class="detail-history-list">
       ${historyHtml}
     </div>

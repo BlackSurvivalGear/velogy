@@ -241,6 +241,33 @@ nav {
   color: var(--navy);
 }
 
+.site-identity-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.site-identity-header .client-name {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--navy);
+  text-transform: uppercase;
+}
+
+.site-identity-header .operations-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--navy);
+  margin: 1px 0;
+  line-height: 1.2;
+}
+
+.site-identity-header .site-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
 .eyebrow {
   font-size: 10px;
   letter-spacing: 0.13em;

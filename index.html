@@ -48,9 +48,10 @@
     <main class="main-content">
       <header class="topbar">
         <button class="menu-button" id="menuButton" aria-label="Open navigation">☰</button>
-        <div>
-          <p class="eyebrow">SECURITY OPERATIONS</p>
-          <h1 id="pageTitle">Dashboard</h1>
+        <div class="site-identity-header">
+          <span class="client-name">Pinnacle Group</span>
+          <h1 class="operations-title">Security Operations</h1>
+          <span class="site-name">Carrington Site</span>
         </div>
         <div class="operator">
           <span class="operator-avatar">SO</span>
@@ -77,7 +78,7 @@
             <div>
               <span class="module-label">PRIMARY FUNCTION</span>
               <h3>Site Patrol</h3>
-              <p>3 Day Rounds (39 Checks) · 8 Night Rounds (128 Checks) · Daily Checks</p>
+              <p>3 Day Patrols (39 Checks) · 8 Night Patrols (128 Checks) · Daily Checks</p>
             </div>
             <span class="arrow">→</span>
           </button>
@@ -146,7 +147,7 @@
         <div class="status-grid">
           <div class="status-card">
             <span>Night Patrol</span>
-            <strong id="dashPatrolStatus" class="active-text">Round 5 Active</strong>
+            <strong id="dashPatrolStatus" class="active-text">Patrol 5 Active</strong>
             <small id="dashPatrolSub">80 / 128 Checkpoints Cleared (62.5%)</small>
           </div>
           <div class="status-card">
@@ -166,54 +167,15 @@
       <section id="patrol" class="view">
         <div class="page-intro">
           <span class="eyebrow">FUNCTION 01</span>
-          <h2>Site Patrol</h2>
-          <p>3 Day Patrol Rounds (39 Checks) · 8 Night Patrol Rounds (128 Checks) · Separate Daily Checks</p>
-        </div>
-
-        <!-- SITE PATROL DASHBOARD SUMMARY -->
-        <div class="site-patrol-summary-card">
-          <div class="summary-card-header">
-            <div>
-              <span class="eyebrow">DEFINITIVE MODEL</span>
-              <h3 style="margin: 2px 0 0; color: var(--navy);">SITE PATROL DASHBOARD</h3>
-            </div>
-          </div>
-          <div class="site-patrol-breakdown-grid">
-            <div class="breakdown-box day-box">
-              <span class="eyebrow green-text">DAY PATROL</span>
-              <div class="breakdown-title">3 Rounds</div>
-              <div class="breakdown-sub">13 Checkpoints per Round</div>
-              <div class="breakdown-badge day-badge">39 Required Checks</div>
-            </div>
-            <div class="breakdown-box night-box">
-              <span class="eyebrow blue-text">NIGHT PATROL</span>
-              <div class="breakdown-title">8 Rounds</div>
-              <div class="breakdown-sub">16 Checkpoints per Round</div>
-              <div class="breakdown-badge night-badge">128 Required Checks</div>
-            </div>
-            <div class="breakdown-box daily-box">
-              <span class="eyebrow orange-text">DAILY CHECKS (SEPARATE)</span>
-              <div class="daily-item">
-                <strong>Pump Oil Check</strong>
-                <span>5 Pumps · Once Daily</span>
-              </div>
-              <div class="daily-item">
-                <strong>Car Park Check</strong>
-                <span>Once Daily</span>
-              </div>
-              <div class="daily-item">
-                <strong>Jetty Patrol</strong>
-                <span>Once Daily When No Vessel</span>
-              </div>
-            </div>
-          </div>
+          <h2 id="patrolMainTitle">DAY PATROLS</h2>
+          <p id="patrolMainDesc">3 Day Patrols (39 Checks) · 8 Night Patrols (128 Checks) · Separate Daily Checks</p>
         </div>
 
         <!-- SUBTLE PATROL MODE TOGGLE -->
         <div class="subtle-patrol-mode-bar">
           <div class="patrol-toggle-container">
-            <span class="patrol-toggle-label">PATROL SCHEDULE:</span>
-            <div class="subtle-patrol-toggle" id="patrolModeToggleGroup" role="radiogroup" aria-label="Patrol Schedule Toggle">
+            <span class="patrol-toggle-label">PATROL MODE:</span>
+            <div class="subtle-patrol-toggle" id="patrolModeToggleGroup" role="radiogroup" aria-label="Patrol Mode Toggle">
               <button type="button" class="subtle-toggle-btn active" data-patrol-mode="DAY" aria-checked="true">
                 <span class="radio-dot">●</span> DAY
               </button>
@@ -222,7 +184,7 @@
               </button>
             </div>
           </div>
-          <span class="patrol-schedule-badge" id="patrolScheduleBadge">3 Day Rounds · 13 Checkpoints (39 Total Checks)</span>
+          <span class="patrol-schedule-badge" id="patrolScheduleBadge">3 Day Patrols · 13 Checkpoints (39 Total Checks)</span>
         </div>
 
         <!-- DAY PATROL MODE CONTENT -->
@@ -230,17 +192,17 @@
           <div class="patrol-dashboard-summary">
             <div class="patrol-summary-header">
               <div>
-                <span class="eyebrow">DAY PATROL STATUS</span>
-                <h3 style="margin: 4px 0 0; color: var(--navy);">Day Patrol Overview</h3>
+                <span class="eyebrow">STATUS OVERVIEW</span>
+                <h3 style="margin: 4px 0 0; color: var(--navy);">DAY PATROLS</h3>
               </div>
-              <span class="status-badge active" id="dayPatrolBadge">ROUND 1 ACTIVE</span>
+              <span class="status-badge active" id="dayPatrolBadge">PATROL 1 ACTIVE</span>
             </div>
 
             <div class="patrol-stats-grid">
               <div class="p-stat-box">
-                <span class="p-stat-label">Rounds Completed</span>
+                <span class="p-stat-label">Patrols Completed</span>
                 <strong class="p-stat-val" id="dayStatRoundsCompleted">0 / 3</strong>
-                <small class="p-stat-sub" id="dayStatRoundsOutstanding">3 rounds outstanding</small>
+                <small class="p-stat-sub" id="dayStatRoundsOutstanding">3 patrols outstanding</small>
               </div>
               <div class="p-stat-box">
                 <span class="p-stat-label">Checkpoint Checks</span>
@@ -260,22 +222,22 @@
             </div>
           </div>
 
-          <!-- Day Patrol Round Selector Panel -->
+          <!-- Day Patrol Selector Panel -->
           <div class="round-selector-panel">
             <div class="round-selector-header">
-              <h4>Select Day Patrol Round</h4>
-              <span class="muted-small">Click a round to view and tag checkpoints (13 checkpoints per round)</span>
+              <h4>Select Day Patrol</h4>
+              <span class="muted-small">Click a patrol to view and tag checkpoints (13 checkpoints per patrol)</span>
             </div>
             <div class="round-pills day-round-pills" id="dayRoundPillsContainer">
-              <!-- Rendered via JS for Day Patrol Rounds 1, 2, 3 -->
+              <!-- Rendered via JS for Day Patrols 1, 2, 3 -->
             </div>
           </div>
 
-          <!-- Day Patrol Active Round Screen -->
+          <!-- Day Patrol Active Screen -->
           <div class="round-details-header">
             <div>
-              <span class="eyebrow" id="dayActiveRoundEyebrow">ACTIVE ROUND</span>
-              <h2 id="dayActiveRoundTitle">DAY PATROL ROUND 1</h2>
+              <span class="eyebrow" id="dayActiveRoundEyebrow">ACTIVE PATROL</span>
+              <h2 id="dayActiveRoundTitle">DAY PATROL 1</h2>
               <p class="muted-small" id="dayActiveRoundSub">0 / 13 checkpoints checked</p>
             </div>
             <div class="round-header-actions">
@@ -295,17 +257,17 @@
           <div class="patrol-dashboard-summary">
             <div class="patrol-summary-header">
               <div>
-                <span class="eyebrow">NIGHT PATROL STATUS</span>
-                <h3 style="margin: 4px 0 0; color: var(--navy);">Night Patrol Overview</h3>
+                <span class="eyebrow">STATUS OVERVIEW</span>
+                <h3 style="margin: 4px 0 0; color: var(--navy);">NIGHT PATROLS</h3>
               </div>
-              <span class="status-badge active" id="patrolBadge">ROUND 5 ACTIVE</span>
+              <span class="status-badge active" id="patrolBadge">PATROL 5 ACTIVE</span>
             </div>
 
             <div class="patrol-stats-grid">
               <div class="p-stat-box">
-                <span class="p-stat-label">Rounds Completed</span>
+                <span class="p-stat-label">Patrols Completed</span>
                 <strong class="p-stat-val" id="statRoundsCompleted">5 / 8</strong>
-                <small class="p-stat-sub" id="statRoundsOutstanding">3 rounds outstanding</small>
+                <small class="p-stat-sub" id="statRoundsOutstanding">3 patrols outstanding</small>
               </div>
               <div class="p-stat-box">
                 <span class="p-stat-label">Checkpoint Checks</span>
@@ -325,30 +287,30 @@
             </div>
           </div>
 
-          <!-- Patrol Round Navigation Selector -->
+          <!-- Patrol Navigation Selector Panel -->
           <div class="round-selector-panel">
             <div class="round-selector-header">
-              <h4>Select Patrol Round</h4>
-              <span class="muted-small">Click a round to view and tag checkpoints</span>
+              <h4>Select Patrol</h4>
+              <span class="muted-small">Click a patrol to view and tag checkpoints</span>
             </div>
             <div class="round-pills" id="roundPillsContainer">
-              <!-- 8 Rounds dynamically rendered or styled -->
-              <button type="button" class="round-pill active" data-round="1">Round 1</button>
-              <button type="button" class="round-pill" data-round="2">Round 2</button>
-              <button type="button" class="round-pill" data-round="3">Round 3</button>
-              <button type="button" class="round-pill" data-round="4">Round 4</button>
-              <button type="button" class="round-pill" data-round="5">Round 5</button>
-              <button type="button" class="round-pill" data-round="6">Round 6</button>
-              <button type="button" class="round-pill" data-round="7">Round 7</button>
-              <button type="button" class="round-pill" data-round="8">Round 8</button>
+              <!-- 8 Patrols dynamically rendered or styled -->
+              <button type="button" class="round-pill active" data-round="1">Patrol 1</button>
+              <button type="button" class="round-pill" data-round="2">Patrol 2</button>
+              <button type="button" class="round-pill" data-round="3">Patrol 3</button>
+              <button type="button" class="round-pill" data-round="4">Patrol 4</button>
+              <button type="button" class="round-pill" data-round="5">Patrol 5</button>
+              <button type="button" class="round-pill" data-round="6">Patrol 6</button>
+              <button type="button" class="round-pill" data-round="7">Patrol 7</button>
+              <button type="button" class="round-pill" data-round="8">Patrol 8</button>
             </div>
           </div>
 
-          <!-- Patrol Round Active Screen -->
+          <!-- Active Patrol Screen -->
           <div class="round-details-header">
             <div>
-              <span class="eyebrow" id="activeRoundEyebrow">ACTIVE ROUND</span>
-              <h2 id="activeRoundTitle">PATROL ROUND 1</h2>
+              <span class="eyebrow" id="activeRoundEyebrow">ACTIVE PATROL</span>
+              <h2 id="activeRoundTitle">PATROL 1</h2>
               <p class="muted-small" id="activeRoundSub">16 / 16 checkpoints checked</p>
             </div>
             <div class="round-header-actions">
@@ -362,13 +324,13 @@
           </div>
         </div>
 
-        <!-- DAILY CHECKS SECTION (INDEPENDENT FROM PATROL ROUNDS) -->
+        <!-- DAILY CHECKS SECTION (INDEPENDENT FROM PATROLS) -->
         <div class="daily-checks-container">
           <div class="section-heading" style="margin-top: 40px;">
             <div>
               <span class="eyebrow">INDEPENDENT DAILY DUTIES</span>
               <h2>Daily Checks</h2>
-              <p class="muted-small">Daily checks are independent duties and are NOT part of patrol rounds or checkpoint totals.</p>
+              <p class="muted-small">Daily checks are independent duties and are NOT part of patrols or checkpoint totals.</p>
             </div>
           </div>
 
@@ -1042,7 +1004,7 @@
         <div class="page-intro">
           <span class="eyebrow">ADMINISTRATION</span>
           <h2>Admin Reports</h2>
-          <p>Night Patrol operations breakdown based on 8 nightly rounds and 16 checkpoints.</p>
+          <p>Night Patrol operations breakdown based on 8 nightly patrols and 16 checkpoints.</p>
         </div>
 
         <!-- Filters -->
@@ -1059,17 +1021,17 @@
                 <option value="19 Aug 2026">19 Aug 2026</option>
               </select>
             </label>
-            <label>Patrol Round
+            <label>Patrol
               <select id="filterRound">
-                <option value="ALL">All Rounds (1–8)</option>
-                <option value="1">Round 1</option>
-                <option value="2">Round 2</option>
-                <option value="3">Round 3</option>
-                <option value="4">Round 4</option>
-                <option value="5">Round 5</option>
-                <option value="6">Round 6</option>
-                <option value="7">Round 7</option>
-                <option value="8">Round 8</option>
+                <option value="ALL">All Patrols (1–8)</option>
+                <option value="1">Patrol 1</option>
+                <option value="2">Patrol 2</option>
+                <option value="3">Patrol 3</option>
+                <option value="4">Patrol 4</option>
+                <option value="5">Patrol 5</option>
+                <option value="6">Patrol 6</option>
+                <option value="7">Patrol 7</option>
+                <option value="8">Patrol 8</option>
               </select>
             </label>
             <label>Checkpoint
@@ -1103,7 +1065,7 @@
             <h3 id="reportNightLabel">Night: 21 Aug 2026</h3>
             <div class="summary-metrics-list">
               <div class="metric-line">
-                <span>Patrol Rounds</span>
+                <span>Patrols</span>
                 <strong id="repPatrolRounds">8</strong>
               </div>
               <div class="metric-line">
@@ -1153,7 +1115,7 @@
         <div class="section-heading">
           <div>
             <span class="eyebrow">CHECKPOINT REPORT</span>
-            <h2>16 Checkpoint Matrix (Rounds 1–8)</h2>
+            <h2>16 Checkpoint Matrix (Patrols 1–8)</h2>
             <p class="muted-small">Click any checkpoint row to open detailed history and issue details.</p>
           </div>
         </div>
@@ -1193,16 +1155,16 @@
       </div>
       <form id="issueForm" onsubmit="return false;">
         <div class="form-grid">
-          <label>Patrol Round
+          <label>Patrol
             <select id="issueRoundSelect" required>
-              <option value="1">Round 1</option>
-              <option value="2">Round 2</option>
-              <option value="3">Round 3</option>
-              <option value="4">Round 4</option>
-              <option value="5">Round 5</option>
-              <option value="6">Round 6</option>
-              <option value="7">Round 7</option>
-              <option value="8">Round 8</option>
+              <option value="1">Patrol 1</option>
+              <option value="2">Patrol 2</option>
+              <option value="3">Patrol 3</option>
+              <option value="4">Patrol 4</option>
+              <option value="5">Patrol 5</option>
+              <option value="6">Patrol 6</option>
+              <option value="7">Patrol 7</option>
+              <option value="8">Patrol 8</option>
             </select>
           </label>
           <label>Checkpoint
