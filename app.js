@@ -96,6 +96,15 @@ const NIGHT_CHECKPOINTS = [
 // Alias CHECKPOINTS to NIGHT_CHECKPOINTS for backward compatibility with Night Patrol & Reports Matrix
 const CHECKPOINTS = NIGHT_CHECKPOINTS;
 
+// Theme state management helper
+function updateTheme() {
+  const activeView = document.querySelector('.view.active-view')?.id;
+  const isNightTheme = (activeView === 'jetty-patrol' || activeView === 'jetty')
+    ? currentJettyShift === 'NIGHT'
+    : currentPatrolMode === 'NIGHT';
+  document.body.classList.toggle('night-theme', isNightTheme);
+}
+
 // Active selected rounds for UI navigation
 let currentSelectedDayRound = 1; // Default active Day Patrol round view in UI
 let currentSelectedRound = 4;    // Default active Night Patrol round view in UI
@@ -266,6 +275,8 @@ function showView(id) {
   const target = document.getElementById(id);
   if (!target) return;
 
+  updateTheme();
+
   views.forEach(view => view.classList.toggle('active-view', view.id === id));
 
   navItems.forEach(item => {
@@ -434,6 +445,7 @@ function getPatrolStats() {
 }
 
 function renderPatrolDashboard() {
+  updateTheme();
   // Update Subtle Mode Toggle UI & Indicators
   const modeBtns = document.querySelectorAll('#patrolModeToggleGroup [data-patrol-mode]');
   modeBtns.forEach(btn => {
@@ -861,6 +873,7 @@ document.addEventListener('click', (e) => {
   const modeTab = e.target.closest('#patrolModeToggleGroup [data-patrol-mode]');
   if (modeTab) {
     currentPatrolMode = modeTab.dataset.patrolMode;
+    updateTheme();
     renderPatrolDashboard();
   }
 });
@@ -1527,6 +1540,7 @@ function initJettyPatrolData() {
 initJettyPatrolData();
 
 function renderJettyPatrolView() {
+  updateTheme();
   const currentPatrol = jettyPatrolsState[currentJettyShift][currentJettyPatrolNum];
 
   // Update Operating Period Titles
@@ -1646,6 +1660,7 @@ document.querySelectorAll('#jettyShiftToggleGroup .shift-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     currentJettyShift = tab.dataset.shift;
     currentJettyPatrolNum = 1;
+    updateTheme();
     renderJettyPatrolView();
   });
 });
@@ -2335,5 +2350,6 @@ function initSplashScreen() {
 // Initial Initialization
 initSplashScreen();
 initializeDateTimeFields();
+updateTheme();
 renderPatrolDashboard();
 renderAdminDashboard();
