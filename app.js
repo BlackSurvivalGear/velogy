@@ -1459,6 +1459,24 @@ let mockVisitorSearches = [
 function getAllReportedIssues() {
   const issues = [];
 
+  // Formal Incident Reports (Function 04)
+  incidentReports.forEach(inc => {
+    const locDisplay = inc.location === 'Other' && inc.locationOther ? `Other (${inc.locationOther})` : inc.location;
+    issues.push({
+      id: inc.id,
+      reportNumber: inc.reportNumber,
+      dateTime: inc.dateTime,
+      source: 'Incident Report',
+      location: locDisplay,
+      officer: inc.submittedBy,
+      issue: inc.description,
+      incidentType: inc.incidentType,
+      severity: inc.severity || (inc.incidentType === 'Security' ? 'HIGH' : 'MEDIUM'),
+      status: inc.status,
+      isIncidentReport: true
+    });
+  });
+
   // Day patrol issues
   for (let r = 1; r <= 3; r++) {
     DAY_CHECKPOINTS.forEach(cp => {
@@ -2352,17 +2370,57 @@ function renderJettyReportHTML() {
   `;
 }
 
+function formatReportDateTime(dateTimeStr) {
+  if (!dateTimeStr) return '--';
+  const dt = new Date(dateTimeStr);
+  if (isNaN(dt.getTime())) return dateTimeStr.replace('T', ' ');
+  const day = dt.getDate();
+  const month = dt.toLocaleString('en-GB', { month: 'short' });
+  const hours = String(dt.getHours()).padStart(2, '0');
+  const mins = String(dt.getMinutes()).padStart(2, '0');
+  return `${day} ${month} ${hours}:${mins}`;
+}
+
 /* SUB-REPORT 9: INCIDENT / ISSUE REPORT */
 function renderIncidentIssueReportHTML() {
   const issues = getAllReportedIssues();
+  const incCounts = getIncidentCounts();
+
+  // Sort newest first
+  issues.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
 
   return `
     <div class="sub-report-panel">
+      <div class="reports-summary-row" style="margin-bottom: 20px;">
+        <div class="report-summary-card" style="width: 100%;">
+          <span class="eyebrow">FORMAL INCIDENTS SUMMARY</span>
+          <h3>Incident Reports Status Overview</h3>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 12px;">
+            <div class="kpi-card" style="padding: 12px 16px;">
+              <span class="kpi-label">UNREAD</span>
+              <strong class="kpi-val amber-text">${incCounts.unread}</strong>
+            </div>
+            <div class="kpi-card" style="padding: 12px 16px;">
+              <span class="kpi-label">READ</span>
+              <strong class="kpi-val blue-text">${incCounts.read}</strong>
+            </div>
+            <div class="kpi-card" style="padding: 12px 16px;">
+              <span class="kpi-label">RESOLVED</span>
+              <strong class="kpi-val green-text">${incCounts.resolved}</strong>
+            </div>
+            <div class="kpi-card" style="padding: 12px 16px;">
+              <span class="kpi-label">TOTAL</span>
+              <strong class="kpi-val navy-text">${incCounts.total}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="section-heading" style="margin-top:0;">
         <div>
           <span class="eyebrow">CENTRAL ISSUE TRACKER</span>
-          <h2>Incident & Issue Report (${issues.length} Open)</h2>
-          <p class="muted-small">Central view aggregating reported issues from Site Patrol, Access Control, Car Search, Jetty, and Daily Checks.</p>
+          <h2>Incident & Issue Report</h2>
+          <p class="muted-small">Central view aggregating formal Incident Reports (Function 04) and operational issues from Site Patrol, Car Search, Jetty, and Daily Checks.</p>
         </div>
       </div>
 
@@ -2371,10 +2429,10 @@ function renderIncidentIssueReportHTML() {
           <thead>
             <tr>
               <th>Date / Time</th>
-              <th>Source Module</th>
-              <th>Location / Checkpoint</th>
-              <th>Officer</th>
-              <th>Issue Description</th>
+              <th>Report / Issue</th>
+              <th>Source</th>
+              <th>Location</th>
+              <th>Submitted By</th>
               <th>Severity</th>
               <th>Status</th>
             </tr>
@@ -2386,15 +2444,28 @@ function renderIncidentIssueReportHTML() {
                 if (iss.severity === 'HIGH') sevBadge = 'badge-inactive';
                 if (iss.severity === 'MEDIUM') sevBadge = 'badge-active';
 
+                let statusBadge = '<span class="badge-active">OPEN</span>';
+                if (iss.status === 'UNREAD') statusBadge = '<span class="badge-unread">UNREAD</span>';
+                else if (iss.status === 'READ') statusBadge = '<span class="badge-read">READ</span>';
+                else if (iss.status === 'RESOLVED') statusBadge = '<span class="badge-resolved">RESOLVED</span>';
+
+                let reportCell = iss.isIncidentReport ?
+                  `<strong style="color:var(--navy);">${iss.reportNumber}</strong><br><small style="color:var(--muted);">${iss.issue}</small>` :
+                  `<strong>${iss.issue}</strong>`;
+
+                let sourceCell = iss.isIncidentReport ?
+                  `<span style="font-weight:700; color:var(--blue);">${iss.source}</span>` :
+                  `<span style="font-weight:700;">${iss.source}</span>`;
+
                 return `
                   <tr>
-                    <td>${iss.dateTime.replace('T', ' ')}</td>
-                    <td style="font-weight:700;">${iss.source}</td>
+                    <td style="white-space: nowrap;">${formatReportDateTime(iss.dateTime)}</td>
+                    <td>${reportCell}</td>
+                    <td>${sourceCell}</td>
                     <td style="font-weight:700; color:var(--navy);">${iss.location}</td>
                     <td>${iss.officer}</td>
-                    <td>${iss.issue}</td>
                     <td><span class="${sevBadge}">${iss.severity}</span></td>
-                    <td><span class="badge-active">${iss.status}</span></td>
+                    <td>${statusBadge}</td>
                   </tr>
                 `;
               }).join('')

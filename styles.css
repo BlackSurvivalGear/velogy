@@ -375,6 +375,24 @@ body.night-theme .badge-in {
   border: 1px solid #166534;
 }
 
+body.night-theme .badge-unread {
+  background: #241a08;
+  color: #fde047;
+  border: 1px solid #92400e;
+}
+
+body.night-theme .badge-read {
+  background: #0c2a4a;
+  color: #38bdf8;
+  border: 1px solid #0369a1;
+}
+
+body.night-theme .badge-resolved {
+  background: #092019;
+  color: #4ade80;
+  border: 1px solid #166534;
+}
+
 body.night-theme .toggle-out-btn.active {
   background: #1e293b;
   color: #cbd5e1;
@@ -3108,6 +3126,42 @@ body.night-theme .staff-group-list li {
 
 /* Status Badges */
 .badge-in {
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid #86efac;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  display: inline-block;
+}
+
+.badge-unread {
+  background: var(--amber-bg);
+  color: var(--amber);
+  border: 1px solid #fcd34d;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  display: inline-block;
+}
+
+.badge-read {
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid #bfdbfe;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  display: inline-block;
+}
+
+.badge-resolved {
   background: var(--green-bg);
   color: var(--green);
   border: 1px solid #86efac;
