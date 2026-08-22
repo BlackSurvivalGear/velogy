@@ -420,6 +420,258 @@ button {
   touch-action: manipulation;
 }
 
+/* Sign Out Button in Topbar */
+.sign-out-button {
+  background: var(--navy-light);
+  border: 1px solid var(--line);
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 8px;
+  transition: all 0.15s ease;
+}
+
+.sign-out-button:hover {
+  background: var(--red-bg);
+  color: var(--red);
+  border-color: #fca5a5;
+}
+
+body.night-theme .sign-out-button {
+  background: #1e2d44;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+body.night-theme .sign-out-button:hover {
+  background: var(--red-bg);
+  color: var(--red);
+  border-color: #fca5a5;
+}
+
+/* Security Sign-In Screen Overlay */
+.sign-in-screen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at top center, #14263c 0%, #07111f 100%);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
+}
+
+.sign-in-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.sign-in-card {
+  background: #ffffff;
+  border-radius: var(--radius);
+  max-width: 440px;
+  width: 100%;
+  padding: 32px;
+  box-shadow: 0 24px 48px rgba(7, 17, 31, 0.4);
+  border: 1px solid var(--line);
+}
+
+body.night-theme .sign-in-card {
+  background: #0f1826;
+  border-color: #1e2d44;
+}
+
+.sign-in-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.sign-in-logo {
+  max-width: 160px;
+  height: auto;
+  margin-bottom: 12px;
+  object-fit: contain;
+}
+
+.sign-in-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--navy);
+  margin: 0;
+}
+
+body.night-theme .sign-in-header h2 {
+  color: #ffffff;
+}
+
+.sign-in-subtitle {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--blue);
+  display: block;
+  margin-top: 4px;
+}
+
+/* Security Level Tabs */
+.security-level-tabs {
+  display: flex;
+  background: #f1f5f9;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+
+body.night-theme .security-level-tabs {
+  background: #142034;
+  border-color: #1c2c44;
+}
+
+.security-level-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  transition: all 0.15s ease;
+}
+
+.security-level-tab.active {
+  background: var(--navy);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(7, 17, 31, 0.18);
+}
+
+body.night-theme .security-level-tab.active {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.sign-in-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.sign-in-field-group label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+body.night-theme .sign-in-field-group label {
+  color: #cbd5e1;
+}
+
+.sign-in-input {
+  width: 100%;
+  border: 1px solid #ccd4de;
+  border-radius: 10px;
+  padding: 12px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 14px;
+  min-height: 46px;
+}
+
+body.night-theme .sign-in-input {
+  background: #142034;
+  border-color: #1c2c44;
+  color: #f8fafc;
+}
+
+.sign-in-role-badge {
+  display: inline-block;
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid #bfdbfe;
+  border-radius: 99px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.sign-in-role-person {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+body.night-theme .sign-in-role-person {
+  color: #ffffff;
+}
+
+.sign-in-error-message {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.sign-in-submit-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  min-height: 48px;
+}
+
+/* Security Hierarchy Summary (Officer Management View) */
+.security-hierarchy-summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.hierarchy-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.hierarchy-card strong {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-top: 4px;
+}
+
+body.night-theme .hierarchy-card {
+  background: #0f1826;
+  border-color: #1e2d44;
+}
+
+body.night-theme .hierarchy-card strong {
+  color: #f8fafc;
+}
+
 /* Splash Screen Overlay */
 .splash-screen {
   position: fixed;
@@ -3184,6 +3436,10 @@ body.night-theme .staff-group-list li {
 }
 
 @media (max-width: 560px) {
+  .security-hierarchy-summary {
+    grid-template-columns: 1fr;
+  }
+
   .main-content {
     padding: 16px;
   }
