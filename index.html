@@ -31,6 +31,7 @@
         <button class="nav-item" data-view="jetty">Jetty</button>
         <div class="nav-section-title">ADMINISTRATION</div>
         <button class="nav-item" data-view="admin-dashboard">Admin Dashboard</button>
+        <button class="nav-item" data-view="reports">Admin Reports</button>
         <button class="nav-item" data-view="staff-management">Staff Management</button>
         <button class="nav-item" data-view="client-management">Client Management</button>
       </nav>
@@ -839,39 +840,62 @@
         <div class="page-intro">
           <span class="eyebrow">ADMINISTRATION</span>
           <h2>Admin Dashboard</h2>
-          <p>Real-time overview of personnel on site and active yard-space clients.</p>
+          <p>Real-time operational summary and administrative controls.</p>
         </div>
 
         <div class="admin-kpi-grid">
-          <div class="kpi-card">
+          <!-- STAFF ON SITE CARD -->
+          <div class="kpi-card staff-kpi-card">
             <span class="kpi-label">STAFF ON SITE</span>
             <strong class="kpi-val green-text" id="kpiStaffIn">0</strong>
-            <small class="kpi-sub">Currently marked IN</small>
+            <button type="button" class="primary-button view-staff-btn" id="openStaffOnSiteModalBtn">[ VIEW STAFF ON SITE ]</button>
           </div>
+
+          <!-- PATROLS CARD -->
           <div class="kpi-card">
-            <span class="kpi-label">STAFF OUT</span>
-            <strong class="kpi-val muted" id="kpiStaffOut">0</strong>
-            <small class="kpi-sub">Currently marked OUT</small>
+            <span class="kpi-label">PATROLS</span>
+            <strong class="kpi-val navy-text" id="kpiPatrols">0 / 11</strong>
+            <small class="kpi-sub" id="kpiPatrolsSub">3 Day · 8 Night</small>
           </div>
+
+          <!-- CHECKPOINTS CARD -->
           <div class="kpi-card">
-            <span class="kpi-label">TOTAL STAFF</span>
-            <strong class="kpi-val navy-text" id="kpiTotalStaff">0</strong>
-            <small class="kpi-sub">Total staff records</small>
+            <span class="kpi-label">CHECKPOINTS</span>
+            <strong class="kpi-val navy-text" id="kpiCheckpoints">0 / 167</strong>
+            <small class="kpi-sub" id="kpiCheckpointsSub">39 Day · 128 Night</small>
           </div>
+
+          <!-- VEHICLES ENTERING CARD -->
           <div class="kpi-card">
-            <span class="kpi-label">ACTIVE CLIENTS</span>
-            <strong class="kpi-val blue-text" id="kpiActiveClients">0</strong>
-            <small class="kpi-sub">Active yard-space clients</small>
+            <span class="kpi-label">VEHICLES ENTERING</span>
+            <strong class="kpi-val blue-text" id="kpiVehiclesEntering">0</strong>
+            <small class="kpi-sub">East Gate tally today</small>
+          </div>
+
+          <!-- OPEN ISSUES CARD -->
+          <div class="kpi-card">
+            <span class="kpi-label">OPEN ISSUES</span>
+            <strong class="kpi-val amber-text" id="kpiOpenIssues">0</strong>
+            <small class="kpi-sub">Reported operational issues</small>
           </div>
         </div>
 
         <div class="section-heading">
           <div>
             <span class="eyebrow">QUICK ACTIONS</span>
-            <h2>Admin Management</h2>
+            <h2>Admin Operations & Reports</h2>
           </div>
         </div>
-        <div class="jetty-grid">
+        <div class="admin-quick-grid">
+          <button class="module-card" data-view="reports">
+            <div class="module-icon">AR</div>
+            <div>
+              <span class="module-label">REPORTING</span>
+              <h3>Admin Reports</h3>
+              <p>Operational reporting for patrols, vehicles, checkpoints & issues.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
           <button class="module-card" data-view="staff-management">
             <div class="module-icon">SM</div>
             <div>
@@ -1014,142 +1038,25 @@
         <div class="page-intro">
           <span class="eyebrow">ADMINISTRATION</span>
           <h2>Admin Reports</h2>
-          <p>Night Patrol operations breakdown based on 8 nightly patrols and 16 checkpoints.</p>
+          <p>Comprehensive operational reporting and security management analytics.</p>
         </div>
 
-        <!-- Filters -->
-        <div class="reports-filter-panel">
-          <h3>Patrol Report Filters</h3>
-          <div class="form-grid filter-grid">
-            <label>Date
-              <input type="date" id="filterDate" value="2026-08-21">
-            </label>
-            <label>Night
-              <select id="filterNight">
-                <option value="21 Aug 2026">21 Aug 2026</option>
-                <option value="20 Aug 2026">20 Aug 2026</option>
-                <option value="19 Aug 2026">19 Aug 2026</option>
-              </select>
-            </label>
-            <label>Patrol
-              <select id="filterRound">
-                <option value="ALL">All Patrols (1–8)</option>
-                <option value="1">1st Patrol</option>
-                <option value="2">2nd Patrol</option>
-                <option value="3">3rd Patrol</option>
-                <option value="4">4th Patrol</option>
-                <option value="5">5th Patrol</option>
-                <option value="6">6th Patrol</option>
-                <option value="7">7th Patrol</option>
-                <option value="8">8th Patrol</option>
-              </select>
-            </label>
-            <label>Checkpoint
-              <select id="filterCheckpoint">
-                <option value="ALL">All 16 Checkpoints</option>
-              </select>
-            </label>
-            <label>Officer
-              <select id="filterOfficer">
-                <option value="ALL">All Officers</option>
-                <option value="Security Officer J. Vance">Security Officer J. Vance</option>
-                <option value="Officer S. Miller">Officer S. Miller</option>
-                <option value="Officer A. Taylor">Officer A. Taylor</option>
-              </select>
-            </label>
-            <label>Status
-              <select id="filterStatus">
-                <option value="ALL">All Statuses</option>
-                <option value="CHECKED">Checked</option>
-                <option value="ISSUE">Issue</option>
-                <option value="PENDING">Pending / Missed</option>
-              </select>
-            </label>
-          </div>
+        <!-- Sub-Reports Tab Navigation -->
+        <div class="reports-nav-tabs" id="reportsTabNav">
+          <button type="button" class="report-tab-btn active" data-report="daily-security">Daily Security Report</button>
+          <button type="button" class="report-tab-btn" data-report="patrol">Patrol Report</button>
+          <button type="button" class="report-tab-btn" data-report="vehicle-entry">Vehicle Entry Report</button>
+          <button type="button" class="report-tab-btn" data-report="daily-checks">Daily Checks Report</button>
+          <button type="button" class="report-tab-btn" data-report="checkpoint">Checkpoint Report</button>
+          <button type="button" class="report-tab-btn" data-report="gate-activity">Gate Activity Report</button>
+          <button type="button" class="report-tab-btn" data-report="car-search">Car Search Report</button>
+          <button type="button" class="report-tab-btn" data-report="jetty">Jetty Report</button>
+          <button type="button" class="report-tab-btn" data-report="incident-issue">Incident / Issue Report</button>
         </div>
 
-        <!-- Night Summary & Patrol Performance -->
-        <div class="reports-summary-row">
-          <div class="report-summary-card">
-            <span class="eyebrow">NIGHT SUMMARY</span>
-            <h3 id="reportNightLabel">Night: 21 Aug 2026</h3>
-            <div class="summary-metrics-list">
-              <div class="metric-line">
-                <span>Patrols</span>
-                <strong id="repPatrolRounds">8</strong>
-              </div>
-              <div class="metric-line">
-                <span>Required Checkpoint Checks</span>
-                <strong id="repRequiredChecks">128</strong>
-              </div>
-              <div class="metric-line">
-                <span>Completed</span>
-                <strong class="ok-text" id="repCompletedChecks">121</strong>
-              </div>
-              <div class="metric-line">
-                <span>Issues</span>
-                <strong class="amber-text" id="repIssuesCount">4</strong>
-              </div>
-              <div class="metric-line">
-                <span>Outstanding / Missed</span>
-                <strong class="red-text" id="repOutstandingChecks">3</strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="report-performance-card">
-            <span class="eyebrow">PATROL PERFORMANCE</span>
-            <h3>Nightly Metrics</h3>
-            <div class="performance-badge-grid">
-              <div class="perf-box">
-                <span class="perf-num ok-text" id="perfChecked">121</span>
-                <span class="perf-label">CHECKED</span>
-              </div>
-              <div class="perf-box">
-                <span class="perf-num amber-text" id="perfIssues">4</span>
-                <span class="perf-label">ISSUES</span>
-              </div>
-              <div class="perf-box">
-                <span class="perf-num red-text" id="perfMissed">3</span>
-                <span class="perf-label">MISSED</span>
-              </div>
-            </div>
-            <div class="completion-rate-box">
-              <span class="rate-val" id="perfPct">94.5%</span>
-              <span class="rate-label">OVERALL COMPLETION</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Checkpoint Report Matrix Table -->
-        <div class="section-heading">
-          <div>
-            <span class="eyebrow">CHECKPOINT REPORT</span>
-            <h2>16 Checkpoint Matrix (Patrols 1–8)</h2>
-            <p class="muted-small">Click any checkpoint row to open detailed history and issue details.</p>
-          </div>
-        </div>
-
-        <div class="report-table-wrapper">
-          <table class="checkpoint-report-table" id="reportMatrixTable">
-            <thead>
-              <tr>
-                <th class="col-checkpoint">Checkpoint</th>
-                <th>R1</th>
-                <th>R2</th>
-                <th>R3</th>
-                <th>R4</th>
-                <th>R5</th>
-                <th>R6</th>
-                <th>R7</th>
-                <th>R8</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="reportTableBody">
-              <!-- Dynamically built by app.js -->
-            </tbody>
-          </table>
+        <!-- Container for active sub-report view -->
+        <div id="subReportContent" class="sub-report-container">
+          <!-- Dynamically populated by app.js -->
         </div>
       </section>
 
@@ -1213,6 +1120,22 @@
       </div>
       <div class="modal-body" id="detailModalBody">
         <!-- Dynamically rendered detailed info for selected checkpoint -->
+      </div>
+    </div>
+  </div>
+
+  <!-- STAFF ON SITE MODAL -->
+  <div id="staffOnSiteModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="staffOnSiteTitle">
+      <div class="modal-header">
+        <h3 id="staffOnSiteTitle">STAFF ON SITE — <span id="modalStaffOnSiteCount">0</span></h3>
+        <button type="button" class="modal-close" id="closeStaffOnSiteModalBtn">&times;</button>
+      </div>
+      <div class="staff-on-site-body" id="staffOnSiteListContent">
+        <!-- Dynamically rendered grouped list of personnel currently marked IN -->
+      </div>
+      <div class="form-actions" style="margin-top: 24px;">
+        <button type="button" class="secondary-button" id="closeStaffOnSiteBtn">Close</button>
       </div>
     </div>
   </div>
