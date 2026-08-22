@@ -147,7 +147,7 @@
         <div class="status-grid">
           <div class="status-card">
             <span>Night Patrol</span>
-            <strong id="dashPatrolStatus" class="active-text">Patrol 5 Active</strong>
+            <strong id="dashPatrolStatus" class="active-text">5th Patrol Active</strong>
             <small id="dashPatrolSub">80 / 128 Checkpoints Cleared (62.5%)</small>
           </div>
           <div class="status-card">
@@ -168,7 +168,7 @@
         <div class="page-intro">
           <span class="eyebrow">FUNCTION 01</span>
           <h2 id="patrolMainTitle">DAY PATROLS</h2>
-          <p id="patrolMainDesc">3 Day Patrols (39 Checks) · 8 Night Patrols (128 Checks) · Separate Daily Checks</p>
+          <p id="patrolMainDesc">3 Patrols · 13 checkpoints per Patrol · 39 checkpoint checks</p>
         </div>
 
         <!-- SUBTLE PATROL MODE TOGGLE -->
@@ -184,7 +184,7 @@
               </button>
             </div>
           </div>
-          <span class="patrol-schedule-badge" id="patrolScheduleBadge">3 Day Patrols · 13 Checkpoints (39 Total Checks)</span>
+          <span class="patrol-schedule-badge" id="patrolScheduleBadge">3 Patrols · 13 checkpoints per Patrol · 39 checkpoint checks</span>
         </div>
 
         <!-- DAY PATROL MODE CONTENT -->
@@ -195,13 +195,13 @@
                 <span class="eyebrow">STATUS OVERVIEW</span>
                 <h3 style="margin: 4px 0 0; color: var(--navy);">DAY PATROLS</h3>
               </div>
-              <span class="status-badge active" id="dayPatrolBadge">PATROL 1 ACTIVE</span>
+              <span class="status-badge active" id="dayPatrolBadge">1ST PATROL ACTIVE</span>
             </div>
 
             <div class="patrol-stats-grid">
               <div class="p-stat-box">
                 <span class="p-stat-label">Patrols Completed</span>
-                <strong class="p-stat-val" id="dayStatRoundsCompleted">0 / 3</strong>
+                <strong class="p-stat-val" id="dayStatRoundsCompleted">0 / 3 Patrols</strong>
                 <small class="p-stat-sub" id="dayStatRoundsOutstanding">3 patrols outstanding</small>
               </div>
               <div class="p-stat-box">
@@ -210,7 +210,7 @@
                 <small class="p-stat-sub" id="dayStatChecksOutstanding">39 checks remaining</small>
               </div>
               <div class="p-stat-box">
-                <span class="p-stat-label">Overall Completion</span>
+                <span class="p-stat-label">Patrol Completion</span>
                 <strong class="p-stat-val" id="dayStatCompletionPct">0%</strong>
                 <small class="p-stat-sub">Target: 100%</small>
               </div>
@@ -237,7 +237,7 @@
           <div class="round-details-header">
             <div>
               <span class="eyebrow" id="dayActiveRoundEyebrow">ACTIVE PATROL</span>
-              <h2 id="dayActiveRoundTitle">DAY PATROL 1</h2>
+              <h2 id="dayActiveRoundTitle">1st Patrol</h2>
               <p class="muted-small" id="dayActiveRoundSub">0 / 13 checkpoints checked</p>
             </div>
             <div class="round-header-actions">
@@ -260,13 +260,13 @@
                 <span class="eyebrow">STATUS OVERVIEW</span>
                 <h3 style="margin: 4px 0 0; color: var(--navy);">NIGHT PATROLS</h3>
               </div>
-              <span class="status-badge active" id="patrolBadge">PATROL 5 ACTIVE</span>
+              <span class="status-badge active" id="patrolBadge">5TH PATROL ACTIVE</span>
             </div>
 
             <div class="patrol-stats-grid">
               <div class="p-stat-box">
                 <span class="p-stat-label">Patrols Completed</span>
-                <strong class="p-stat-val" id="statRoundsCompleted">5 / 8</strong>
+                <strong class="p-stat-val" id="statRoundsCompleted">5 / 8 Patrols</strong>
                 <small class="p-stat-sub" id="statRoundsOutstanding">3 patrols outstanding</small>
               </div>
               <div class="p-stat-box">
@@ -275,7 +275,7 @@
                 <small class="p-stat-sub" id="statChecksOutstanding">48 checks remaining</small>
               </div>
               <div class="p-stat-box">
-                <span class="p-stat-label">Overall Completion</span>
+                <span class="p-stat-label">Patrol Completion</span>
                 <strong class="p-stat-val" id="statCompletionPct">62.5%</strong>
                 <small class="p-stat-sub">Target: 100%</small>
               </div>
@@ -295,14 +295,14 @@
             </div>
             <div class="round-pills" id="roundPillsContainer">
               <!-- 8 Patrols dynamically rendered or styled -->
-              <button type="button" class="round-pill active" data-round="1">Patrol 1</button>
-              <button type="button" class="round-pill" data-round="2">Patrol 2</button>
-              <button type="button" class="round-pill" data-round="3">Patrol 3</button>
-              <button type="button" class="round-pill" data-round="4">Patrol 4</button>
-              <button type="button" class="round-pill" data-round="5">Patrol 5</button>
-              <button type="button" class="round-pill" data-round="6">Patrol 6</button>
-              <button type="button" class="round-pill" data-round="7">Patrol 7</button>
-              <button type="button" class="round-pill" data-round="8">Patrol 8</button>
+              <button type="button" class="round-pill active" data-round="1">1st Patrol</button>
+              <button type="button" class="round-pill" data-round="2">2nd Patrol</button>
+              <button type="button" class="round-pill" data-round="3">3rd Patrol</button>
+              <button type="button" class="round-pill" data-round="4">4th Patrol</button>
+              <button type="button" class="round-pill" data-round="5">5th Patrol</button>
+              <button type="button" class="round-pill" data-round="6">6th Patrol</button>
+              <button type="button" class="round-pill" data-round="7">7th Patrol</button>
+              <button type="button" class="round-pill" data-round="8">8th Patrol</button>
             </div>
           </div>
 
@@ -310,7 +310,7 @@
           <div class="round-details-header">
             <div>
               <span class="eyebrow" id="activeRoundEyebrow">ACTIVE PATROL</span>
-              <h2 id="activeRoundTitle">PATROL 1</h2>
+              <h2 id="activeRoundTitle">1st Patrol</h2>
               <p class="muted-small" id="activeRoundSub">16 / 16 checkpoints checked</p>
             </div>
             <div class="round-header-actions">
@@ -329,19 +329,19 @@
           <div class="section-heading" style="margin-top: 40px;">
             <div>
               <span class="eyebrow">INDEPENDENT DAILY DUTIES</span>
-              <h2>Daily Checks</h2>
+              <h2>DAILY CHECKS</h2>
               <p class="muted-small">Daily checks are independent duties and are NOT part of patrols or checkpoint totals.</p>
             </div>
           </div>
 
           <div class="daily-checks-grid">
-            <!-- 1. PUMP OIL CHECKS CARD -->
+            <!-- 1. DAVYHULME OIL CHECKS CARD -->
             <div class="daily-check-card" id="pumpCheckCard">
               <div class="daily-card-header">
                 <div>
-                  <span class="eyebrow">PUMP OIL CHECK</span>
-                  <h3>Pump Oil Checks</h3>
-                  <p class="muted-small">5 pumps · Checked once daily</p>
+                  <span class="eyebrow">DAVYHULME OIL CHECKS</span>
+                  <h3>Davyhulme Oil Checks</h3>
+                  <p class="muted-small">5 checks · Once Daily</p>
                 </div>
                 <span class="status-badge neutral" id="pumpStatusBadge">PENDING</span>
               </div>
@@ -351,7 +351,7 @@
               </div>
 
               <div class="daily-card-actions">
-                <button type="button" class="primary-button" id="completePumpCheckBtn">COMPLETE PUMP CHECK</button>
+                <button type="button" class="primary-button" id="completePumpCheckBtn">COMPLETE CHECK</button>
               </div>
             </div>
 
@@ -361,7 +361,7 @@
                 <div>
                   <span class="eyebrow">CAR PARK CHECK</span>
                   <h3>Car Park Check</h3>
-                  <p class="muted-small">Checked once daily</p>
+                  <p class="muted-small">Once Daily</p>
                 </div>
                 <span class="status-badge neutral" id="carParkStatusBadge">PENDING</span>
               </div>
@@ -390,7 +390,7 @@
                 <div>
                   <span class="eyebrow">JETTY PATROL</span>
                   <h3>Jetty Patrol</h3>
-                  <p class="muted-small">Once daily when no vessel is present</p>
+                  <p class="muted-small">Once Daily When No Vessel</p>
                 </div>
                 <span class="status-badge neutral" id="jettyDailyStatusBadge">NO VESSEL</span>
               </div>
@@ -1024,14 +1024,14 @@
             <label>Patrol
               <select id="filterRound">
                 <option value="ALL">All Patrols (1–8)</option>
-                <option value="1">Patrol 1</option>
-                <option value="2">Patrol 2</option>
-                <option value="3">Patrol 3</option>
-                <option value="4">Patrol 4</option>
-                <option value="5">Patrol 5</option>
-                <option value="6">Patrol 6</option>
-                <option value="7">Patrol 7</option>
-                <option value="8">Patrol 8</option>
+                <option value="1">1st Patrol</option>
+                <option value="2">2nd Patrol</option>
+                <option value="3">3rd Patrol</option>
+                <option value="4">4th Patrol</option>
+                <option value="5">5th Patrol</option>
+                <option value="6">6th Patrol</option>
+                <option value="7">7th Patrol</option>
+                <option value="8">8th Patrol</option>
               </select>
             </label>
             <label>Checkpoint
@@ -1157,14 +1157,14 @@
         <div class="form-grid">
           <label>Patrol
             <select id="issueRoundSelect" required>
-              <option value="1">Patrol 1</option>
-              <option value="2">Patrol 2</option>
-              <option value="3">Patrol 3</option>
-              <option value="4">Patrol 4</option>
-              <option value="5">Patrol 5</option>
-              <option value="6">Patrol 6</option>
-              <option value="7">Patrol 7</option>
-              <option value="8">Patrol 8</option>
+              <option value="1">1st Patrol</option>
+              <option value="2">2nd Patrol</option>
+              <option value="3">3rd Patrol</option>
+              <option value="4">4th Patrol</option>
+              <option value="5">5th Patrol</option>
+              <option value="6">6th Patrol</option>
+              <option value="7">7th Patrol</option>
+              <option value="8">8th Patrol</option>
             </select>
           </label>
           <label>Checkpoint
