@@ -12,6 +12,7 @@ const titles = {
   access: 'Access Control',
   jetty: 'Jetty',
   'incident-report': 'Incident Report',
+  'user-manual': 'User Manual',
   reports: 'Admin Reports',
   'gate-east': 'East Gate',
   'gate-west': 'West Gate',
@@ -38,7 +39,8 @@ const rolePermissions = {
     'jetty',
     'jetty-patrol',
     'visitor-search',
-    'incident-report'
+    'incident-report',
+    'user-manual'
   ],
   controller: [
     'dashboard',
@@ -51,7 +53,8 @@ const rolePermissions = {
     'jetty',
     'jetty-patrol',
     'visitor-search',
-    'incident-report'
+    'incident-report',
+    'user-manual'
   ],
   supervisor: [
     'dashboard',
@@ -65,6 +68,7 @@ const rolePermissions = {
     'jetty-patrol',
     'visitor-search',
     'incident-report',
+    'user-manual',
     'admin-dashboard',
     'reports',
     'officer-management'
@@ -81,6 +85,7 @@ const rolePermissions = {
     'jetty-patrol',
     'visitor-search',
     'incident-report',
+    'user-manual',
     'admin-dashboard',
     'reports',
     'officer-management',
@@ -99,6 +104,7 @@ const rolePermissions = {
     'jetty-patrol',
     'visitor-search',
     'incident-report',
+    'user-manual',
     'admin-dashboard',
     'reports',
     'officer-management',

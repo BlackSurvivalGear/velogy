@@ -62,6 +62,7 @@
         <button class="nav-item" data-view="control">Control</button>
         <button class="nav-item" data-view="jetty">Jetty</button>
         <button class="nav-item" data-view="incident-report">Incident Report</button>
+        <button class="nav-item" data-view="user-manual">User Manual</button>
         <div class="nav-section-title">ADMINISTRATION</div>
         <button class="nav-item" data-view="admin-dashboard">Admin Dashboard</button>
         <button class="nav-item" data-view="reports">Admin Reports</button>
@@ -1201,6 +1202,622 @@
         <!-- Container for active sub-report view -->
         <div id="subReportContent" class="sub-report-container">
           <!-- Dynamically populated by app.js -->
+        </div>
+      </section>
+
+      <!-- USER MANUAL -->
+      <section id="user-manual" class="view">
+        <button class="back-button" data-view="dashboard">← Back to Dashboard</button>
+        <div class="page-intro">
+          <span class="eyebrow">USER MANUAL</span>
+          <h2>ImoTech Security Solutions</h2>
+          <p class="muted">Carrington Site — Security Operations User Manual</p>
+        </div>
+
+        <div class="manual-container">
+          <!-- 1. SYSTEM OVERVIEW -->
+          <details class="manual-section" open>
+            <summary class="manual-summary">
+              <span class="manual-num">01</span>
+              <span class="manual-title">1. SYSTEM OVERVIEW</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>The system provides the central security operations interface for the Carrington Site.</p>
+              <h4>Main Functions:</h4>
+              <ul class="manual-list">
+                <li><strong>01 — Site Patrol:</strong> Day and night patrol checks.</li>
+                <li><strong>02 — Access Control:</strong> Gates, staff IN/OUT, vehicle tally, vehicle searches and Control.</li>
+                <li><strong>03 — Jetty:</strong> Jetty patrols and visitor searches.</li>
+                <li><strong>04 — Incident Report:</strong> Submission and management of operational incidents.</li>
+              </ul>
+              <h4>Administration:</h4>
+              <ul class="manual-list">
+                <li>Security Users</li>
+                <li>Staff Management</li>
+                <li>Client Management</li>
+                <li>Admin Dashboard</li>
+                <li>Reports</li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- 2. SIGNING IN -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">02</span>
+              <span class="manual-title">2. SIGNING IN</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>The system supports five security roles:</p>
+              <ul class="manual-list">
+                <li>Officer</li>
+                <li>Controller</li>
+                <li>Supervisor</li>
+                <li>Team Leader</li>
+                <li>Manager</li>
+              </ul>
+              <div class="manual-notice-card">
+                <strong>Current MVP Test Password:</strong>
+                <code class="manual-code">velogy2026</code>
+                <p class="muted-small" style="margin-top:6px; color:var(--amber);">Note: This is a temporary testing password and not production authentication.</p>
+              </div>
+            </div>
+          </details>
+
+          <!-- 3. OFFICER -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">03</span>
+              <span class="manual-title">3. OFFICER</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Officers have operational access to site functions.</p>
+              <h4>Officers can use:</h4>
+              <ul class="manual-list">
+                <li>Dashboard</li>
+                <li>Site Patrol</li>
+                <li>Access Control</li>
+                <li>East Gate</li>
+                <li>West Gate</li>
+                <li>Car Search</li>
+                <li>Jetty</li>
+                <li>Jetty Patrol</li>
+                <li>Visitor Search</li>
+                <li>Incident Report</li>
+              </ul>
+              <p class="muted-small"><em>Officers cannot access Administration.</em></p>
+            </div>
+          </details>
+
+          <!-- 4. CONTROLLER -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">04</span>
+              <span class="manual-title">4. CONTROLLER</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Controller is a separate security role.</p>
+              <p>Controllers have normal operational access plus <strong>Control</strong>. Control is used for the night vehicle tally.</p>
+              <p class="muted-small"><em>Controllers cannot access Administration.</em></p>
+              <h4>Current Controllers:</h4>
+              <ul class="manual-list">
+                <li>Haseeb Ansar</li>
+                <li>Steven Smith</li>
+                <li>Scot Smith</li>
+                <li>Antony Warbutton</li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- 5. SUPERVISOR -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">05</span>
+              <span class="manual-title">5. SUPERVISOR</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Supervisors have operational access plus:</p>
+              <ul class="manual-list">
+                <li>Control</li>
+                <li>Admin Dashboard</li>
+                <li>Reports</li>
+                <li>Security User Management</li>
+                <li>Incident management</li>
+              </ul>
+              <p class="muted-small"><em>Supervisors cannot manage clients.</em></p>
+              <h4>Current Supervisor:</h4>
+              <p><strong>Troy Oliv</strong></p>
+            </div>
+          </details>
+
+          <!-- 6. TEAM LEADER -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">06</span>
+              <span class="manual-title">6. TEAM LEADER</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Team Leaders have full administrative access.</p>
+              <h4>Current Team Leaders:</h4>
+              <ul class="manual-list">
+                <li>Big Rick</li>
+                <li>Andy</li>
+                <li>Darren</li>
+                <li>Rick</li>
+                <li>Seun</li>
+                <li>Steve</li>
+              </ul>
+              <h4>Team Leaders can access:</h4>
+              <ul class="manual-list">
+                <li>All operational functions</li>
+                <li>Control</li>
+                <li>Incident Reports</li>
+                <li>Admin Dashboard</li>
+                <li>Reports</li>
+                <li>Security Users</li>
+                <li>Staff Management</li>
+                <li>Client Management</li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- 7. MANAGER -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">07</span>
+              <span class="manual-title">7. MANAGER</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Managers have full system access.</p>
+              <h4>Current Manager:</h4>
+              <p><strong>Seun Clegg</strong></p>
+              <p>Managers can access all operational and administrative functions.</p>
+            </div>
+          </details>
+
+          <!-- 8. FUNCTION 01 — SITE PATROL -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">08</span>
+              <span class="manual-title">8. FUNCTION 01 — SITE PATROL</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Site Patrol encompasses Day and Night patrols.</p>
+              <div class="manual-grid-2">
+                <div class="manual-card-box">
+                  <h4>Day Patrols</h4>
+                  <ul class="manual-list">
+                    <li>3 patrols</li>
+                    <li>13 checkpoints per patrol</li>
+                    <li>39 checkpoint checks</li>
+                  </ul>
+                </div>
+                <div class="manual-card-box">
+                  <h4>Night Patrols</h4>
+                  <ul class="manual-list">
+                    <li>8 patrols</li>
+                    <li>16 checkpoints per patrol</li>
+                    <li>128 checkpoint checks</li>
+                  </ul>
+                </div>
+              </div>
+              <p style="margin-top:12px;">The user selects the appropriate patrol and records the checkpoint checks.</p>
+              <h4>Independent Daily Checks:</h4>
+              <ul class="manual-list">
+                <li>Davyhulme Oil Checks</li>
+                <li>Car Park Check</li>
+                <li>Daily Jetty Patrol</li>
+              </ul>
+              <p class="muted-small">These are independent checks and are not part of the patrol checkpoint count.</p>
+            </div>
+          </details>
+
+          <!-- 9. FUNCTION 02 — ACCESS CONTROL -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">09</span>
+              <span class="manual-title">9. FUNCTION 02 — ACCESS CONTROL</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Access Control manages site perimeter security and vehicle verification.</p>
+              <ul class="manual-list">
+                <li>East Gate</li>
+                <li>West Gate</li>
+                <li>Car Search</li>
+                <li>Control</li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- 10. EAST GATE — STAFF -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">10</span>
+              <span class="manual-title">10. EAST GATE — STAFF</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Security staff use the staff list to mark personnel:</p>
+              <p><span class="badge-in">IN</span> or <span class="badge-out">OUT</span></p>
+              <h4>Companies:</h4>
+              <ul class="manual-list">
+                <li>Velogy</li>
+                <li>Altrad</li>
+                <li>Pinnacle</li>
+                <li>Contractors</li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- 11. EAST GATE — VEHICLE TALLY -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">11</span>
+              <span class="manual-title">11. EAST GATE — VEHICLE TALLY</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Tracks vehicle entries across active yard clients.</p>
+              <p><strong>Velogy is permanently listed first.</strong> Active clients appear underneath in alphabetical order.</p>
+              <h4>Current Clients:</h4>
+              <ul class="manual-list">
+                <li>CISSION</li>
+                <li>DEN HARTOG</li>
+                <li>TIP</li>
+              </ul>
+              <p>Each company has a <strong>+1</strong> button. Pressing the button adds one vehicle to that company's daily tally. The Total Tally updates automatically.</p>
+            </div>
+          </details>
+
+          <!-- 12. CONTROL — NIGHT VEHICLE TALLY -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">12</span>
+              <span class="manual-title">12. CONTROL — NIGHT VEHICLE TALLY</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Control is available to:</p>
+              <ul class="manual-list">
+                <li>Controller</li>
+                <li>Supervisor</li>
+                <li>Team Leader</li>
+                <li>Manager</li>
+              </ul>
+              <p>The signed-in user's name is automatically carried into Control. Control provides the night vehicle tally.</p>
+            </div>
+          </details>
+
+          <!-- 13. CAR SEARCH -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">13</span>
+              <span class="manual-title">13. CAR SEARCH</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Car Search records:</p>
+              <ul class="manual-list">
+                <li>Registration</li>
+                <li>Driver</li>
+                <li>Company</li>
+                <li>Gate</li>
+                <li>Officer</li>
+                <li>Search result</li>
+                <li>Remarks</li>
+                <li>Inspection areas</li>
+              </ul>
+              <h4>Search Results include:</h4>
+              <ul class="manual-list">
+                <li>Clear</li>
+                <li>Item Found</li>
+                <li>Refused</li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- 14. FUNCTION 03 — JETTY -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">14</span>
+              <span class="manual-title">14. FUNCTION 03 — JETTY</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Provides dedicated Jetty security operations.</p>
+              <ul class="manual-list">
+                <li>Jetty Patrol</li>
+                <li>Visitor Search</li>
+                <li>Vessel status</li>
+                <li>Jetty issues</li>
+              </ul>
+              <p class="muted-small">Jetty operations are managed separately from the main Site Patrol.</p>
+            </div>
+          </details>
+
+          <!-- 15. FUNCTION 04 — INCIDENT REPORT -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">15</span>
+              <span class="manual-title">15. FUNCTION 04 — INCIDENT REPORT</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p><strong>All security users can submit an Incident Report.</strong></p>
+              <p>This includes:</p>
+              <ul class="manual-list">
+                <li>Officer</li>
+                <li>Controller</li>
+                <li>Supervisor</li>
+                <li>Team Leader</li>
+                <li>Manager</li>
+              </ul>
+              <p>Reports record the signed-in user's identity.</p>
+            </div>
+          </details>
+
+          <!-- 16. INCIDENT REPORT STATUS -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">16</span>
+              <span class="manual-title">16. INCIDENT REPORT STATUS</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Status workflow:</p>
+              <div class="workflow-flow-box">
+                <span class="badge-unread">UNREAD</span> → <span class="badge-read">READ</span> → <span class="badge-resolved">RESOLVED</span> → <span class="badge-inactive">DELETE</span>
+              </div>
+              <p>New reports begin as <strong>UNREAD</strong>.</p>
+              <p>Supervisors, Team Leaders and Managers can manage reports.</p>
+              <p class="muted-small">A report can only be deleted after it has been marked <strong>RESOLVED</strong>.</p>
+            </div>
+          </details>
+
+          <!-- 17. INCIDENT & ISSUE REPORT -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">17</span>
+              <span class="manual-title">17. INCIDENT &amp; ISSUE REPORT</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Authorised management users can review the central Incident &amp; Issue Report.</p>
+              <p>It includes:</p>
+              <ul class="manual-list">
+                <li>Formal Incident Reports</li>
+                <li>Site Patrol issues</li>
+                <li>Car Search issues</li>
+                <li>Jetty issues</li>
+                <li>Daily Check issues</li>
+              </ul>
+              <p>Incident status must be visible as: <strong>UNREAD</strong>, <strong>READ</strong>, or <strong>RESOLVED</strong>.</p>
+            </div>
+          </details>
+
+          <!-- 18. ADMIN DASHBOARD -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">18</span>
+              <span class="manual-title">18. ADMIN DASHBOARD</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Provides management with an operational overview including:</p>
+              <ul class="manual-list">
+                <li>Staff currently on site</li>
+                <li>Patrol/checkpoint activity</li>
+                <li>Vehicle activity</li>
+                <li>Operational issues</li>
+              </ul>
+              <p>Staff On Site shows the number of personnel currently marked <strong>IN</strong> and allows authorised users to view their names.</p>
+            </div>
+          </details>
+
+          <!-- 19. STAFF MANAGEMENT -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">19</span>
+              <span class="manual-title">19. STAFF MANAGEMENT</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Authorised administrators can:</p>
+              <ul class="manual-list">
+                <li>Add staff</li>
+                <li>Edit staff</li>
+                <li>Mark staff IN</li>
+                <li>Mark staff OUT</li>
+                <li>Remove staff</li>
+                <li>Search/filter staff</li>
+              </ul>
+              <p>Staff records contain: Name, Company, IN/OUT status.</p>
+            </div>
+          </details>
+
+          <!-- 20. CLIENT MANAGEMENT -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">20</span>
+              <span class="manual-title">20. CLIENT MANAGEMENT</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Clients are <strong>yard-space clients</strong>, not security staff companies.</p>
+              <h4>Current Clients:</h4>
+              <ul class="manual-list">
+                <li>TIP</li>
+                <li>DEN HARTOG</li>
+                <li>CISSION</li>
+              </ul>
+              <p>Client records contain: Company name, Contact, Status, Monthly password information.</p>
+              <p>Active clients automatically appear in the vehicle tally.</p>
+            </div>
+          </details>
+
+          <!-- 21. SECURITY USER MANAGEMENT -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">21</span>
+              <span class="manual-title">21. SECURITY USER MANAGEMENT</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Authorised users can manage the people who can sign into the security system.</p>
+              <h4>Roles:</h4>
+              <ul class="manual-list">
+                <li>Officer</li>
+                <li>Controller</li>
+                <li>Supervisor</li>
+                <li>Team Leader</li>
+                <li>Manager</li>
+              </ul>
+              <div class="manual-notice-card">
+                <strong>Key Distinction:</strong>
+                <p style="margin:4px 0 0;"><strong>Security Users</strong> = people who log into the security application.</p>
+                <p style="margin:4px 0 0;"><strong>Site Staff</strong> = personnel whose IN/OUT status is recorded at the gates.</p>
+                <p class="muted-small" style="margin-top:6px;">They are separate records.</p>
+              </div>
+            </div>
+          </details>
+
+          <!-- 22. ADMIN REPORTS -->
+          <details class="manual-section">
+            <summary class="manual-summary">
+              <span class="manual-num">22</span>
+              <span class="manual-title">22. ADMIN REPORTS</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p>Admin Reports provide management visibility over site operations.</p>
+              <h4>Includes:</h4>
+              <ul class="manual-list">
+                <li>Daily Security Report</li>
+                <li>Patrol Report</li>
+                <li>Vehicle Entry Report</li>
+                <li>Daily Checks Report</li>
+                <li>Checkpoint Report</li>
+                <li>Gate Activity Report</li>
+                <li>Car Search Report</li>
+                <li>Jetty Report</li>
+                <li>Incident &amp; Issue Report</li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- 23. ROLE QUICK REFERENCE -->
+          <details class="manual-section" open>
+            <summary class="manual-summary">
+              <span class="manual-num">23</span>
+              <span class="manual-title">23. ROLE QUICK REFERENCE</span>
+              <span class="manual-arrow">▼</span>
+            </summary>
+            <div class="manual-content-body">
+              <p style="margin-bottom:14px;">Role permissions summary table:</p>
+              <div class="admin-table-wrapper">
+                <table class="admin-data-table manual-table">
+                  <thead>
+                    <tr>
+                      <th>Function</th>
+                      <th>Officer</th>
+                      <th>Controller</th>
+                      <th>Supervisor</th>
+                      <th>Team Leader</th>
+                      <th>Manager</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight:700; color:var(--navy);">Operational Functions</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700; color:var(--navy);">Control</td>
+                      <td class="muted">—</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700; color:var(--navy);">Incident Submit</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700; color:var(--navy);">Incident Management</td>
+                      <td class="muted">—</td>
+                      <td class="muted">—</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700; color:var(--navy);">Admin Dashboard</td>
+                      <td class="muted">—</td>
+                      <td class="muted">—</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700; color:var(--navy);">Reports</td>
+                      <td class="muted">—</td>
+                      <td class="muted">—</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700; color:var(--navy);">Security Users</td>
+                      <td class="muted">—</td>
+                      <td class="muted">—</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700; color:var(--navy);">Staff Management</td>
+                      <td class="muted">—</td>
+                      <td class="muted">—</td>
+                      <td class="muted">—</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700; color:var(--navy);">Client Management</td>
+                      <td class="muted">—</td>
+                      <td class="muted">—</td>
+                      <td class="muted">—</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+
+        </div>
+
+        <div style="margin-top: 32px; text-align: center;">
+          <button class="primary-button" data-view="dashboard" style="padding: 12px 28px; font-weight: 800;">RETURN TO DASHBOARD</button>
         </div>
       </section>
 
