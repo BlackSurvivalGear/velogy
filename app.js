@@ -136,7 +136,12 @@ let securityUsers = {
     { name: "Scot Smith", role: "controller" },
     { name: "Antony Warbutton", role: "controller" },
     { name: "Troy Oliv", role: "supervisor" },
-    { name: "Marcus Vance", role: "team leader" },
+    { name: "Big Rick", role: "team leader" },
+    { name: "Andy", role: "team leader" },
+    { name: "Darren", role: "team leader" },
+    { name: "Rick", role: "team leader" },
+    { name: "Seun", role: "team leader" },
+    { name: "Steve", role: "team leader" },
     { name: "Seun Clegg", role: "manager" }
   ],
   testPassword: "velogy2026",
@@ -3827,11 +3832,16 @@ function renderSignInForm() {
     `;
   } else if (currentSecurityLevel === 'TEAM LEADER') {
     const teamLeaders = securityUsers.users.filter(u => u.role === 'team leader');
-    const tlName = teamLeaders.length > 0 ? teamLeaders[0].name : "Marcus Vance";
+    let teamLeaderOptions = teamLeaders.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
     container.innerHTML = `
-      <div class="sign-in-role-badge">TEAM LEADER</div>
-      <div class="sign-in-role-person">${tlName}</div>
-      <div class="sign-in-field-group" style="margin-top: 16px;">
+      <div class="sign-in-field-group">
+        <label for="signInUserSelect">Team Leader Name</label>
+        <select id="signInUserSelect" class="sign-in-input" required>
+          <option value="" disabled selected>[ Select Team Leader ▼ ]</option>
+          ${teamLeaderOptions}
+        </select>
+      </div>
+      <div class="sign-in-field-group">
         <label for="signInPassword">Password</label>
         <input type="password" id="signInPassword" class="sign-in-input" placeholder="••••••••" required>
       </div>
@@ -3869,7 +3879,7 @@ function handleSignInSubmit() {
   let initials = 'SO';
   let roleVal = currentSecurityLevel.toLowerCase();
 
-  if (currentSecurityLevel === 'OFFICER' || currentSecurityLevel === 'CONTROLLER') {
+  if (currentSecurityLevel === 'OFFICER' || currentSecurityLevel === 'CONTROLLER' || currentSecurityLevel === 'TEAM LEADER') {
     const userSelect = document.getElementById('signInUserSelect');
     const selectedUser = userSelect ? userSelect.value : '';
     if (!selectedUser) {
@@ -3880,16 +3890,16 @@ function handleSignInSubmit() {
       return;
     }
     signedInName = selectedUser;
-    const parts = selectedUser.split(' ');
-    initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : selectedUser.substring(0, 2).toUpperCase();
+    if (currentSecurityLevel === 'TEAM LEADER') {
+      initials = 'TL';
+    } else {
+      const parts = selectedUser.split(' ');
+      initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : selectedUser.substring(0, 2).toUpperCase();
+    }
   } else if (currentSecurityLevel === 'SUPERVISOR') {
     const supervisors = securityUsers.users.filter(u => u.role === 'supervisor');
     signedInName = supervisors.length > 0 ? supervisors[0].name : "Troy Oliv";
     initials = 'SUP';
-  } else if (currentSecurityLevel === 'TEAM LEADER') {
-    const teamLeaders = securityUsers.users.filter(u => u.role === 'team leader');
-    signedInName = teamLeaders.length > 0 ? teamLeaders[0].name : "Marcus Vance";
-    initials = 'TL';
   } else if (currentSecurityLevel === 'MANAGER') {
     const managers = securityUsers.users.filter(u => u.role === 'manager');
     signedInName = managers.length > 0 ? managers[0].name : "Seun Clegg";
