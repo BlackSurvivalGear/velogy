@@ -20,7 +20,53 @@ const titles = {
   'admin-dashboard': 'Admin Dashboard',
   'officer-management': 'Officer Management',
   'staff-management': 'Staff Management',
-  'client-management': 'Client Management'
+  'client-management': 'Client Management',
+  'access-denied': 'Access Restricted'
+};
+
+// ROLE PERMISSIONS MATRIX
+const rolePermissions = {
+  officer: [
+    'dashboard',
+    'patrol',
+    'access',
+    'gate-east',
+    'gate-west',
+    'car-search',
+    'jetty',
+    'jetty-patrol',
+    'visitor-search'
+  ],
+  supervisor: [
+    'dashboard',
+    'patrol',
+    'access',
+    'gate-east',
+    'gate-west',
+    'car-search',
+    'jetty',
+    'jetty-patrol',
+    'visitor-search',
+    'admin-dashboard',
+    'reports',
+    'officer-management'
+  ],
+  manager: [
+    'dashboard',
+    'patrol',
+    'access',
+    'gate-east',
+    'gate-west',
+    'car-search',
+    'jetty',
+    'jetty-patrol',
+    'visitor-search',
+    'admin-dashboard',
+    'reports',
+    'officer-management',
+    'staff-management',
+    'client-management'
+  ]
 };
 
 // INITIAL MOCK DATA FOR STAFF & CLIENTS
@@ -361,6 +407,14 @@ function initializeDateTimeFields() {
 
 // View Navigation
 function showView(id) {
+  // Check permission for target view
+  const currentRole = securityUsers.currentUser ? securityUsers.currentUser.role : 'officer';
+  const allowedViews = rolePermissions[currentRole] || rolePermissions.officer;
+
+  if (id !== 'access-denied' && !allowedViews.includes(id)) {
+    id = 'access-denied';
+  }
+
   const target = document.getElementById(id);
   if (!target) return;
 
@@ -380,7 +434,9 @@ function showView(id) {
 
   initializeDateTimeFields();
 
-  if (id === 'patrol') {
+  if (id === 'dashboard') {
+    renderDashboardUI();
+  } else if (id === 'patrol') {
     renderPatrolDashboard();
   } else if (id === 'jetty-patrol') {
     renderJettyPatrolView();
@@ -402,6 +458,75 @@ function showView(id) {
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// DYNAMIC NAVIGATION & QUICK CARDS RENDERING BASED ON ROLE
+function renderNavigationAndRoleUI() {
+  const currentRole = securityUsers.currentUser ? securityUsers.currentUser.role : 'officer';
+  const allowed = rolePermissions[currentRole] || rolePermissions.officer;
+
+  // 1. Update Sidebar Nav Items
+  navItems.forEach(item => {
+    const targetView = item.dataset.view;
+    if (allowed.includes(targetView)) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+
+  // Sidebar Admin Section Title
+  const navSectionTitle = document.querySelector('.nav-section-title');
+  if (navSectionTitle) {
+    const hasAdminNav = allowed.some(v => ['admin-dashboard', 'reports', 'officer-management', 'staff-management', 'client-management'].includes(v));
+    navSectionTitle.style.display = hasAdminNav ? 'block' : 'none';
+  }
+
+  // Render Dashboard Quick Cards
+  renderDashboardUI();
+}
+
+function renderDashboardUI() {
+  const currentRole = securityUsers.currentUser ? securityUsers.currentUser.role : 'officer';
+  const allowed = rolePermissions[currentRole] || rolePermissions.officer;
+
+  const dashboardView = document.getElementById('dashboard');
+  if (!dashboardView) return;
+
+  // Dashboard Admin Quick Cards & Section Heading
+  const adminHeading = dashboardView.querySelector('.section-heading');
+  const adminGrid = dashboardView.querySelector('.admin-quick-grid');
+
+  if (adminGrid) {
+    const quickCards = adminGrid.querySelectorAll('[data-view]');
+    let visibleCardsCount = 0;
+    quickCards.forEach(card => {
+      const cardView = card.dataset.view;
+      if (allowed.includes(cardView)) {
+        card.style.display = '';
+        visibleCardsCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    if (adminHeading) {
+      adminHeading.style.display = visibleCardsCount > 0 ? 'block' : 'none';
+    }
+  }
+
+  // Admin Dashboard Quick Cards (within section#admin-dashboard)
+  const adminDashView = document.getElementById('admin-dashboard');
+  if (adminDashView) {
+    const adminDashQuickGrid = adminDashView.querySelector('.admin-quick-grid');
+    if (adminDashQuickGrid) {
+      const cards = adminDashQuickGrid.querySelectorAll('[data-view]');
+      cards.forEach(card => {
+        const cardView = card.dataset.view;
+        card.style.display = allowed.includes(cardView) ? '' : 'none';
+      });
+    }
+  }
 }
 
 // Event Delegation for Navigation
@@ -3499,6 +3624,7 @@ function handleSignInSubmit() {
 
   let signedInName = '';
   let initials = 'SO';
+  let roleVal = 'officer';
 
   if (currentSecurityLevel === 'OFFICER') {
     const officerSelect = document.getElementById('signInOfficerSelect');
@@ -3511,18 +3637,22 @@ function handleSignInSubmit() {
       return;
     }
     signedInName = selectedOfficer;
+    roleVal = 'officer';
     const parts = selectedOfficer.split(' ');
     initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : selectedOfficer.substring(0, 2).toUpperCase();
   } else if (currentSecurityLevel === 'SUPERVISOR') {
-    signedInName = `${securityUsers.supervisor} (Supervisor)`;
+    signedInName = securityUsers.supervisor;
+    roleVal = 'supervisor';
     initials = 'SUP';
   } else if (currentSecurityLevel === 'MANAGER') {
-    signedInName = `${securityUsers.manager} (Manager)`;
+    signedInName = securityUsers.manager;
+    roleVal = 'manager';
     initials = 'MGR';
   }
 
   securityUsers.currentUser = {
     name: signedInName,
+    role: roleVal,
     level: currentSecurityLevel,
     initials: initials
   };
@@ -3543,6 +3673,10 @@ function handleSignInSubmit() {
     }, 400);
   }
 
+  // Dynamically update UI and permissions for user role
+  renderNavigationAndRoleUI();
+  showView('dashboard');
+
   showToast(`Signed in as ${signedInName}`, 'success');
 }
 
@@ -3555,6 +3689,7 @@ function handleSignOut() {
     signInScreen.setAttribute('aria-hidden', 'false');
   }
   renderSignInForm();
+  renderNavigationAndRoleUI();
   showToast('Signed out successfully.', 'info');
 }
 
@@ -3741,6 +3876,7 @@ if (confirmRemoveOfficerBtn) {
 // Initial Initialization
 initSplashScreen();
 renderSignInForm();
+renderNavigationAndRoleUI();
 initializeDateTimeFields();
 updateTheme();
 renderPatrolDashboard();
