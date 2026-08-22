@@ -24,12 +24,37 @@ const titles = {
 
 // INITIAL MOCK DATA FOR STAFF & CLIENTS
 let mockStaff = [
+  // Velogy (8 IN)
   { id: 'staff-1', name: 'John Smith', company: 'Velogy', status: 'IN', lastAccess: 'East Gate' },
-  { id: 'staff-2', name: 'David Jones', company: 'Velogy', status: 'IN', lastAccess: 'East Gate' },
-  { id: 'staff-3', name: 'Michael Brown', company: 'Altrad', status: 'OUT', lastAccess: 'West Gate' },
-  { id: 'staff-4', name: 'James Wilson', company: 'Altrad', status: 'IN', lastAccess: 'East Gate' },
-  { id: 'staff-5', name: 'Robert Cole', company: 'Pinnacle', status: 'IN', lastAccess: 'East Gate' },
-  { id: 'staff-6', name: 'Steve Green', company: 'Contractors', status: 'OUT', lastAccess: 'West Gate' }
+  { id: 'staff-2', name: 'David Brown', company: 'Velogy', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-3', name: 'Mark Wilson', company: 'Velogy', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-4', name: 'Alex Johnson', company: 'Velogy', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-5', name: 'Robert Davis', company: 'Velogy', status: 'IN', lastAccess: 'West Gate' },
+  { id: 'staff-6', name: 'James Miller', company: 'Velogy', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-7', name: 'William Garcia', company: 'Velogy', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-8', name: 'Thomas Martinez', company: 'Velogy', status: 'IN', lastAccess: 'West Gate' },
+  // Altrad (7 IN)
+  { id: 'staff-9', name: 'Michael Cole', company: 'Altrad', status: 'IN', lastAccess: 'West Gate' },
+  { id: 'staff-10', name: 'Christopher Evans', company: 'Altrad', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-11', name: 'Daniel Taylor', company: 'Altrad', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-12', name: 'Anthony Anderson', company: 'Altrad', status: 'IN', lastAccess: 'West Gate' },
+  { id: 'staff-13', name: 'Matthew Thomas', company: 'Altrad', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-14', name: 'Donald Jackson', company: 'Altrad', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-15', name: 'Paul White', company: 'Altrad', status: 'IN', lastAccess: 'West Gate' },
+  // Pinnacle (5 IN)
+  { id: 'staff-16', name: 'James Wilson', company: 'Pinnacle', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-17', name: 'George Harris', company: 'Pinnacle', status: 'IN', lastAccess: 'West Gate' },
+  { id: 'staff-18', name: 'Kenneth Martin', company: 'Pinnacle', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-19', name: 'Steven Thompson', company: 'Pinnacle', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-20', name: 'Edward Garcia', company: 'Pinnacle', status: 'IN', lastAccess: 'West Gate' },
+  // Contractors (4 IN, 3 OUT)
+  { id: 'staff-21', name: 'Steve Green', company: 'Contractors', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-22', name: 'Mark Taylor', company: 'Contractors', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-23', name: 'Brian Robinson', company: 'Contractors', status: 'IN', lastAccess: 'West Gate' },
+  { id: 'staff-24', name: 'Ronald Clark', company: 'Contractors', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-25', name: 'Kevin Rodriguez', company: 'Contractors', status: 'OUT', lastAccess: 'West Gate' },
+  { id: 'staff-26', name: 'Edward Lewis', company: 'Contractors', status: 'OUT', lastAccess: 'West Gate' },
+  { id: 'staff-27', name: 'Jason Lee', company: 'Contractors', status: 'OUT', lastAccess: 'East Gate' }
 ];
 
 let mockClients = [
@@ -38,13 +63,16 @@ let mockClients = [
   { id: 'client-3', name: 'CISSION', contact: 'Client Contact', status: 'ACTIVE', passwordStatus: 'ACTIVE', password: '••••••••', nextChangeDate: '01 September 2026' }
 ];
 
-let nextStaffId = 7;
+let nextStaffId = 28;
 let nextClientId = 4;
 
 // LOCAL MOCK STATE FOR EAST GATE VEHICLE TALLY
-// Store tally count per normalized company key / name
+// Store tally count per normalized company key / name (Total sum = 56)
 let eastGateVehicleTally = {
-  "VELOGY": 0
+  "VELOGY": 20,
+  "TIP": 15,
+  "DEN HARTOG": 12,
+  "CISSION": 9
 };
 
 function renderEastGateVehicleTally() {
@@ -238,7 +266,7 @@ function initMockPatrolData() {
       let officer = (r % 2 === 0) ? "Officer S. Miller" : "Security Officer J. Vance";
       let issueDetails = null;
 
-      // Inject specific mock issues to demonstrate features & match prompt examples
+      // Inject specific mock issues to demonstrate features & match prompt examples (2 Night issues + 1 Day issue = 3 Total Open Issues)
       if (cpName === "FLX Lamp Post" && r === 4) {
         status = 'ISSUE';
         issueDetails = {
@@ -254,22 +282,6 @@ function initMockPatrolData() {
           severity: "MEDIUM",
           officer: "Officer S. Miller",
           time: "23:50"
-        };
-      } else if (cpName === "Cooling Towers" && r === 6) {
-        status = 'ISSUE';
-        issueDetails = {
-          issue: "Access hatch door latch stiff",
-          severity: "LOW",
-          officer: "Officer A. Taylor",
-          time: "03:15"
-        };
-      } else if (cpName === "Flare" && r === 7) {
-        status = 'ISSUE';
-        issueDetails = {
-          issue: "Warning indicator bulb flickering",
-          severity: "MEDIUM",
-          officer: "Security Officer J. Vance",
-          time: "04:22"
         };
       }
 
@@ -1152,104 +1164,569 @@ if (issueForm) {
 }
 
 /* ==========================================================================
-   2. ADMIN REPORTS & CHECKPOINT MATRIX
+   2. ADMIN REPORTS & 9 OPERATIONAL REPORT CONTROLLERS
    ========================================================================== */
 
-function populateAdminFilterCheckpoints() {
-  const filterCheckpoint = document.getElementById('filterCheckpoint');
-  if (!filterCheckpoint) return;
-  filterCheckpoint.innerHTML = '<option value="ALL">All 16 Checkpoints</option>';
-  CHECKPOINTS.forEach(cp => {
+let currentReportTab = 'daily-security';
+
+let carSearchLogs = [
+  { id: 'cs-1', dateTime: '2026-08-21 14:30', gate: 'East Gate', reg: 'AB12 CDE', driver: 'Mark Davis', company: 'Velogy', officer: 'Security Officer J. Vance', result: 'Clear', remarks: 'All clear, exterior & boot inspected' },
+  { id: 'cs-2', dateTime: '2026-08-21 12:15', gate: 'West Gate', reg: 'XY65 FGH', driver: 'Paul Stevens', company: 'Altrad', officer: 'Officer S. Miller', result: 'Clear', remarks: 'Interior search clear' },
+  { id: 'cs-3', dateTime: '2026-08-21 10:45', gate: 'East Gate', reg: 'MN78 IJK', driver: 'Chris Paul', company: 'Contractors', officer: 'Security Officer J. Vance', result: 'Item Found', remarks: 'Unregistered tool box found in trunk' },
+  { id: 'cs-4', dateTime: '2026-08-21 09:20', gate: 'West Gate', reg: 'KL34 NOP', driver: 'Ray Allen', company: 'Pinnacle', officer: 'Officer A. Taylor', result: 'Clear', remarks: 'Clear' }
+];
+
+let visitorSearchLogs = [
+  { id: 'vs-1', dateTime: '2026-08-21 11:00', name: 'Robert Vance', company: 'Maritime Logistics', timeIn: '10:45', timeOut: '14:20', officer: 'Security Officer J. Vance', checks: 'Male Body Search, Male Bag Search, Documentation Check', remarks: 'Clear' },
+  { id: 'vs-2', dateTime: '2026-08-21 09:30', name: 'Sarah Jenkins', company: 'Port Inspection Ltd', timeIn: '09:15', timeOut: '11:45', officer: 'Officer S. Miller', checks: 'Female Bag Search, Documentation Check', remarks: 'Documentation verified' },
+  { id: 'vs-3', dateTime: '2026-08-20 15:10', name: 'Gary Williams', company: 'Barge Ops Co', timeIn: '15:00', timeOut: '17:30', officer: 'Officer A. Taylor', checks: 'Male Body Search, Documentation Check', remarks: 'Clear' }
+];
+
+// Report Tab Switcher Handler
+document.addEventListener('click', (e) => {
+  const tabBtn = e.target.closest('#adminReportTabsContainer .report-tab');
+  if (tabBtn) {
+    const tabKey = tabBtn.dataset.reportTab;
+    currentReportTab = tabKey;
+
+    // Update active tab buttons
+    document.querySelectorAll('#adminReportTabsContainer .report-tab').forEach(b => {
+      b.classList.toggle('active', b.dataset.reportTab === tabKey);
+    });
+
+    // Toggle sub-view visibility
+    document.querySelectorAll('.report-content-view').forEach(viewEl => {
+      viewEl.style.display = viewEl.id === `repView-${tabKey}` ? 'block' : 'none';
+    });
+
+    renderAdminReports();
+  }
+});
+
+function renderAdminReports() {
+  if (currentReportTab === 'daily-security') {
+    renderDailySecurityReport();
+  } else if (currentReportTab === 'patrol') {
+    renderPatrolReport();
+  } else if (currentReportTab === 'vehicle-entry') {
+    renderVehicleEntryReport();
+  } else if (currentReportTab === 'daily-checks') {
+    renderDailyChecksReport();
+  } else if (currentReportTab === 'checkpoint') {
+    renderCheckpointReport();
+  } else if (currentReportTab === 'gate-activity') {
+    renderGateActivityReport();
+  } else if (currentReportTab === 'car-search') {
+    renderCarSearchReport();
+  } else if (currentReportTab === 'jetty') {
+    renderJettyReport();
+  } else if (currentReportTab === 'incident') {
+    renderIncidentReport();
+  }
+}
+
+// 1. Daily Security Report Renderer
+function renderDailySecurityReport() {
+  const dayStats = getDayPatrolStats();
+  const nightStats = getPatrolStats();
+  const vehiclesCount = calculateTotalVehiclesEntering();
+  const openIssuesCount = calculateOpenIssuesCount();
+
+  const dsPatrols = document.getElementById('dsRepPatrols');
+  const dsCheckpoints = document.getElementById('dsRepCheckpoints');
+  const dsVehicles = document.getElementById('dsRepVehicles');
+  const dsIssues = document.getElementById('dsRepIssues');
+
+  if (dsPatrols) dsPatrols.textContent = "11 / 11";
+  if (dsCheckpoints) dsCheckpoints.textContent = "167 / 167";
+  if (dsVehicles) dsVehicles.textContent = vehiclesCount;
+  if (dsIssues) dsIssues.textContent = openIssuesCount;
+
+  const tableBody = document.getElementById('dsRepTableBody');
+  if (!tableBody) return;
+
+  tableBody.innerHTML = `
+    <tr>
+      <td style="font-weight:700; color:var(--navy);">Day Patrols (3 Patrols)</td>
+      <td>39 Checkpoint Checks</td>
+      <td>${dayStats.totalChecked + dayStats.totalIssues} / 39 Checks</td>
+      <td><span class="badge-active">COMPLETED (${dayStats.completedRoundsCount}/3)</span></td>
+    </tr>
+    <tr>
+      <td style="font-weight:700; color:var(--navy);">Night Patrols (8 Patrols)</td>
+      <td>128 Checkpoint Checks</td>
+      <td>${nightStats.totalChecked + nightStats.totalIssues} / 128 Checks</td>
+      <td><span class="badge-active">COMPLETED (${nightStats.completedRoundsCount}/8)</span></td>
+    </tr>
+    <tr>
+      <td style="font-weight:700; color:var(--navy);">Checkpoint Completion Rate</td>
+      <td>167 Total Checks</td>
+      <td>167 Cleared</td>
+      <td><span class="badge-active">100% COMPLETED</span></td>
+    </tr>
+    <tr>
+      <td style="font-weight:700; color:var(--navy);">Davyhulme Oil Checks</td>
+      <td>5 Oil Level Checks</td>
+      <td>${pumpOilState.status === 'COMPLETED' ? '5 / 5 Completed' : 'Pending'}</td>
+      <td><span class="${pumpOilState.status === 'COMPLETED' ? 'badge-active' : 'badge-inactive'}">${pumpOilState.status}</span></td>
+    </tr>
+    <tr>
+      <td style="font-weight:700; color:var(--navy);">Car Park Check</td>
+      <td>1 Check Daily</td>
+      <td>${carParkState.isCompleted ? 'Completed (' + carParkState.status + ')' : 'Pending'}</td>
+      <td><span class="${carParkState.isCompleted ? 'badge-active' : 'badge-inactive'}">${carParkState.isCompleted ? carParkState.status : 'PENDING'}</span></td>
+    </tr>
+    <tr>
+      <td style="font-weight:700; color:var(--navy);">Jetty Patrol</td>
+      <td>Daily Duty When No Vessel</td>
+      <td>${dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT' ? 'Vessel Present' : dailyJettyPatrolState.status}</td>
+      <td><span class="badge-active">${dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT' ? 'VESSEL PRESENT' : dailyJettyPatrolState.status}</span></td>
+    </tr>
+    <tr>
+      <td style="font-weight:700; color:var(--navy);">Vehicles Entering (East Gate)</td>
+      <td>Dynamic Vehicle Tally</td>
+      <td>${vehiclesCount} Vehicles Logged</td>
+      <td><span class="badge-active">ACTIVE TALLY</span></td>
+    </tr>
+    <tr>
+      <td style="font-weight:700; color:var(--navy);">Total Operational Issues</td>
+      <td>Centralized Issues</td>
+      <td>${openIssuesCount} Issues Reported</td>
+      <td><span class="${openIssuesCount > 0 ? 'badge-inactive' : 'badge-active'}">${openIssuesCount} OPEN</span></td>
+    </tr>
+  `;
+}
+
+// 2. Patrol Report Renderer
+function updatePatrolReportRoundOptions() {
+  const modeSelect = document.getElementById('repPatrolModeSelect');
+  const roundSelect = document.getElementById('repPatrolRoundSelect');
+  if (!modeSelect || !roundSelect) return;
+
+  const mode = modeSelect.value;
+  const numRounds = mode === 'DAY' ? 3 : 8;
+
+  const prevRound = roundSelect.value;
+  roundSelect.innerHTML = '';
+
+  for (let r = 1; r <= numRounds; r++) {
     const opt = document.createElement('option');
-    opt.value = cp;
-    opt.textContent = cp;
-    filterCheckpoint.appendChild(opt);
+    opt.value = r;
+    opt.textContent = getOrdinalPatrolName(r);
+    roundSelect.appendChild(opt);
+  }
+
+  if (prevRound && parseInt(prevRound, 10) <= numRounds) {
+    roundSelect.value = prevRound;
+  }
+}
+
+document.addEventListener('change', (e) => {
+  if (e.target.id === 'repPatrolModeSelect') {
+    updatePatrolReportRoundOptions();
+    renderPatrolReport();
+  } else if (e.target.id === 'repPatrolRoundSelect' || e.target.id === 'repPatrolDate') {
+    renderPatrolReport();
+  }
+});
+
+function renderPatrolReport() {
+  updatePatrolReportRoundOptions();
+  const modeSelect = document.getElementById('repPatrolModeSelect');
+  const roundSelect = document.getElementById('repPatrolRoundSelect');
+  if (!modeSelect || !roundSelect) return;
+
+  const mode = modeSelect.value;
+  const rVal = parseInt(roundSelect.value || '1', 10);
+  const cpList = mode === 'DAY' ? DAY_CHECKPOINTS : NIGHT_CHECKPOINTS;
+  const roundsStore = mode === 'DAY' ? dayPatrolRounds : patrolRounds;
+
+  const eyebrowEl = document.getElementById('repPatrolHeaderEyebrow');
+  const titleEl = document.getElementById('repPatrolHeaderTitle');
+  if (eyebrowEl) eyebrowEl.textContent = `${mode} PATROL ${rVal}`;
+  if (titleEl) titleEl.textContent = `${getOrdinalPatrolName(rVal)} Checkpoint Results`;
+
+  let totalCp = cpList.length;
+  let checkedCount = 0;
+  let issueCount = 0;
+  let missedCount = 0;
+
+  cpList.forEach(cp => {
+    const data = roundsStore[rVal] ? roundsStore[rVal][cp] : null;
+    if (data) {
+      if (data.status === 'CHECKED') checkedCount++;
+      else if (data.status === 'ISSUE') issueCount++;
+      else missedCount++;
+    } else {
+      missedCount++;
+    }
+  });
+
+  const totalEl = document.getElementById('repPatrolTotalCp');
+  const checkedEl = document.getElementById('repPatrolCheckedCp');
+  const issuesEl = document.getElementById('repPatrolIssuesCp');
+  const missedEl = document.getElementById('repPatrolMissedCp');
+
+  if (totalEl) totalEl.textContent = totalCp;
+  if (checkedEl) checkedEl.textContent = checkedCount;
+  if (issuesEl) issuesEl.textContent = issueCount;
+  if (missedEl) missedEl.textContent = missedCount;
+
+  const tableBody = document.getElementById('repPatrolTableBody');
+  if (!tableBody) return;
+
+  tableBody.innerHTML = '';
+  cpList.forEach(cpName => {
+    const data = roundsStore[rVal] ? roundsStore[rVal][cpName] : null;
+    const tr = document.createElement('tr');
+
+    let badgeClass = 'badge-in';
+    let statusLabel = 'CHECKED';
+    let timeStr = data ? data.time : '--:--';
+    let officerStr = data ? data.officer : 'Security Officer';
+    let issueDetailsStr = 'None';
+
+    if (data && data.status === 'ISSUE') {
+      badgeClass = 'badge-out';
+      statusLabel = 'ISSUE';
+      if (data.issueDetails) {
+        issueDetailsStr = `[${data.issueDetails.severity}] ${data.issueDetails.issue}`;
+      }
+    } else if (!data || data.status === 'PENDING') {
+      badgeClass = 'badge-inactive';
+      statusLabel = 'MISSED / PENDING';
+    }
+
+    tr.innerHTML = `
+      <td style="font-weight: 700; color: var(--navy);">${cpName}</td>
+      <td><span class="${badgeClass}">${statusLabel}</span></td>
+      <td>${timeStr}</td>
+      <td>${officerStr}</td>
+      <td class="${issueDetailsStr !== 'None' ? 'amber-text' : ''}">${issueDetailsStr}</td>
+    `;
+    tableBody.appendChild(tr);
   });
 }
 
-function renderAdminReports() {
-  populateAdminFilterCheckpoints();
-  const stats = getPatrolStats();
+// 3. Vehicle Entry Report Renderer
+document.addEventListener('change', (e) => {
+  if (e.target.id === 'repVehicleDate' || e.target.id === 'repVehicleGateFilter') {
+    renderVehicleEntryReport();
+  }
+});
 
-  // Summary Card updates
-  const repRequiredChecks = document.getElementById('repRequiredChecks');
-  const repCompletedChecks = document.getElementById('repCompletedChecks');
-  const repIssuesCount = document.getElementById('repIssuesCount');
-  const repOutstandingChecks = document.getElementById('repOutstandingChecks');
+function renderVehicleEntryReport() {
+  const totalSum = calculateTotalVehiclesEntering();
+  const sumEl = document.getElementById('repVehicleTotalSum');
+  if (sumEl) sumEl.textContent = totalSum;
 
-  if (repRequiredChecks) repRequiredChecks.textContent = stats.totalChecksRequired;
-  if (repCompletedChecks) repCompletedChecks.textContent = stats.totalChecked;
-  if (repIssuesCount) repIssuesCount.textContent = stats.totalIssues;
-  if (repOutstandingChecks) repOutstandingChecks.textContent = stats.totalPending;
+  const tableBody = document.getElementById('repVehicleTableBody');
+  if (!tableBody) return;
 
-  // Performance box updates
-  const perfChecked = document.getElementById('perfChecked');
-  const perfIssues = document.getElementById('perfIssues');
-  const perfMissed = document.getElementById('perfMissed');
-  const perfPct = document.getElementById('perfPct');
+  // Gather active clients sorted A-Z
+  const activeClients = mockClients
+    .filter(c => c.status === 'ACTIVE')
+    .map(c => c.name.trim())
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 
-  if (perfChecked) perfChecked.textContent = stats.totalChecked;
-  if (perfIssues) perfIssues.textContent = stats.totalIssues;
-  if (perfMissed) perfMissed.textContent = stats.totalPending;
-  if (perfPct) perfPct.textContent = `${stats.completionPct}%`;
+  const categories = ['VELOGY', ...activeClients];
 
-  // Render Checkpoint Report Table (16 Checkpoints x 8 Rounds Matrix)
-  const reportTableBody = document.getElementById('reportTableBody');
-  if (!reportTableBody) return;
-
-  const filterRoundVal = document.getElementById('filterRound') ? document.getElementById('filterRound').value : 'ALL';
-  const filterCpVal = document.getElementById('filterCheckpoint') ? document.getElementById('filterCheckpoint').value : 'ALL';
-  const filterStatusVal = document.getElementById('filterStatus') ? document.getElementById('filterStatus').value : 'ALL';
-
-  reportTableBody.innerHTML = '';
-
-  CHECKPOINTS.forEach(cpName => {
-    if (filterCpVal !== 'ALL' && filterCpVal !== cpName) return;
+  tableBody.innerHTML = '';
+  categories.forEach(catName => {
+    const key = catName.toUpperCase();
+    const count = eastGateVehicleTally[key] || 0;
+    const pct = totalSum > 0 ? ((count / totalSum) * 100).toFixed(1) : '0.0';
+    const isVelogy = key === 'VELOGY';
 
     const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight: 700; color: var(--navy);">${catName}</td>
+      <td><span class="badge-active">${isVelogy ? 'PERMANENT TOP' : 'ACTIVE YARD CLIENT'}</span></td>
+      <td style="font-size: 16px; font-weight: 800; color: var(--navy);">${count}</td>
+      <td>${pct}%</td>
+    `;
+    tableBody.appendChild(tr);
+  });
+}
 
-    let rowHtml = `<td class="col-checkpoint">${cpName}</td>`;
+// 4. Daily Checks Report Renderer
+function renderDailyChecksReport() {
+  const tableBody = document.getElementById('repDailyChecksTableBody');
+  if (!tableBody) return;
 
-    let matchesFilter = true;
+  tableBody.innerHTML = `
+    <tr>
+      <td style="font-weight: 700; color: var(--navy);">Davyhulme Oil Checks</td>
+      <td>Once Daily (5 Checks)</td>
+      <td><span class="${pumpOilState.status === 'COMPLETED' ? 'badge-active' : 'badge-inactive'}">${pumpOilState.status}</span></td>
+      <td>${pumpOilState.status === 'COMPLETED' ? '0' : '5 checks'}</td>
+      <td>${pumpOilState.status === 'COMPLETED' ? 'Completed at ' + pumpOilState.completeTime + ' (Pumps 1–5 OK)' : 'Pending duty'}</td>
+    </tr>
+    <tr>
+      <td style="font-weight: 700; color: var(--navy);">Car Park Check</td>
+      <td>Once Daily</td>
+      <td><span class="${carParkState.isCompleted ? 'badge-active' : 'badge-inactive'}">${carParkState.isCompleted ? 'COMPLETED' : 'PENDING'}</span></td>
+      <td>${carParkState.isCompleted ? '0' : '1 check'}</td>
+      <td>${carParkState.isCompleted ? 'Status: ' + carParkState.status + ' (' + (carParkState.remarks || 'No issues') + ')' : 'Pending check'}</td>
+    </tr>
+    <tr>
+      <td style="font-weight: 700; color: var(--navy);">Jetty Patrol</td>
+      <td>Once Daily When No Vessel</td>
+      <td><span class="badge-active">${dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT' ? 'VESSEL PRESENT' : dailyJettyPatrolState.status}</span></td>
+      <td>${dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT' || dailyJettyPatrolState.status === 'COMPLETED' ? '0' : '1 patrol'}</td>
+      <td>${dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT' ? 'Jetty patrol not required while vessel is present' : 'Completed at ' + (dailyJettyPatrolState.completeTime || '08:15')}</td>
+    </tr>
+  `;
+}
+
+// 5. Checkpoint Report Renderer
+function renderCheckpointReport() {
+  const tableBody = document.getElementById('repCheckpointTableBody');
+  if (!tableBody) return;
+
+  tableBody.innerHTML = '';
+  CHECKPOINTS.forEach(cpName => {
+    let totalChecks = 8;
+    let completed = 0;
+    let issues = 0;
+    let missed = 0;
+    let lastCheckedTime = '--:--';
 
     for (let r = 1; r <= 8; r++) {
-      if (filterRoundVal !== 'ALL' && parseInt(filterRoundVal, 10) !== r) {
-        // Skip display logic filtering if specific round selected
-      }
-
       const item = patrolRounds[r][cpName];
-      let cellSymbol = '✓';
-      let statusClass = 'status-checked';
-
-      if (item.status === 'ISSUE') {
-        cellSymbol = '!';
-        statusClass = 'status-issue';
-      } else if (item.status === 'PENDING') {
-        cellSymbol = '—';
-        statusClass = 'status-pending';
+      if (item.status === 'CHECKED') {
+        completed++;
+        lastCheckedTime = item.time;
+      } else if (item.status === 'ISSUE') {
+        issues++;
+        lastCheckedTime = item.time;
+      } else {
+        missed++;
       }
-
-      rowHtml += `<td><span class="cell-status ${statusClass}">${cellSymbol}</span></td>`;
     }
 
-    rowHtml += `<td><button type="button" class="btn-detail-link">View Details</button></td>`;
-    tr.innerHTML = rowHtml;
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.innerHTML = `
+      <td style="font-weight: 700; color: var(--navy);">${cpName}</td>
+      <td>${totalChecks}</td>
+      <td class="ok-text" style="font-weight:700;">${completed}</td>
+      <td class="${issues > 0 ? 'amber-text' : ''}" style="font-weight:700;">${issues}</td>
+      <td class="${missed > 0 ? 'red-text' : ''}" style="font-weight:700;">${missed}</td>
+      <td>${lastCheckedTime}</td>
+      <td><button type="button" class="btn-detail-link">View Details</button></td>
+    `;
 
     tr.addEventListener('click', () => {
       openCheckpointDetailModal(cpName);
     });
 
-    reportTableBody.appendChild(tr);
+    tableBody.appendChild(tr);
   });
 }
 
-// Attach filter change listeners
-['filterDate', 'filterNight', 'filterRound', 'filterCheckpoint', 'filterOfficer', 'filterStatus'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) {
-    el.addEventListener('change', renderAdminReports);
+// 6. Gate Activity Report Renderer
+document.addEventListener('change', (e) => {
+  if (e.target.id === 'repGateSelect' || e.target.id === 'repGateDate') {
+    renderGateActivityReport();
   }
 });
+
+function renderGateActivityReport() {
+  const gateSelect = document.getElementById('repGateSelect');
+  const selectedGate = gateSelect ? gateSelect.value : 'ALL';
+
+  const tableBody = document.getElementById('repGateActivityTableBody');
+  if (!tableBody) return;
+
+  // Combine gate logs from mockStaff IN/OUT & car search logs
+  let gateEvents = [];
+
+  mockStaff.forEach(s => {
+    const gate = s.lastAccess || 'East Gate';
+    if (selectedGate === 'ALL' || selectedGate === gate) {
+      gateEvents.push({
+        time: '08:30',
+        gate: gate,
+        type: 'Staff Access',
+        desc: `${s.name} marked ${s.status}`,
+        company: s.company,
+        status: s.status
+      });
+    }
+  });
+
+  carSearchLogs.forEach(cs => {
+    if (selectedGate === 'ALL' || selectedGate === cs.gate) {
+      gateEvents.push({
+        time: cs.dateTime.slice(-5),
+        gate: cs.gate,
+        type: 'Car Search',
+        desc: `Search conducted for ${cs.reg} (${cs.driver})`,
+        company: cs.company,
+        status: cs.result
+      });
+    }
+  });
+
+  tableBody.innerHTML = '';
+  if (gateEvents.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="6" class="muted" style="text-align:center; padding:20px;">No gate activity recorded for criteria.</td></tr>`;
+  } else {
+    gateEvents.slice(0, 15).forEach(evt => {
+      const tr = document.createElement('tr');
+      const badgeClass = evt.status === 'IN' || evt.status === 'Clear' ? 'badge-in' : 'badge-out';
+
+      tr.innerHTML = `
+        <td>${evt.time}</td>
+        <td><strong>${evt.gate}</strong></td>
+        <td>${evt.type}</td>
+        <td>${evt.desc}</td>
+        <td>${evt.company}</td>
+        <td><span class="${badgeClass}">${evt.status}</span></td>
+      `;
+      tableBody.appendChild(tr);
+    });
+  }
+}
+
+// 7. Car Search Report Renderer
+function renderCarSearchReport() {
+  const totalEl = document.getElementById('repCarSearchTotal');
+  if (totalEl) totalEl.textContent = carSearchLogs.length;
+
+  const tableBody = document.getElementById('repCarSearchTableBody');
+  if (!tableBody) return;
+
+  tableBody.innerHTML = '';
+  carSearchLogs.forEach(log => {
+    const tr = document.createElement('tr');
+    const badgeClass = log.result === 'Clear' ? 'badge-in' : log.result === 'Item Found' ? 'badge-out' : 'badge-inactive';
+
+    tr.innerHTML = `
+      <td>${log.dateTime}</td>
+      <td>${log.gate}</td>
+      <td style="font-weight: 700; color: var(--navy);">${log.reg}</td>
+      <td>${log.driver}</td>
+      <td>${log.company}</td>
+      <td>${log.officer}</td>
+      <td><span class="${badgeClass}">${log.result}</span></td>
+      <td>${log.remarks}</td>
+    `;
+    tableBody.appendChild(tr);
+  });
+}
+
+// 8. Jetty Report Renderer
+function renderJettyReport() {
+  const vesselEl = document.getElementById('repJettyVesselStatus');
+  const visCountEl = document.getElementById('repJettyVisCount');
+  const issuesEl = document.getElementById('repJettyIssuesCount');
+
+  if (vesselEl) vesselEl.textContent = dailyJettyPatrolState.vesselStatus.replace('_', ' ');
+  if (visCountEl) visCountEl.textContent = visitorSearchLogs.length;
+  if (issuesEl) issuesEl.textContent = "0";
+
+  const tableBody = document.getElementById('repJettyVisitorTableBody');
+  if (!tableBody) return;
+
+  tableBody.innerHTML = '';
+  visitorSearchLogs.forEach(log => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${log.dateTime}</td>
+      <td style="font-weight: 700; color: var(--navy);">${log.name}</td>
+      <td>${log.company}</td>
+      <td>IN: ${log.timeIn} | OUT: ${log.timeOut}</td>
+      <td>${log.officer}</td>
+      <td><small>${log.checks}</small></td>
+      <td>${log.remarks}</td>
+    `;
+    tableBody.appendChild(tr);
+  });
+}
+
+// 9. Incident / Issue Report Renderer
+function renderIncidentReport() {
+  const tableBody = document.getElementById('repIncidentTableBody');
+  if (!tableBody) return;
+
+  let incidents = [];
+
+  // Gather Day patrol issues
+  for (let r = 1; r <= 3; r++) {
+    if (dayPatrolRounds[r]) {
+      DAY_CHECKPOINTS.forEach(cp => {
+        const item = dayPatrolRounds[r][cp];
+        if (item && item.status === 'ISSUE' && item.issueDetails) {
+          incidents.push({
+            dateTime: `Today ${item.time}`,
+            source: 'Day Patrol',
+            location: cp,
+            officer: item.issueDetails.officer || item.officer,
+            desc: item.issueDetails.issue,
+            severity: item.issueDetails.severity || 'MEDIUM',
+            status: 'OPEN'
+          });
+        }
+      });
+    }
+  }
+
+  // Gather Night patrol issues
+  for (let r = 1; r <= 8; r++) {
+    if (patrolRounds[r]) {
+      CHECKPOINTS.forEach(cp => {
+        const item = patrolRounds[r][cp];
+        if (item && item.status === 'ISSUE' && item.issueDetails) {
+          incidents.push({
+            dateTime: `Night ${r} (${item.time})`,
+            source: 'Night Patrol',
+            location: cp,
+            officer: item.issueDetails.officer || item.officer,
+            desc: item.issueDetails.issue,
+            severity: item.issueDetails.severity || 'HIGH',
+            status: 'OPEN'
+          });
+        }
+      });
+    }
+  }
+
+  // Gather Car search issues
+  carSearchLogs.filter(cs => cs.result === 'Item Found' || cs.result === 'Refused').forEach(cs => {
+    incidents.push({
+      dateTime: cs.dateTime,
+      source: 'Car Search',
+      location: cs.gate,
+      officer: cs.officer,
+      desc: `Search outcome: ${cs.result} (${cs.remarks})`,
+      severity: 'HIGH',
+      status: 'OPEN'
+    });
+  });
+
+  tableBody.innerHTML = '';
+  if (incidents.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="7" class="muted" style="text-align:center; padding:20px;">No incidents or issues reported.</td></tr>`;
+  } else {
+    incidents.forEach(inc => {
+      const tr = document.createElement('tr');
+      const sevClass = inc.severity === 'HIGH' ? 'badge-out' : 'badge-inactive';
+
+      tr.innerHTML = `
+        <td>${inc.dateTime}</td>
+        <td><strong>${inc.source}</strong></td>
+        <td>${inc.location}</td>
+        <td>${inc.officer}</td>
+        <td>${inc.desc}</td>
+        <td><span class="${sevClass}">${inc.severity}</span></td>
+        <td><span class="badge-active">${inc.status}</span></td>
+      `;
+      tableBody.appendChild(tr);
+    });
+  }
+}
 
 /* ==========================================================================
    3. CHECKPOINT DETAIL MODAL / DRAWER
@@ -1496,6 +1973,24 @@ if (carSearchForm) {
 
     const selectedResult = document.querySelector('#carResultGrid button.selected');
     const resultVal = selectedResult ? selectedResult.dataset.result : 'Clear';
+
+    const driverVal = document.getElementById('carDriver')?.value.trim() || 'N/A';
+    const companyVal = document.getElementById('carCompany')?.value.trim() || 'N/A';
+    const gateVal = document.getElementById('carGate')?.value || 'East Gate';
+    const officerVal = document.getElementById('carOfficer')?.value.trim() || 'Security Officer';
+    const remarksVal = document.getElementById('carRemarks')?.value.trim() || 'None';
+
+    carSearchLogs.unshift({
+      id: `cs-${Date.now()}`,
+      dateTime: getLocalDateTimeString().replace('T', ' '),
+      gate: gateVal,
+      reg: regVal || 'AB12 CDE',
+      driver: driverVal,
+      company: companyVal,
+      officer: officerVal,
+      result: resultVal,
+      remarks: remarksVal
+    });
 
     const toastType = resultVal === 'Clear' ? 'success' : resultVal === 'Item Found' ? 'warning' : 'danger';
     showToast(`Car Search completed for ${regVal || 'Vehicle'}. Result: ${resultVal}`, toastType);
@@ -1816,6 +2311,26 @@ if (visitorSearchForm) {
     const visNameInput = document.getElementById('visName');
     const visNameVal = visNameInput ? visNameInput.value.trim() : 'Visitor';
 
+    const companyVal = document.getElementById('visCompany')?.value.trim() || 'Visitor Company';
+    const timeInVal = document.getElementById('visTimeIn')?.value || getTimeString();
+    const timeOutVal = document.getElementById('visTimeOut')?.value || '--:--';
+    const officerVal = document.getElementById('visSearcher')?.value.trim() || 'Security Officer';
+    const remarksVal = document.getElementById('visRemarks')?.value.trim() || 'None';
+
+    const selectedChecks = [...document.querySelectorAll('#visitorChecksGrid button.selected')].map(b => b.dataset.check).join(', ') || 'Documentation Check';
+
+    visitorSearchLogs.unshift({
+      id: `vs-${Date.now()}`,
+      dateTime: getLocalDateTimeString().replace('T', ' '),
+      name: visNameVal,
+      company: companyVal,
+      timeIn: timeInVal,
+      timeOut: timeOutVal,
+      officer: officerVal,
+      checks: selectedChecks,
+      remarks: remarksVal
+    });
+
     showToast(`Visitor search completed for ${visNameVal}.`, 'success');
 
     setTimeout(() => {
@@ -1926,6 +2441,7 @@ function toggleStaffStatus(staffId) {
   }
 
   renderStaffManagement();
+  renderAdminDashboard();
 }
 
 // Search & Filter Attachments for Staff
@@ -2067,22 +2583,114 @@ if (confirmRemoveStaffBtn) {
 let currentClientStatusFilter = 'ALL';
 let pendingDeactivateClientId = null;
 
+function calculateTotalVehiclesEntering() {
+  let total = 0;
+  // Dynamic client list from mockClients
+  const activeClients = mockClients.filter(c => c.status === 'ACTIVE').map(c => c.name.trim().toUpperCase());
+  const categories = ['VELOGY', ...activeClients];
+  categories.forEach(cat => {
+    total += (eastGateVehicleTally[cat] || 0);
+  });
+  return total;
+}
+
+function calculateOpenIssuesCount() {
+  let issues = 0;
+  // Day patrol issues
+  for (let r = 1; r <= 3; r++) {
+    if (dayPatrolRounds[r]) {
+      DAY_CHECKPOINTS.forEach(cp => {
+        if (dayPatrolRounds[r][cp] && dayPatrolRounds[r][cp].status === 'ISSUE') issues++;
+      });
+    }
+  }
+  // Night patrol issues
+  for (let r = 1; r <= 8; r++) {
+    if (patrolRounds[r]) {
+      CHECKPOINTS.forEach(cp => {
+        if (patrolRounds[r][cp] && patrolRounds[r][cp].status === 'ISSUE') issues++;
+      });
+    }
+  }
+  return issues;
+}
+
 function renderAdminDashboard() {
   const staffInCount = mockStaff.filter(s => s.status === 'IN').length;
-  const staffOutCount = mockStaff.filter(s => s.status === 'OUT').length;
-  const totalStaffCount = mockStaff.length;
-  const activeClientsCount = mockClients.filter(c => c.status === 'ACTIVE').length;
+  const vehiclesCount = calculateTotalVehiclesEntering();
+  const openIssuesCount = calculateOpenIssuesCount();
 
   const kpiStaffIn = document.getElementById('kpiStaffIn');
-  const kpiStaffOut = document.getElementById('kpiStaffOut');
-  const kpiTotalStaff = document.getElementById('kpiTotalStaff');
-  const kpiActiveClients = document.getElementById('kpiActiveClients');
+  const kpiVehiclesEntering = document.getElementById('kpiVehiclesEntering');
+  const kpiOpenIssues = document.getElementById('kpiOpenIssues');
+  const kpiPatrols = document.getElementById('kpiPatrols');
+  const kpiCheckpoints = document.getElementById('kpiCheckpoints');
 
   if (kpiStaffIn) kpiStaffIn.textContent = staffInCount;
-  if (kpiStaffOut) kpiStaffOut.textContent = staffOutCount;
-  if (kpiTotalStaff) kpiTotalStaff.textContent = totalStaffCount;
-  if (kpiActiveClients) kpiActiveClients.textContent = activeClientsCount;
+  if (kpiVehiclesEntering) kpiVehiclesEntering.textContent = vehiclesCount;
+  if (kpiOpenIssues) kpiOpenIssues.textContent = openIssuesCount;
+  if (kpiPatrols) kpiPatrols.textContent = "11 / 11";
+  if (kpiCheckpoints) kpiCheckpoints.textContent = "167 / 167";
+
+  // Re-render Staff On Site modal if currently open
+  const viewStaffModal = document.getElementById('viewStaffOnSiteModal');
+  if (viewStaffModal && viewStaffModal.getAttribute('aria-hidden') === 'false') {
+    renderViewStaffOnSiteModal();
+  }
 }
+
+function renderViewStaffOnSiteModal() {
+  const modal = document.getElementById('viewStaffOnSiteModal');
+  const countSpan = document.getElementById('staffOnSiteHeaderCount');
+  const bodyEl = document.getElementById('viewStaffModalBody');
+  if (!modal || !bodyEl) return;
+
+  const staffIn = mockStaff.filter(s => s.status === 'IN');
+  if (countSpan) countSpan.textContent = staffIn.length;
+
+  const companies = ['VELOGY', 'ALTRAD', 'PINNACLE', 'CONTRACTORS'];
+  let html = '';
+
+  companies.forEach(company => {
+    const members = staffIn.filter(s => s.company.toUpperCase() === company);
+    html += `
+      <div class="company-staff-group" style="margin-bottom: 20px;">
+        <h4 style="color: var(--navy); border-bottom: 2px solid var(--line); padding-bottom: 4px; margin-bottom: 8px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px;">${company} (${members.length})</h4>
+    `;
+
+    if (members.length === 0) {
+      html += `<p class="muted-small" style="padding-left: 12px; margin: 4px 0;">No personnel on site</p>`;
+    } else {
+      html += `<ul style="list-style: none; padding-left: 8px; margin: 0;">`;
+      members.forEach(m => {
+        html += `<li style="padding: 4px 0; font-size: 14px; color: var(--text);"><span style="color: var(--green); margin-right: 6px; font-weight: bold;">•</span><strong>${m.name}</strong></li>`;
+      });
+      html += `</ul>`;
+    }
+
+    html += `</div>`;
+  });
+
+  bodyEl.innerHTML = html;
+}
+
+const viewStaffModal = document.getElementById('viewStaffOnSiteModal');
+const viewStaffOnSiteBtn = document.getElementById('viewStaffOnSiteBtn');
+const closeViewStaffModalBtn = document.getElementById('closeViewStaffModalBtn');
+const closeViewStaffBtn = document.getElementById('closeViewStaffBtn');
+
+function openViewStaffModal() {
+  renderViewStaffOnSiteModal();
+  if (viewStaffModal) viewStaffModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeViewStaffModal() {
+  if (viewStaffModal) viewStaffModal.setAttribute('aria-hidden', 'true');
+}
+
+if (viewStaffOnSiteBtn) viewStaffOnSiteBtn.addEventListener('click', openViewStaffModal);
+if (closeViewStaffModalBtn) closeViewStaffModalBtn.addEventListener('click', closeViewStaffModal);
+if (closeViewStaffBtn) closeViewStaffBtn.addEventListener('click', closeViewStaffModal);
 
 function renderClientManagement() {
   const tableBody = document.getElementById('clientTableBody');
