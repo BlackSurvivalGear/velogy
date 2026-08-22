@@ -1,6 +1,6 @@
-# iMotech Security Solutions
+# ImoTech Security Solutions
 
-Security operations web application for iMotech Security Solutions.
+Security operations web application for ImoTech Security Solutions.
 
 ## V1 UI Modules
 
