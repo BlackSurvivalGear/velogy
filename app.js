@@ -19,7 +19,7 @@ const titles = {
   'jetty-patrol': 'Jetty Patrol',
   'visitor-search': 'Visitor Search',
   'admin-dashboard': 'Admin Dashboard',
-  'officer-management': 'Officer Management',
+  'officer-management': 'Security Users',
   'staff-management': 'Staff Management',
   'client-management': 'Client Management',
   'access-denied': 'Access Restricted'
@@ -28,6 +28,17 @@ const titles = {
 // ROLE PERMISSIONS MATRIX
 const rolePermissions = {
   officer: [
+    'dashboard',
+    'patrol',
+    'access',
+    'gate-east',
+    'gate-west',
+    'car-search',
+    'jetty',
+    'jetty-patrol',
+    'visitor-search'
+  ],
+  controller: [
     'dashboard',
     'patrol',
     'access',
@@ -90,20 +101,20 @@ let mockClients = [
 ];
 
 let securityUsers = {
-  officers: [
-    "Robert Lawal",
-    "Haseeb Ansar",
-    "Steven Smith",
-    "John Walsh",
-    "Vio Roman",
-    "Scot Smith",
-    "Michelle Holder",
-    "Antony Warbutton",
-    "Antony Bird",
-    "Mike Smith"
+  users: [
+    { name: "Robert Lawal", role: "officer" },
+    { name: "John Walsh", role: "officer" },
+    { name: "Vio Roman", role: "officer" },
+    { name: "Michelle Holder", role: "officer" },
+    { name: "Antony Bird", role: "officer" },
+    { name: "Mike Smith", role: "officer" },
+    { name: "Haseeb Ansar", role: "controller" },
+    { name: "Steven Smith", role: "controller" },
+    { name: "Scot Smith", role: "controller" },
+    { name: "Antony Warbutton", role: "controller" },
+    { name: "Troy Oliv", role: "supervisor" },
+    { name: "Seun Clegg", role: "manager" }
   ],
-  supervisor: "Troy Oliv",
-  manager: "Seun Clegg",
   testPassword: "velogy2026",
   currentUser: null
 };
@@ -187,6 +198,13 @@ function incrementVehicleTally(companyName) {
 function renderControlVehicleTally() {
   const gridEl = document.getElementById('controlVehicleTallyGrid');
   const totalEl = document.getElementById('controlTallyTotalCount');
+  const roleEl = document.getElementById('controlUserRole');
+  const nameEl = document.getElementById('controlUserName');
+
+  if (securityUsers.currentUser) {
+    if (roleEl) roleEl.textContent = securityUsers.currentUser.role.toUpperCase();
+    if (nameEl) nameEl.textContent = securityUsers.currentUser.name;
+  }
 
   // Gather active dynamic clients sorted alphabetically A-Z
   const activeClients = mockClients
@@ -508,6 +526,8 @@ function showView(id) {
 
   if (id === 'dashboard') {
     renderDashboardUI();
+  } else if (id === 'access') {
+    renderAccessControlUI();
   } else if (id === 'patrol') {
     renderPatrolDashboard();
   } else if (id === 'jetty-patrol') {
@@ -556,8 +576,27 @@ function renderNavigationAndRoleUI() {
     navSectionTitle.style.display = hasAdminNav ? 'block' : 'none';
   }
 
-  // Render Dashboard Quick Cards
+  // Render Dashboard Quick Cards & Access Control Cards
   renderDashboardUI();
+  renderAccessControlUI();
+}
+
+function renderAccessControlUI() {
+  const currentRole = securityUsers.currentUser ? securityUsers.currentUser.role : 'officer';
+  const allowed = rolePermissions[currentRole] || rolePermissions.officer;
+
+  const accessView = document.getElementById('access');
+  if (!accessView) return;
+
+  const cards = accessView.querySelectorAll('.gate-grid [data-view]');
+  cards.forEach(card => {
+    const targetView = card.dataset.view;
+    if (allowed.includes(targetView)) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
 }
 
 function renderDashboardUI() {
@@ -3632,7 +3671,7 @@ function initSplashScreen() {
    9. SECURITY SIGN-IN & AUTHENTICATION LOGIC
    ========================================================================== */
 
-let currentSecurityLevel = 'OFFICER'; // 'OFFICER' | 'SUPERVISOR' | 'MANAGER'
+let currentSecurityLevel = 'OFFICER'; // 'OFFICER' | 'CONTROLLER' | 'SUPERVISOR' | 'MANAGER'
 
 function renderSignInForm() {
   const container = document.getElementById('signInDynamicContainer');
@@ -3647,11 +3686,12 @@ function renderSignInForm() {
   });
 
   if (currentSecurityLevel === 'OFFICER') {
-    let officerOptions = securityUsers.officers.map(name => `<option value="${name}">${name}</option>`).join('');
+    const officers = securityUsers.users.filter(u => u.role === 'officer');
+    let officerOptions = officers.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
     container.innerHTML = `
       <div class="sign-in-field-group">
-        <label for="signInOfficerSelect">Officer Name</label>
-        <select id="signInOfficerSelect" class="sign-in-input" required>
+        <label for="signInUserSelect">Officer Name</label>
+        <select id="signInUserSelect" class="sign-in-input" required>
           <option value="" disabled selected>[ Select Officer ▼ ]</option>
           ${officerOptions}
         </select>
@@ -3661,19 +3701,39 @@ function renderSignInForm() {
         <input type="password" id="signInPassword" class="sign-in-input" placeholder="••••••••" required>
       </div>
     `;
+  } else if (currentSecurityLevel === 'CONTROLLER') {
+    const controllers = securityUsers.users.filter(u => u.role === 'controller');
+    let controllerOptions = controllers.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+    container.innerHTML = `
+      <div class="sign-in-field-group">
+        <label for="signInUserSelect">Controller Name</label>
+        <select id="signInUserSelect" class="sign-in-input" required>
+          <option value="" disabled selected>[ Select Controller ▼ ]</option>
+          ${controllerOptions}
+        </select>
+      </div>
+      <div class="sign-in-field-group">
+        <label for="signInPassword">Password</label>
+        <input type="password" id="signInPassword" class="sign-in-input" placeholder="••••••••" required>
+      </div>
+    `;
   } else if (currentSecurityLevel === 'SUPERVISOR') {
+    const supervisors = securityUsers.users.filter(u => u.role === 'supervisor');
+    const supName = supervisors.length > 0 ? supervisors[0].name : "Troy Oliv";
     container.innerHTML = `
       <div class="sign-in-role-badge">SECURITY SUPERVISOR</div>
-      <div class="sign-in-role-person">${securityUsers.supervisor}</div>
+      <div class="sign-in-role-person">${supName}</div>
       <div class="sign-in-field-group" style="margin-top: 16px;">
         <label for="signInPassword">Password</label>
         <input type="password" id="signInPassword" class="sign-in-input" placeholder="••••••••" required>
       </div>
     `;
   } else if (currentSecurityLevel === 'MANAGER') {
+    const managers = securityUsers.users.filter(u => u.role === 'manager');
+    const mgrName = managers.length > 0 ? managers[0].name : "Seun Clegg";
     container.innerHTML = `
       <div class="sign-in-role-badge">SECURITY MANAGER</div>
-      <div class="sign-in-role-person">${securityUsers.manager}</div>
+      <div class="sign-in-role-person">${mgrName}</div>
       <div class="sign-in-field-group" style="margin-top: 16px;">
         <label for="signInPassword">Password</label>
         <input type="password" id="signInPassword" class="sign-in-input" placeholder="••••••••" required>
@@ -3699,29 +3759,28 @@ function handleSignInSubmit() {
 
   let signedInName = '';
   let initials = 'SO';
-  let roleVal = 'officer';
+  let roleVal = currentSecurityLevel.toLowerCase();
 
-  if (currentSecurityLevel === 'OFFICER') {
-    const officerSelect = document.getElementById('signInOfficerSelect');
-    const selectedOfficer = officerSelect ? officerSelect.value : '';
-    if (!selectedOfficer) {
+  if (currentSecurityLevel === 'OFFICER' || currentSecurityLevel === 'CONTROLLER') {
+    const userSelect = document.getElementById('signInUserSelect');
+    const selectedUser = userSelect ? userSelect.value : '';
+    if (!selectedUser) {
       if (errorEl) {
-        errorEl.textContent = 'Please select an officer name.';
+        errorEl.textContent = `Please select a ${roleVal} name.`;
         errorEl.style.display = 'block';
       }
       return;
     }
-    signedInName = selectedOfficer;
-    roleVal = 'officer';
-    const parts = selectedOfficer.split(' ');
-    initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : selectedOfficer.substring(0, 2).toUpperCase();
+    signedInName = selectedUser;
+    const parts = selectedUser.split(' ');
+    initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : selectedUser.substring(0, 2).toUpperCase();
   } else if (currentSecurityLevel === 'SUPERVISOR') {
-    signedInName = securityUsers.supervisor;
-    roleVal = 'supervisor';
+    const supervisors = securityUsers.users.filter(u => u.role === 'supervisor');
+    signedInName = supervisors.length > 0 ? supervisors[0].name : "Troy Oliv";
     initials = 'SUP';
   } else if (currentSecurityLevel === 'MANAGER') {
-    signedInName = securityUsers.manager;
-    roleVal = 'manager';
+    const managers = securityUsers.users.filter(u => u.role === 'manager');
+    signedInName = managers.length > 0 ? managers[0].name : "Seun Clegg";
     initials = 'MGR';
   }
 
@@ -3793,7 +3852,7 @@ if (signOutBtn) {
 }
 
 /* ==========================================================================
-   10. OFFICER MANAGEMENT LOGIC
+   10. SECURITY USERS (OFFICER MANAGEMENT) LOGIC
    ========================================================================== */
 
 let pendingRemoveOfficerName = null;
@@ -3803,30 +3862,25 @@ function renderOfficerManagement() {
   const cardsContainer = document.getElementById('officerCardsContainer');
   const searchVal = (document.getElementById('officerSearchInput')?.value || '').toLowerCase().trim();
 
-  // Update hierarchy summary elements
-  const supEl = document.getElementById('summarySupervisorName');
-  const mgrEl = document.getElementById('summaryManagerName');
-  if (supEl) supEl.textContent = securityUsers.supervisor;
-  if (mgrEl) mgrEl.textContent = securityUsers.manager;
-
-  const filteredOfficers = securityUsers.officers.filter(name => {
-    return !searchVal || name.toLowerCase().includes(searchVal);
+  const filteredUsers = securityUsers.users.filter(u => {
+    return !searchVal || u.name.toLowerCase().includes(searchVal) || u.role.toLowerCase().includes(searchVal);
   });
 
   // Render Desktop Table
   if (tableBody) {
     tableBody.innerHTML = '';
-    if (filteredOfficers.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="4" class="muted" style="text-align:center; padding:24px;">No security officers found.</td></tr>`;
+    if (filteredUsers.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="4" class="muted" style="text-align:center; padding:24px;">No security users found.</td></tr>`;
     } else {
-      filteredOfficers.forEach(name => {
+      filteredUsers.forEach(u => {
         const tr = document.createElement('tr');
+        const roleLabel = u.role.charAt(0).toUpperCase() + u.role.slice(1);
         tr.innerHTML = `
-          <td style="font-weight: 700; color: var(--navy);">${name}</td>
-          <td><span class="badge-active">Security Officer</span></td>
+          <td style="font-weight: 700; color: var(--navy);">${u.name}</td>
+          <td><span class="badge-active">${roleLabel}</span></td>
           <td style="font-family: monospace;">velogy2026</td>
           <td style="text-align: right;">
-            <button type="button" class="table-action-btn btn-danger" onclick="openRemoveOfficerModal('${name.replace(/'/g, "\\'")}')">REMOVE</button>
+            <button type="button" class="table-action-btn btn-danger" onclick="openRemoveOfficerModal('${u.name.replace(/'/g, "\\'")}')">REMOVE</button>
           </td>
         `;
         tableBody.appendChild(tr);
@@ -3837,26 +3891,27 @@ function renderOfficerManagement() {
   // Render Mobile Cards
   if (cardsContainer) {
     cardsContainer.innerHTML = '';
-    if (filteredOfficers.length === 0) {
-      cardsContainer.innerHTML = `<div class="admin-card muted" style="text-align:center;">No security officers found.</div>`;
+    if (filteredUsers.length === 0) {
+      cardsContainer.innerHTML = `<div class="admin-card muted" style="text-align:center;">No security users found.</div>`;
     } else {
-      filteredOfficers.forEach(name => {
+      filteredUsers.forEach(u => {
         const card = document.createElement('div');
         card.className = 'admin-card';
+        const roleLabel = u.role.charAt(0).toUpperCase() + u.role.slice(1);
         card.innerHTML = `
           <div class="admin-card-header">
             <div>
-              <h4 class="admin-card-title">${name}</h4>
-              <div class="admin-card-company">Security Officer</div>
+              <h4 class="admin-card-title">${u.name}</h4>
+              <div class="admin-card-company">${roleLabel}</div>
             </div>
-            <span class="badge-active">OFFICER</span>
+            <span class="badge-active">${u.role.toUpperCase()}</span>
           </div>
           <div class="admin-card-detail-row">
             <span class="muted">Password:</span>
             <span style="font-family: monospace;">velogy2026</span>
           </div>
           <div class="admin-card-actions">
-            <button type="button" class="table-action-btn btn-danger" onclick="openRemoveOfficerModal('${name.replace(/'/g, "\\'")}')">REMOVE</button>
+            <button type="button" class="table-action-btn btn-danger" onclick="openRemoveOfficerModal('${u.name.replace(/'/g, "\\'")}')">REMOVE</button>
           </div>
         `;
         cardsContainer.appendChild(card);
@@ -3881,7 +3936,9 @@ const addOfficerForm = document.getElementById('addOfficerForm');
 if (openAddOfficerModalBtn) {
   openAddOfficerModalBtn.addEventListener('click', () => {
     const input = document.getElementById('officerNameInput');
+    const roleSelect = document.getElementById('officerRoleSelect');
     if (input) input.value = '';
+    if (roleSelect) roleSelect.value = 'Officer';
     if (addOfficerModal) addOfficerModal.setAttribute('aria-hidden', 'false');
   });
 }
@@ -3897,20 +3954,22 @@ if (addOfficerForm) {
   addOfficerForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const input = document.getElementById('officerNameInput');
+    const roleSelect = document.getElementById('officerRoleSelect');
     const nameVal = input ? input.value.trim() : '';
+    const roleVal = roleSelect ? roleSelect.value.toLowerCase() : 'officer';
 
     if (!nameVal) return;
 
-    if (securityUsers.officers.includes(nameVal)) {
-      showToast(`${nameVal} is already in the Security Officer list.`, 'warning');
+    if (securityUsers.users.some(u => u.name.toLowerCase() === nameVal.toLowerCase())) {
+      showToast(`${nameVal} is already registered as a security user.`, 'warning');
       return;
     }
 
-    securityUsers.officers.push(nameVal);
+    securityUsers.users.push({ name: nameVal, role: roleVal });
     closeAddOfficerModal();
     renderOfficerManagement();
     renderSignInForm();
-    showToast(`Officer ${nameVal} added successfully.`, 'success');
+    showToast(`Security user ${nameVal} (${roleVal}) added successfully.`, 'success');
   });
 }
 
@@ -3939,11 +3998,11 @@ if (confirmRemoveOfficerBtn) {
   confirmRemoveOfficerBtn.addEventListener('click', () => {
     if (pendingRemoveOfficerName) {
       const name = pendingRemoveOfficerName;
-      securityUsers.officers = securityUsers.officers.filter(o => o !== name);
+      securityUsers.users = securityUsers.users.filter(u => u.name !== name);
       closeRemoveOfficerModal();
       renderOfficerManagement();
       renderSignInForm();
-      showToast(`Officer ${name} removed from Security Officer list.`, 'warning');
+      showToast(`User ${name} removed from Security Users list.`, 'warning');
     }
   });
 }
