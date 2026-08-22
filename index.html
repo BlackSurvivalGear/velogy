@@ -16,6 +16,35 @@
     </div>
   </div>
 
+  <!-- SECURITY SIGN-IN SCREEN -->
+  <div id="signInScreen" class="sign-in-screen" aria-hidden="false">
+    <div class="sign-in-card">
+      <div class="sign-in-header">
+        <img src="slogo.png" alt="ImoTech Security Solutions" class="sign-in-logo">
+        <h2>Security Operations</h2>
+        <span class="sign-in-subtitle">SECURITY SIGN-IN</span>
+      </div>
+
+      <!-- Security Level Tabs -->
+      <div class="security-level-tabs" id="securityLevelTabs">
+        <button type="button" class="security-level-tab active" data-level="OFFICER">Officer</button>
+        <button type="button" class="security-level-tab" data-level="SUPERVISOR">Supervisor</button>
+        <button type="button" class="security-level-tab" data-level="MANAGER">Manager</button>
+      </div>
+
+      <form id="signInForm" onsubmit="return false;">
+        <!-- Dynamic Level Content -->
+        <div id="signInDynamicContainer" class="sign-in-dynamic-container">
+          <!-- Populated by app.js -->
+        </div>
+
+        <div id="signInError" class="sign-in-error-message" style="display: none;"></div>
+
+        <button type="submit" class="primary-button sign-in-submit-btn">SIGN IN</button>
+      </form>
+    </div>
+  </div>
+
   <div class="app-shell">
     <aside class="sidebar" aria-label="Primary navigation">
       <div class="brand">
@@ -32,6 +61,7 @@
         <div class="nav-section-title">ADMINISTRATION</div>
         <button class="nav-item" data-view="admin-dashboard">Admin Dashboard</button>
         <button class="nav-item" data-view="reports">Admin Reports</button>
+        <button class="nav-item" data-view="officer-management">Officer Management</button>
         <button class="nav-item" data-view="staff-management">Staff Management</button>
         <button class="nav-item" data-view="client-management">Client Management</button>
       </nav>
@@ -50,8 +80,9 @@
           <span class="site-name">Carrington Site</span>
         </div>
         <div class="operator">
-          <span class="operator-avatar">SO</span>
-          <span class="operator-name">Security Officer</span>
+          <span class="operator-avatar" id="operatorAvatar">SO</span>
+          <span class="operator-name" id="operatorName">Security Officer</span>
+          <button type="button" class="sign-out-button" id="signOutBtn" title="Sign Out">Sign Out</button>
         </div>
       </header>
 
@@ -111,6 +142,15 @@
               <span class="module-label">OVERVIEW</span>
               <h3>Admin Dashboard</h3>
               <p>Live metrics for staff on site and active yard clients.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
+          <button class="module-card" data-view="officer-management">
+            <div class="module-icon">OM</div>
+            <div>
+              <span class="module-label">SECURITY USERS</span>
+              <h3>Officer Management</h3>
+              <p>Manage Security Officer accounts and sign-in permissions.</p>
             </div>
             <span class="arrow">→</span>
           </button>
@@ -917,6 +957,61 @@
         </div>
       </section>
 
+      <!-- OFFICER MANAGEMENT -->
+      <section id="officer-management" class="view">
+        <div class="page-intro">
+          <span class="eyebrow">ADMINISTRATION · SECURITY USERS</span>
+          <h2>Officer Management</h2>
+          <p>Manage security personnel authorised to sign into the security operations system.</p>
+        </div>
+
+        <!-- System User Hierarchy Summary -->
+        <div class="security-hierarchy-summary">
+          <div class="hierarchy-card">
+            <span class="eyebrow">SUPERVISOR</span>
+            <strong id="summarySupervisorName">Troy Oliv</strong>
+            <small class="muted">Security Supervisor</small>
+          </div>
+          <div class="hierarchy-card">
+            <span class="eyebrow">MANAGER</span>
+            <strong id="summaryManagerName">Seun Clegg</strong>
+            <small class="muted">Security Manager</small>
+          </div>
+        </div>
+
+        <!-- Controls Bar -->
+        <div class="admin-controls-panel">
+          <div class="controls-top">
+            <div class="search-box">
+              <input type="text" id="officerSearchInput" placeholder="Search security officers...">
+            </div>
+            <button type="button" class="primary-button" id="openAddOfficerModalBtn">+ ADD OFFICER</button>
+          </div>
+        </div>
+
+        <!-- Desktop Officer Table -->
+        <div class="admin-table-wrapper desktop-only">
+          <table class="admin-data-table">
+            <thead>
+              <tr>
+                <th>Officer Name</th>
+                <th>Role / Security Level</th>
+                <th>Default Password</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="officerTableBody">
+              <!-- Dynamically populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Officer Cards Container -->
+        <div class="admin-cards-wrapper mobile-only" id="officerCardsContainer">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </section>
+
       <!-- STAFF MANAGEMENT -->
       <section id="staff-management" class="view">
         <div class="page-intro">
@@ -1167,6 +1262,44 @@
           <button type="submit" class="primary-button" id="submitStaffBtn">Add Staff</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ADD OFFICER MODAL -->
+  <div id="addOfficerModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="addOfficerModalTitle">
+      <div class="modal-header">
+        <h3 id="addOfficerModalTitle">Add Officer</h3>
+        <button type="button" class="modal-close" id="closeAddOfficerModalBtn">&times;</button>
+      </div>
+      <form id="addOfficerForm" onsubmit="return false;">
+        <div class="form-grid" style="grid-template-columns: 1fr; margin-bottom: 16px;">
+          <label>Officer Name
+            <input type="text" id="officerNameInput" placeholder="Enter full name" required>
+          </label>
+        </div>
+        <p class="muted-small">MVP Password: <strong>velogy2026</strong></p>
+        <div class="form-actions" style="margin-top: 20px;">
+          <button type="button" class="secondary-button" id="cancelAddOfficerBtn">Cancel</button>
+          <button type="submit" class="primary-button">Add Officer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONFIRM REMOVE OFFICER MODAL -->
+  <div id="confirmRemoveOfficerModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="confirmRemoveOfficerTitle">
+      <div class="modal-header">
+        <h3 id="confirmRemoveOfficerTitle">Confirm Removal</h3>
+        <button type="button" class="modal-close" id="closeRemoveOfficerModalBtn">&times;</button>
+      </div>
+      <p>Remove this officer (<strong id="removeOfficerNameText">Officer</strong>) from the Security Officer list?</p>
+      <p class="muted-small">This removes them from security sign-in operations. Site Staff records will remain unaffected.</p>
+      <div class="form-actions" style="margin-top: 24px;">
+        <button type="button" class="secondary-button" id="cancelRemoveOfficerBtn">Cancel</button>
+        <button type="button" class="danger-button" id="confirmRemoveOfficerBtn">Remove Officer</button>
+      </div>
     </div>
   </div>
 

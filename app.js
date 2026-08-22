@@ -18,6 +18,7 @@ const titles = {
   'jetty-patrol': 'Jetty Patrol',
   'visitor-search': 'Visitor Search',
   'admin-dashboard': 'Admin Dashboard',
+  'officer-management': 'Officer Management',
   'staff-management': 'Staff Management',
   'client-management': 'Client Management'
 };
@@ -37,6 +38,25 @@ let mockClients = [
   { id: 'client-2', name: 'DEN HARTOG', contact: 'Client Contact', status: 'ACTIVE', passwordStatus: 'ACTIVE', password: '••••••••', nextChangeDate: '01 September 2026' },
   { id: 'client-3', name: 'CISSION', contact: 'Client Contact', status: 'ACTIVE', passwordStatus: 'ACTIVE', password: '••••••••', nextChangeDate: '01 September 2026' }
 ];
+
+let securityUsers = {
+  officers: [
+    "Robert Lawal",
+    "Haseeb Ansar",
+    "Steven Smith",
+    "John Walsh",
+    "Vio Roman",
+    "Scot Smith",
+    "Michelle Holder",
+    "Antony Warbutton",
+    "Antony Bird",
+    "Mike Smith"
+  ],
+  supervisor: "Troy Oliv",
+  manager: "Seun Clegg",
+  testPassword: "velogy2026",
+  currentUser: null
+};
 
 let nextStaffId = 7;
 let nextClientId = 4;
@@ -368,6 +388,8 @@ function showView(id) {
     renderAdminReports();
   } else if (id === 'admin-dashboard') {
     renderAdminDashboard();
+  } else if (id === 'officer-management') {
+    renderOfficerManagement();
   } else if (id === 'staff-management') {
     renderStaffManagement();
   } else if (id === 'client-management') {
@@ -3406,8 +3428,319 @@ function initSplashScreen() {
   }, 2000);
 }
 
+/* ==========================================================================
+   9. SECURITY SIGN-IN & AUTHENTICATION LOGIC
+   ========================================================================== */
+
+let currentSecurityLevel = 'OFFICER'; // 'OFFICER' | 'SUPERVISOR' | 'MANAGER'
+
+function renderSignInForm() {
+  const container = document.getElementById('signInDynamicContainer');
+  const errorEl = document.getElementById('signInError');
+  if (!container) return;
+
+  if (errorEl) errorEl.style.display = 'none';
+
+  // Update tabs active state
+  document.querySelectorAll('#securityLevelTabs .security-level-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.level === currentSecurityLevel);
+  });
+
+  if (currentSecurityLevel === 'OFFICER') {
+    let officerOptions = securityUsers.officers.map(name => `<option value="${name}">${name}</option>`).join('');
+    container.innerHTML = `
+      <div class="sign-in-field-group">
+        <label for="signInOfficerSelect">Officer Name</label>
+        <select id="signInOfficerSelect" class="sign-in-input" required>
+          <option value="" disabled selected>[ Select Officer ▼ ]</option>
+          ${officerOptions}
+        </select>
+      </div>
+      <div class="sign-in-field-group">
+        <label for="signInPassword">Password</label>
+        <input type="password" id="signInPassword" class="sign-in-input" placeholder="••••••••" required>
+      </div>
+    `;
+  } else if (currentSecurityLevel === 'SUPERVISOR') {
+    container.innerHTML = `
+      <div class="sign-in-role-badge">SECURITY SUPERVISOR</div>
+      <div class="sign-in-role-person">${securityUsers.supervisor}</div>
+      <div class="sign-in-field-group" style="margin-top: 16px;">
+        <label for="signInPassword">Password</label>
+        <input type="password" id="signInPassword" class="sign-in-input" placeholder="••••••••" required>
+      </div>
+    `;
+  } else if (currentSecurityLevel === 'MANAGER') {
+    container.innerHTML = `
+      <div class="sign-in-role-badge">SECURITY MANAGER</div>
+      <div class="sign-in-role-person">${securityUsers.manager}</div>
+      <div class="sign-in-field-group" style="margin-top: 16px;">
+        <label for="signInPassword">Password</label>
+        <input type="password" id="signInPassword" class="sign-in-input" placeholder="••••••••" required>
+      </div>
+    `;
+  }
+}
+
+function handleSignInSubmit() {
+  const passwordInput = document.getElementById('signInPassword');
+  const errorEl = document.getElementById('signInError');
+  const passwordVal = passwordInput ? passwordInput.value : '';
+
+  if (errorEl) errorEl.style.display = 'none';
+
+  if (passwordVal !== securityUsers.testPassword) {
+    if (errorEl) {
+      errorEl.textContent = 'Incorrect password. Please try again.';
+      errorEl.style.display = 'block';
+    }
+    return;
+  }
+
+  let signedInName = '';
+  let initials = 'SO';
+
+  if (currentSecurityLevel === 'OFFICER') {
+    const officerSelect = document.getElementById('signInOfficerSelect');
+    const selectedOfficer = officerSelect ? officerSelect.value : '';
+    if (!selectedOfficer) {
+      if (errorEl) {
+        errorEl.textContent = 'Please select an officer name.';
+        errorEl.style.display = 'block';
+      }
+      return;
+    }
+    signedInName = selectedOfficer;
+    const parts = selectedOfficer.split(' ');
+    initials = parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : selectedOfficer.substring(0, 2).toUpperCase();
+  } else if (currentSecurityLevel === 'SUPERVISOR') {
+    signedInName = `${securityUsers.supervisor} (Supervisor)`;
+    initials = 'SUP';
+  } else if (currentSecurityLevel === 'MANAGER') {
+    signedInName = `${securityUsers.manager} (Manager)`;
+    initials = 'MGR';
+  }
+
+  securityUsers.currentUser = {
+    name: signedInName,
+    level: currentSecurityLevel,
+    initials: initials
+  };
+
+  // Update topbar operator display
+  const avatarEl = document.getElementById('operatorAvatar');
+  const nameEl = document.getElementById('operatorName');
+  if (avatarEl) avatarEl.textContent = initials;
+  if (nameEl) nameEl.textContent = signedInName;
+
+  // Hide Sign-In screen
+  const signInScreen = document.getElementById('signInScreen');
+  if (signInScreen) {
+    signInScreen.classList.add('fade-out');
+    signInScreen.setAttribute('aria-hidden', 'true');
+    setTimeout(() => {
+      signInScreen.style.display = 'none';
+    }, 400);
+  }
+
+  showToast(`Signed in as ${signedInName}`, 'success');
+}
+
+function handleSignOut() {
+  securityUsers.currentUser = null;
+  const signInScreen = document.getElementById('signInScreen');
+  if (signInScreen) {
+    signInScreen.style.display = 'flex';
+    signInScreen.classList.remove('fade-out');
+    signInScreen.setAttribute('aria-hidden', 'false');
+  }
+  renderSignInForm();
+  showToast('Signed out successfully.', 'info');
+}
+
+// Security level tab switch listener
+document.addEventListener('click', (e) => {
+  const levelTab = e.target.closest('#securityLevelTabs .security-level-tab');
+  if (levelTab) {
+    currentSecurityLevel = levelTab.dataset.level;
+    renderSignInForm();
+  }
+});
+
+// Sign in form submission
+const signInForm = document.getElementById('signInForm');
+if (signInForm) {
+  signInForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    handleSignInSubmit();
+  });
+}
+
+// Sign out button
+const signOutBtn = document.getElementById('signOutBtn');
+if (signOutBtn) {
+  signOutBtn.addEventListener('click', handleSignOut);
+}
+
+/* ==========================================================================
+   10. OFFICER MANAGEMENT LOGIC
+   ========================================================================== */
+
+let pendingRemoveOfficerName = null;
+
+function renderOfficerManagement() {
+  const tableBody = document.getElementById('officerTableBody');
+  const cardsContainer = document.getElementById('officerCardsContainer');
+  const searchVal = (document.getElementById('officerSearchInput')?.value || '').toLowerCase().trim();
+
+  // Update hierarchy summary elements
+  const supEl = document.getElementById('summarySupervisorName');
+  const mgrEl = document.getElementById('summaryManagerName');
+  if (supEl) supEl.textContent = securityUsers.supervisor;
+  if (mgrEl) mgrEl.textContent = securityUsers.manager;
+
+  const filteredOfficers = securityUsers.officers.filter(name => {
+    return !searchVal || name.toLowerCase().includes(searchVal);
+  });
+
+  // Render Desktop Table
+  if (tableBody) {
+    tableBody.innerHTML = '';
+    if (filteredOfficers.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="4" class="muted" style="text-align:center; padding:24px;">No security officers found.</td></tr>`;
+    } else {
+      filteredOfficers.forEach(name => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight: 700; color: var(--navy);">${name}</td>
+          <td><span class="badge-active">Security Officer</span></td>
+          <td style="font-family: monospace;">velogy2026</td>
+          <td style="text-align: right;">
+            <button type="button" class="table-action-btn btn-danger" onclick="openRemoveOfficerModal('${name.replace(/'/g, "\\'")}')">REMOVE</button>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+  }
+
+  // Render Mobile Cards
+  if (cardsContainer) {
+    cardsContainer.innerHTML = '';
+    if (filteredOfficers.length === 0) {
+      cardsContainer.innerHTML = `<div class="admin-card muted" style="text-align:center;">No security officers found.</div>`;
+    } else {
+      filteredOfficers.forEach(name => {
+        const card = document.createElement('div');
+        card.className = 'admin-card';
+        card.innerHTML = `
+          <div class="admin-card-header">
+            <div>
+              <h4 class="admin-card-title">${name}</h4>
+              <div class="admin-card-company">Security Officer</div>
+            </div>
+            <span class="badge-active">OFFICER</span>
+          </div>
+          <div class="admin-card-detail-row">
+            <span class="muted">Password:</span>
+            <span style="font-family: monospace;">velogy2026</span>
+          </div>
+          <div class="admin-card-actions">
+            <button type="button" class="table-action-btn btn-danger" onclick="openRemoveOfficerModal('${name.replace(/'/g, "\\'")}')">REMOVE</button>
+          </div>
+        `;
+        cardsContainer.appendChild(card);
+      });
+    }
+  }
+}
+
+// Search input for officers
+const officerSearchInput = document.getElementById('officerSearchInput');
+if (officerSearchInput) {
+  officerSearchInput.addEventListener('input', renderOfficerManagement);
+}
+
+// Add Officer Modal
+const addOfficerModal = document.getElementById('addOfficerModal');
+const openAddOfficerModalBtn = document.getElementById('openAddOfficerModalBtn');
+const closeAddOfficerModalBtn = document.getElementById('closeAddOfficerModalBtn');
+const cancelAddOfficerBtn = document.getElementById('cancelAddOfficerBtn');
+const addOfficerForm = document.getElementById('addOfficerForm');
+
+if (openAddOfficerModalBtn) {
+  openAddOfficerModalBtn.addEventListener('click', () => {
+    const input = document.getElementById('officerNameInput');
+    if (input) input.value = '';
+    if (addOfficerModal) addOfficerModal.setAttribute('aria-hidden', 'false');
+  });
+}
+
+function closeAddOfficerModal() {
+  if (addOfficerModal) addOfficerModal.setAttribute('aria-hidden', 'true');
+}
+
+if (closeAddOfficerModalBtn) closeAddOfficerModalBtn.addEventListener('click', closeAddOfficerModal);
+if (cancelAddOfficerBtn) cancelAddOfficerBtn.addEventListener('click', closeAddOfficerModal);
+
+if (addOfficerForm) {
+  addOfficerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('officerNameInput');
+    const nameVal = input ? input.value.trim() : '';
+
+    if (!nameVal) return;
+
+    if (securityUsers.officers.includes(nameVal)) {
+      showToast(`${nameVal} is already in the Security Officer list.`, 'warning');
+      return;
+    }
+
+    securityUsers.officers.push(nameVal);
+    closeAddOfficerModal();
+    renderOfficerManagement();
+    renderSignInForm();
+    showToast(`Officer ${nameVal} added successfully.`, 'success');
+  });
+}
+
+// Remove Officer Modal
+const confirmRemoveOfficerModal = document.getElementById('confirmRemoveOfficerModal');
+const closeRemoveOfficerModalBtn = document.getElementById('closeRemoveOfficerModalBtn');
+const cancelRemoveOfficerBtn = document.getElementById('cancelRemoveOfficerBtn');
+const confirmRemoveOfficerBtn = document.getElementById('confirmRemoveOfficerBtn');
+
+function openRemoveOfficerModal(officerName) {
+  pendingRemoveOfficerName = officerName;
+  const nameTextEl = document.getElementById('removeOfficerNameText');
+  if (nameTextEl) nameTextEl.textContent = officerName;
+  if (confirmRemoveOfficerModal) confirmRemoveOfficerModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeRemoveOfficerModal() {
+  if (confirmRemoveOfficerModal) confirmRemoveOfficerModal.setAttribute('aria-hidden', 'true');
+  pendingRemoveOfficerName = null;
+}
+
+if (closeRemoveOfficerModalBtn) closeRemoveOfficerModalBtn.addEventListener('click', closeRemoveOfficerModal);
+if (cancelRemoveOfficerBtn) cancelRemoveOfficerBtn.addEventListener('click', closeRemoveOfficerModal);
+
+if (confirmRemoveOfficerBtn) {
+  confirmRemoveOfficerBtn.addEventListener('click', () => {
+    if (pendingRemoveOfficerName) {
+      const name = pendingRemoveOfficerName;
+      securityUsers.officers = securityUsers.officers.filter(o => o !== name);
+      closeRemoveOfficerModal();
+      renderOfficerManagement();
+      renderSignInForm();
+      showToast(`Officer ${name} removed from Security Officer list.`, 'warning');
+    }
+  });
+}
+
 // Initial Initialization
 initSplashScreen();
+renderSignInForm();
 initializeDateTimeFields();
 updateTheme();
 renderPatrolDashboard();
