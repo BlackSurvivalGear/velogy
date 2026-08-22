@@ -31,6 +31,7 @@
         <button class="nav-item" data-view="jetty">Jetty</button>
         <div class="nav-section-title">ADMINISTRATION</div>
         <button class="nav-item" data-view="admin-dashboard">Admin Dashboard</button>
+        <button class="nav-item" data-view="reports">Admin Reports</button>
         <button class="nav-item" data-view="staff-management">Staff Management</button>
         <button class="nav-item" data-view="client-management">Client Management</button>
       </nav>
@@ -839,39 +840,53 @@
         <div class="page-intro">
           <span class="eyebrow">ADMINISTRATION</span>
           <h2>Admin Dashboard</h2>
-          <p>Real-time overview of personnel on site and active yard-space clients.</p>
+          <p>Real-time overview of operational security status, personnel on site and reports.</p>
         </div>
 
         <div class="admin-kpi-grid">
-          <div class="kpi-card">
+          <div class="kpi-card staff-kpi-card">
             <span class="kpi-label">STAFF ON SITE</span>
-            <strong class="kpi-val green-text" id="kpiStaffIn">0</strong>
-            <small class="kpi-sub">Currently marked IN</small>
+            <strong class="kpi-val green-text" id="kpiStaffIn">24</strong>
+            <button type="button" class="primary-button view-staff-btn" id="viewStaffOnSiteBtn">[ VIEW STAFF ON SITE ]</button>
           </div>
           <div class="kpi-card">
-            <span class="kpi-label">STAFF OUT</span>
-            <strong class="kpi-val muted" id="kpiStaffOut">0</strong>
-            <small class="kpi-sub">Currently marked OUT</small>
+            <span class="kpi-label">PATROLS</span>
+            <strong class="kpi-val navy-text" id="kpiPatrols">11 / 11</strong>
+            <small class="kpi-sub">3 Day · 8 Night</small>
           </div>
           <div class="kpi-card">
-            <span class="kpi-label">TOTAL STAFF</span>
-            <strong class="kpi-val navy-text" id="kpiTotalStaff">0</strong>
-            <small class="kpi-sub">Total staff records</small>
+            <span class="kpi-label">CHECKPOINTS</span>
+            <strong class="kpi-val blue-text" id="kpiCheckpoints">167 / 167</strong>
+            <small class="kpi-sub">39 Day · 128 Night</small>
           </div>
           <div class="kpi-card">
-            <span class="kpi-label">ACTIVE CLIENTS</span>
-            <strong class="kpi-val blue-text" id="kpiActiveClients">0</strong>
-            <small class="kpi-sub">Active yard-space clients</small>
+            <span class="kpi-label">VEHICLES ENTERING</span>
+            <strong class="kpi-val" id="kpiVehiclesEntering">56</strong>
+            <small class="kpi-sub">East Gate Vehicle Tally</small>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">OPEN ISSUES</span>
+            <strong class="kpi-val amber-text" id="kpiOpenIssues">3</strong>
+            <small class="kpi-sub">Requires action</small>
           </div>
         </div>
 
         <div class="section-heading">
           <div>
             <span class="eyebrow">QUICK ACTIONS</span>
-            <h2>Admin Management</h2>
+            <h2>Admin Management & Reports</h2>
           </div>
         </div>
-        <div class="jetty-grid">
+        <div class="admin-quick-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+          <button class="module-card" data-view="reports">
+            <div class="module-icon">AR</div>
+            <div>
+              <span class="module-label">REPORTS</span>
+              <h3>Admin Reports</h3>
+              <p>Daily Security, Patrols, Vehicles, Checks, Gates, Car Search, Jetty & Incidents.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
           <button class="module-card" data-view="staff-management">
             <div class="module-icon">SM</div>
             <div>
@@ -1014,142 +1029,388 @@
         <div class="page-intro">
           <span class="eyebrow">ADMINISTRATION</span>
           <h2>Admin Reports</h2>
-          <p>Night Patrol operations breakdown based on 8 nightly patrols and 16 checkpoints.</p>
+          <p>Operational reporting across Site Patrols, Vehicle Entry, Daily Checks, Gate Activity, Car Search, Jetty, and Incidents.</p>
         </div>
 
-        <!-- Filters -->
-        <div class="reports-filter-panel">
-          <h3>Patrol Report Filters</h3>
-          <div class="form-grid filter-grid">
-            <label>Date
-              <input type="date" id="filterDate" value="2026-08-21">
-            </label>
-            <label>Night
-              <select id="filterNight">
-                <option value="21 Aug 2026">21 Aug 2026</option>
-                <option value="20 Aug 2026">20 Aug 2026</option>
-                <option value="19 Aug 2026">19 Aug 2026</option>
-              </select>
-            </label>
-            <label>Patrol
-              <select id="filterRound">
-                <option value="ALL">All Patrols (1–8)</option>
-                <option value="1">1st Patrol</option>
-                <option value="2">2nd Patrol</option>
-                <option value="3">3rd Patrol</option>
-                <option value="4">4th Patrol</option>
-                <option value="5">5th Patrol</option>
-                <option value="6">6th Patrol</option>
-                <option value="7">7th Patrol</option>
-                <option value="8">8th Patrol</option>
-              </select>
-            </label>
-            <label>Checkpoint
-              <select id="filterCheckpoint">
-                <option value="ALL">All 16 Checkpoints</option>
-              </select>
-            </label>
-            <label>Officer
-              <select id="filterOfficer">
-                <option value="ALL">All Officers</option>
-                <option value="Security Officer J. Vance">Security Officer J. Vance</option>
-                <option value="Officer S. Miller">Officer S. Miller</option>
-                <option value="Officer A. Taylor">Officer A. Taylor</option>
-              </select>
-            </label>
-            <label>Status
-              <select id="filterStatus">
-                <option value="ALL">All Statuses</option>
-                <option value="CHECKED">Checked</option>
-                <option value="ISSUE">Issue</option>
-                <option value="PENDING">Pending / Missed</option>
-              </select>
-            </label>
+        <!-- Reports Navigation Tabs Bar -->
+        <div class="report-nav-bar" id="adminReportTabsContainer">
+          <button type="button" class="report-tab active" data-report-tab="daily-security">Daily Security</button>
+          <button type="button" class="report-tab" data-report-tab="patrol">Patrol Report</button>
+          <button type="button" class="report-tab" data-report-tab="vehicle-entry">Vehicle Entry</button>
+          <button type="button" class="report-tab" data-report-tab="daily-checks">Daily Checks</button>
+          <button type="button" class="report-tab" data-report-tab="checkpoint">Checkpoint Performance</button>
+          <button type="button" class="report-tab" data-report-tab="gate-activity">Gate Activity</button>
+          <button type="button" class="report-tab" data-report-tab="car-search">Car Search</button>
+          <button type="button" class="report-tab" data-report-tab="jetty">Jetty Report</button>
+          <button type="button" class="report-tab" data-report-tab="incident">Incident / Issue</button>
+        </div>
+
+        <!-- 1. DAILY SECURITY REPORT -->
+        <div id="repView-daily-security" class="report-content-view">
+          <div class="section-heading" style="margin-top: 20px;">
+            <div>
+              <span class="eyebrow">OVERVIEW</span>
+              <h2>DAILY SECURITY REPORT</h2>
+              <p class="muted-small">Daily operational status summary.</p>
+            </div>
+          </div>
+
+          <div class="admin-kpi-grid">
+            <div class="kpi-card">
+              <span class="kpi-label">PATROLS</span>
+              <strong class="kpi-val navy-text" id="dsRepPatrols">11 / 11</strong>
+              <small class="kpi-sub">3 Day · 8 Night</small>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">CHECKPOINTS</span>
+              <strong class="kpi-val blue-text" id="dsRepCheckpoints">167 / 167</strong>
+              <small class="kpi-sub">39 Day · 128 Night</small>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">VEHICLES ENTERING</span>
+              <strong class="kpi-val" id="dsRepVehicles">56</strong>
+              <small class="kpi-sub">East Gate Vehicle Tally</small>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">OPEN ISSUES</span>
+              <strong class="kpi-val amber-text" id="dsRepIssues">3</strong>
+              <small class="kpi-sub">Active open issues</small>
+            </div>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-data-table">
+              <thead>
+                <tr>
+                  <th>Operational Function / Duty</th>
+                  <th>Target / Total</th>
+                  <th>Completed</th>
+                  <th>Status / Outcome</th>
+                </tr>
+              </thead>
+              <tbody id="dsRepTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <!-- Night Summary & Patrol Performance -->
-        <div class="reports-summary-row">
-          <div class="report-summary-card">
-            <span class="eyebrow">NIGHT SUMMARY</span>
-            <h3 id="reportNightLabel">Night: 21 Aug 2026</h3>
-            <div class="summary-metrics-list">
-              <div class="metric-line">
-                <span>Patrols</span>
-                <strong id="repPatrolRounds">8</strong>
-              </div>
-              <div class="metric-line">
-                <span>Required Checkpoint Checks</span>
-                <strong id="repRequiredChecks">128</strong>
-              </div>
-              <div class="metric-line">
-                <span>Completed</span>
-                <strong class="ok-text" id="repCompletedChecks">121</strong>
-              </div>
-              <div class="metric-line">
-                <span>Issues</span>
-                <strong class="amber-text" id="repIssuesCount">4</strong>
-              </div>
-              <div class="metric-line">
-                <span>Outstanding / Missed</span>
-                <strong class="red-text" id="repOutstandingChecks">3</strong>
+        <!-- 2. PATROL REPORT -->
+        <div id="repView-patrol" class="report-content-view" style="display: none;">
+          <div class="reports-filter-panel">
+            <h3>Patrol Report Selection</h3>
+            <div class="form-grid filter-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+              <label>Patrol Mode
+                <select id="repPatrolModeSelect">
+                  <option value="NIGHT">NIGHT PATROLS (8 Patrols · 16 Checkpoints)</option>
+                  <option value="DAY">DAY PATROLS (3 Patrols · 13 Checkpoints)</option>
+                </select>
+              </label>
+              <label>Select Patrol
+                <select id="repPatrolRoundSelect">
+                  <!-- Populated dynamically -->
+                </select>
+              </label>
+              <label>Date Filter
+                <input type="date" id="repPatrolDate" value="2026-08-21">
+              </label>
+            </div>
+          </div>
+
+          <div class="reports-summary-row">
+            <div class="report-summary-card">
+              <span class="eyebrow" id="repPatrolHeaderEyebrow">NIGHT PATROL 1</span>
+              <h3 id="repPatrolHeaderTitle">1st Patrol Checkpoint Results</h3>
+              <div class="summary-metrics-list">
+                <div class="metric-line">
+                  <span>Total Checkpoints Required</span>
+                  <strong id="repPatrolTotalCp">16</strong>
+                </div>
+                <div class="metric-line">
+                  <span>Checked OK</span>
+                  <strong class="ok-text" id="repPatrolCheckedCp">16</strong>
+                </div>
+                <div class="metric-line">
+                  <span>Issues Logged</span>
+                  <strong class="amber-text" id="repPatrolIssuesCp">0</strong>
+                </div>
+                <div class="metric-line">
+                  <span>Missed / Pending</span>
+                  <strong class="red-text" id="repPatrolMissedCp">0</strong>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="report-performance-card">
-            <span class="eyebrow">PATROL PERFORMANCE</span>
-            <h3>Nightly Metrics</h3>
-            <div class="performance-badge-grid">
-              <div class="perf-box">
-                <span class="perf-num ok-text" id="perfChecked">121</span>
-                <span class="perf-label">CHECKED</span>
-              </div>
-              <div class="perf-box">
-                <span class="perf-num amber-text" id="perfIssues">4</span>
-                <span class="perf-label">ISSUES</span>
-              </div>
-              <div class="perf-box">
-                <span class="perf-num red-text" id="perfMissed">3</span>
-                <span class="perf-label">MISSED</span>
-              </div>
-            </div>
-            <div class="completion-rate-box">
-              <span class="rate-val" id="perfPct">94.5%</span>
-              <span class="rate-label">OVERALL COMPLETION</span>
-            </div>
+          <div class="admin-table-wrapper">
+            <table class="admin-data-table">
+              <thead>
+                <tr>
+                  <th>Checkpoint</th>
+                  <th>Status</th>
+                  <th>Time Checked</th>
+                  <th>Officer</th>
+                  <th>Issue Details</th>
+                </tr>
+              </thead>
+              <tbody id="repPatrolTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <!-- Checkpoint Report Matrix Table -->
-        <div class="section-heading">
-          <div>
-            <span class="eyebrow">CHECKPOINT REPORT</span>
-            <h2>16 Checkpoint Matrix (Patrols 1–8)</h2>
-            <p class="muted-small">Click any checkpoint row to open detailed history and issue details.</p>
+        <!-- 3. VEHICLE ENTRY REPORT -->
+        <div id="repView-vehicle-entry" class="report-content-view" style="display: none;">
+          <div class="reports-filter-panel">
+            <h3>Vehicle Entry Report Filters</h3>
+            <div class="form-grid filter-grid" style="grid-template-columns: 1fr 1fr;">
+              <label>Date Filter
+                <input type="date" id="repVehicleDate" value="2026-08-21">
+              </label>
+              <label>Gate Filter
+                <select id="repVehicleGateFilter">
+                  <option value="ALL">All Gates (East Gate Primary)</option>
+                  <option value="EAST">East Gate Only</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="reports-summary-row">
+            <div class="report-summary-card">
+              <span class="eyebrow">EAST GATE TALLY</span>
+              <h3>TOTAL VEHICLES ENTERING</h3>
+              <strong class="kpi-val blue-text" id="repVehicleTotalSum" style="font-size: 36px; margin: 8px 0;">56</strong>
+              <small class="kpi-sub">Logged across Velogy and Active Yard Clients</small>
+            </div>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-data-table">
+              <thead>
+                <tr>
+                  <th>Company / Client Category</th>
+                  <th>Client Status</th>
+                  <th>Vehicles Logged</th>
+                  <th>% of Total Entry</th>
+                </tr>
+              </thead>
+              <tbody id="repVehicleTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div class="report-table-wrapper">
-          <table class="checkpoint-report-table" id="reportMatrixTable">
-            <thead>
-              <tr>
-                <th class="col-checkpoint">Checkpoint</th>
-                <th>R1</th>
-                <th>R2</th>
-                <th>R3</th>
-                <th>R4</th>
-                <th>R5</th>
-                <th>R6</th>
-                <th>R7</th>
-                <th>R8</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="reportTableBody">
-              <!-- Dynamically built by app.js -->
-            </tbody>
-          </table>
+        <!-- 4. DAILY CHECKS REPORT -->
+        <div id="repView-daily-checks" class="report-content-view" style="display: none;">
+          <div class="section-heading" style="margin-top: 20px;">
+            <div>
+              <span class="eyebrow">INDEPENDENT DAILY DUTIES</span>
+              <h2>DAILY CHECKS REPORT</h2>
+              <p class="muted-small">Status of Davyhulme Oil Checks, Car Park Check, and Jetty Patrol. These duties are NOT classified as patrol checkpoints.</p>
+            </div>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-data-table">
+              <thead>
+                <tr>
+                  <th>Independent Daily Check</th>
+                  <th>Schedule</th>
+                  <th>Status</th>
+                  <th>Outstanding</th>
+                  <th>Result / Observations</th>
+                </tr>
+              </thead>
+              <tbody id="repDailyChecksTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 5. CHECKPOINT REPORT -->
+        <div id="repView-checkpoint" class="report-content-view" style="display: none;">
+          <div class="section-heading" style="margin-top: 20px;">
+            <div>
+              <span class="eyebrow">CHECKPOINT PERFORMANCE</span>
+              <h2>CHECKPOINT REPORT</h2>
+              <p class="muted-small">Click any checkpoint row to open full inspection history drawer.</p>
+            </div>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-data-table">
+              <thead>
+                <tr>
+                  <th>Checkpoint Name</th>
+                  <th>Total Checks</th>
+                  <th>Completed</th>
+                  <th>Issues</th>
+                  <th>Missed</th>
+                  <th>Last Checked</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="repCheckpointTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 6. GATE ACTIVITY REPORT -->
+        <div id="repView-gate-activity" class="report-content-view" style="display: none;">
+          <div class="reports-filter-panel">
+            <h3>Gate Activity Filters</h3>
+            <div class="form-grid filter-grid" style="grid-template-columns: 1fr 1fr;">
+              <label>Gate
+                <select id="repGateSelect">
+                  <option value="ALL">All Gates (East Gate & West Gate)</option>
+                  <option value="East Gate">East Gate</option>
+                  <option value="West Gate">West Gate</option>
+                </select>
+              </label>
+              <label>Date Filter
+                <input type="date" id="repGateDate" value="2026-08-21">
+              </label>
+            </div>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-data-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Gate</th>
+                  <th>Activity Type</th>
+                  <th>Description / Personnel</th>
+                  <th>Company</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="repGateActivityTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 7. CAR SEARCH REPORT -->
+        <div id="repView-car-search" class="report-content-view" style="display: none;">
+          <div class="reports-summary-row">
+            <div class="report-summary-card">
+              <span class="eyebrow">VEHICLE SEARCHES</span>
+              <h3>TOTAL SEARCHES CONDUCTED</h3>
+              <strong class="kpi-val navy-text" id="repCarSearchTotal">4</strong>
+            </div>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-data-table">
+              <thead>
+                <tr>
+                  <th>Date / Time</th>
+                  <th>Gate</th>
+                  <th>Vehicle Reg</th>
+                  <th>Driver Name</th>
+                  <th>Company</th>
+                  <th>Search Officer</th>
+                  <th>Result</th>
+                  <th>Remarks / Issues</th>
+                </tr>
+              </thead>
+              <tbody id="repCarSearchTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 8. JETTY REPORT -->
+        <div id="repView-jetty" class="report-content-view" style="display: none;">
+          <div class="section-heading" style="margin-top: 20px;">
+            <div>
+              <span class="eyebrow">SEPARATE SITE</span>
+              <h2>JETTY OPERATIONAL REPORT</h2>
+              <p class="muted-small">Jetty 20-Patrol schedule breakdown, vessel status, and visitor search records.</p>
+            </div>
+          </div>
+
+          <div class="admin-kpi-grid">
+            <div class="kpi-card">
+              <span class="kpi-label">24HR JETTY PATROLS</span>
+              <strong class="kpi-val navy-text">20 Patrols</strong>
+              <small class="kpi-sub">10 Day · 10 Night (Every ~72m)</small>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">VESSEL STATUS</span>
+              <strong class="kpi-val green-text" id="repJettyVesselStatus">NO VESSEL</strong>
+              <small class="kpi-sub">Daily Patrol Required</small>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">VISITOR SEARCHES</span>
+              <strong class="kpi-val blue-text" id="repJettyVisCount">3</strong>
+              <small class="kpi-sub">Visitor searches logged</small>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">JETTY ISSUES</span>
+              <strong class="kpi-val amber-text" id="repJettyIssuesCount">0</strong>
+              <small class="kpi-sub">Open jetty issues</small>
+            </div>
+          </div>
+
+          <h3 style="margin: 20px 0 10px; color: var(--navy);">Visitor Searches Log</h3>
+          <div class="admin-table-wrapper">
+            <table class="admin-data-table">
+              <thead>
+                <tr>
+                  <th>Date / Time</th>
+                  <th>Visitor Name</th>
+                  <th>Company</th>
+                  <th>In / Out</th>
+                  <th>Search Officer</th>
+                  <th>Checks Performed</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="repJettyVisitorTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 9. INCIDENT / ISSUE REPORT -->
+        <div id="repView-incident" class="report-content-view" style="display: none;">
+          <div class="section-heading" style="margin-top: 20px;">
+            <div>
+              <span class="eyebrow">CENTRALIZED LOG</span>
+              <h2>INCIDENT / ISSUE REPORT</h2>
+              <p class="muted-small">Centralized view of reported issues across Site Patrol, Access Control, Car Search, Jetty, and Daily Checks.</p>
+            </div>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-data-table">
+              <thead>
+                <tr>
+                  <th>Date / Time</th>
+                  <th>Module / Source</th>
+                  <th>Location / Context</th>
+                  <th>Reporting Officer</th>
+                  <th>Issue Description</th>
+                  <th>Severity</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="repIncidentTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -1201,6 +1462,22 @@
           <button type="submit" class="danger-button">Submit Issue Report</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- VIEW STAFF ON SITE MODAL -->
+  <div id="viewStaffOnSiteModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content modal-md" role="dialog" aria-labelledby="viewStaffModalTitle">
+      <div class="modal-header">
+        <h3 id="viewStaffModalTitle">STAFF ON SITE — <span id="staffOnSiteHeaderCount">24</span></h3>
+        <button type="button" class="modal-close" id="closeViewStaffModalBtn">&times;</button>
+      </div>
+      <div class="modal-body" id="viewStaffModalBody">
+        <!-- Dynamically rendered staff on site grouped by company -->
+      </div>
+      <div class="form-actions" style="margin-top: 20px;">
+        <button type="button" class="secondary-button" id="closeViewStaffBtn">Close</button>
+      </div>
     </div>
   </div>
 
