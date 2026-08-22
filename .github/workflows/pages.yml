@@ -1,4 +1,4 @@
-name: Deploy Velogy Security to GitHub Pages
+name: Deploy iMotech Security Solutions to GitHub Pages
 
 on:
   push:

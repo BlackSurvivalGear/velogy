@@ -1,4 +1,4 @@
-// Velogy Security - MVP Application Logic
+// iMotech Security Solutions - Application Logic
 
 const views = [...document.querySelectorAll('.view')];
 const navItems = [...document.querySelectorAll('.nav-item')];

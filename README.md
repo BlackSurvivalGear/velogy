@@ -1,6 +1,6 @@
-# VELOGY SECURITY
+# iMotech Security Solutions
 
-Security operations web application for Velogy.
+Security operations web application for iMotech Security Solutions.
 
 ## V1 UI Modules
 
