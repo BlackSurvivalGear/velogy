@@ -1152,104 +1152,973 @@ if (issueForm) {
 }
 
 /* ==========================================================================
-   2. ADMIN REPORTS & CHECKPOINT MATRIX
+   2. ADMIN REPORTS & SUB-REPORTS IMPLEMENTATION
    ========================================================================== */
 
-function populateAdminFilterCheckpoints() {
-  const filterCheckpoint = document.getElementById('filterCheckpoint');
-  if (!filterCheckpoint) return;
-  filterCheckpoint.innerHTML = '<option value="ALL">All 16 Checkpoints</option>';
-  CHECKPOINTS.forEach(cp => {
-    const opt = document.createElement('option');
-    opt.value = cp;
-    opt.textContent = cp;
-    filterCheckpoint.appendChild(opt);
+let currentActiveReportTab = 'daily-security';
+let selectedReportPatrolMode = 'DAY';
+let selectedReportPatrolRound = 1;
+
+let mockCarSearches = [
+  { id: 'cs-1', dateTime: '2026-08-21T14:30', reg: 'AB12 CDE', driver: 'John Smith', company: 'Velogy', gate: 'East Gate', officer: 'Security Officer J. Vance', areas: ['Exterior', 'Boot/Cargo Area'], result: 'Clear', remarks: 'Routine vehicle search. Clear.' },
+  { id: 'cs-2', dateTime: '2026-08-21T11:15', reg: 'XY55 FGH', driver: 'Robert Cole', company: 'Pinnacle', gate: 'West Gate', officer: 'Officer S. Miller', areas: ['Interior', 'Engine Area'], result: 'Item Found', remarks: 'Undeclared tool bag in rear cargo area.' },
+  { id: 'cs-3', dateTime: '2026-08-20T16:45', reg: 'MN66 JKL', driver: 'Steve Green', company: 'Contractors', gate: 'East Gate', officer: 'Officer A. Taylor', areas: ['Exterior', 'Under Vehicle'], result: 'Clear', remarks: 'All clear.' }
+];
+
+let mockVisitorSearches = [
+  { id: 'vs-1', name: 'Andrew Miller', company: 'Marine Services UK', timeIn: '09:15', timeOut: '11:30', officer: 'Security Officer J. Vance', dateTime: '2026-08-21T09:15', checks: ['Male Body Search', 'Male Bag Search', 'Documentation Check'], remarks: 'ID verified. Passed.' },
+  { id: 'vs-2', name: 'Sarah Jenkins', company: 'Port Inspection Co', timeIn: '13:00', timeOut: '14:45', officer: 'Officer S. Miller', dateTime: '2026-08-21T13:00', checks: ['Female Body Search', 'Female Bag Search', 'Documentation Check'], remarks: 'Standard entry search. Clear.' }
+];
+
+function getAllReportedIssues() {
+  const issues = [];
+
+  // Day patrol issues
+  for (let r = 1; r <= 3; r++) {
+    DAY_CHECKPOINTS.forEach(cp => {
+      const item = dayPatrolRounds[r] ? dayPatrolRounds[r][cp] : null;
+      if (item && item.status === 'ISSUE') {
+        issues.push({
+          id: `issue-day-${r}-${cp}`,
+          dateTime: item.issueDetails?.time ? `2026-08-21T${item.issueDetails.time}` : getLocalDateTimeString(),
+          source: `Site Patrol (${getOrdinalPatrolName(r)})`,
+          location: cp,
+          officer: item.issueDetails?.officer || item.officer,
+          issue: item.issueDetails?.issue || 'Checkpoint fault reported',
+          severity: item.issueDetails?.severity || 'MEDIUM',
+          status: 'OPEN'
+        });
+      }
+    });
+  }
+
+  // Night patrol issues
+  for (let r = 1; r <= 8; r++) {
+    CHECKPOINTS.forEach(cp => {
+      const item = patrolRounds[r] ? patrolRounds[r][cp] : null;
+      if (item && item.status === 'ISSUE') {
+        issues.push({
+          id: `issue-night-${r}-${cp}`,
+          dateTime: item.issueDetails?.time ? `2026-08-21T${item.issueDetails.time}` : getLocalDateTimeString(),
+          source: `Site Patrol (${getOrdinalPatrolName(r)})`,
+          location: cp,
+          officer: item.issueDetails?.officer || item.officer,
+          issue: item.issueDetails?.issue || 'Checkpoint fault reported',
+          severity: item.issueDetails?.severity || 'HIGH',
+          status: 'OPEN'
+        });
+      }
+    });
+  }
+
+  // Car Search issues
+  mockCarSearches.forEach(cs => {
+    if (cs.result !== 'Clear') {
+      issues.push({
+        id: `issue-cs-${cs.id}`,
+        dateTime: cs.dateTime,
+        source: 'Car Search',
+        location: cs.gate,
+        officer: cs.officer,
+        issue: `${cs.result}: ${cs.remarks}`,
+        severity: cs.result === 'Refused' ? 'HIGH' : 'MEDIUM',
+        status: 'OPEN'
+      });
+    }
   });
+
+  // Daily Checks issues
+  if (carParkState.status === 'ISSUE') {
+    issues.push({
+      id: 'issue-car-park',
+      dateTime: carParkState.completeTime ? `2026-08-21T${carParkState.completeTime}` : getLocalDateTimeString(),
+      source: 'Daily Checks',
+      location: 'Car Park',
+      officer: 'Security Officer',
+      issue: carParkState.remarks || 'Car Park observation reported',
+      severity: 'LOW',
+      status: 'OPEN'
+    });
+  }
+
+  // Davyhulme oil check issues
+  for (let p = 1; p <= 5; p++) {
+    const level = pumpOilState.pumps[p];
+    if (level === 'Low' || level === 'Critical') {
+      issues.push({
+        id: `issue-pump-${p}`,
+        dateTime: pumpOilState.completeTime ? `2026-08-21T${pumpOilState.completeTime}` : getLocalDateTimeString(),
+        source: 'Daily Checks',
+        location: `Davyhulme Pump ${p}`,
+        officer: 'Security Officer',
+        issue: `Pump ${p} oil level is ${level}`,
+        severity: level === 'Critical' ? 'HIGH' : 'MEDIUM',
+        status: 'OPEN'
+      });
+    }
+  }
+
+  // Jetty issues
+  ['DAY', 'NIGHT'].forEach(shift => {
+    for (let p = 1; p <= 10; p++) {
+      const patrol = jettyPatrolsState[shift] ? jettyPatrolsState[shift][p] : null;
+      if (patrol) {
+        JETTY_TAG_POINTS.forEach(tp => {
+          if (patrol.tags[tp] === 'ISSUE') {
+            issues.push({
+              id: `issue-jetty-${shift}-${p}-${tp}`,
+              dateTime: `2026-08-21T${patrol.expectedTime}`,
+              source: 'Jetty Patrol',
+              location: tp,
+              officer: 'Security Officer',
+              issue: `Jetty tag point fault: ${tp}`,
+              severity: 'MEDIUM',
+              status: 'OPEN'
+            });
+          }
+        });
+      }
+    }
+  });
+
+  return issues;
 }
 
 function renderAdminReports() {
-  populateAdminFilterCheckpoints();
-  const stats = getPatrolStats();
-
-  // Summary Card updates
-  const repRequiredChecks = document.getElementById('repRequiredChecks');
-  const repCompletedChecks = document.getElementById('repCompletedChecks');
-  const repIssuesCount = document.getElementById('repIssuesCount');
-  const repOutstandingChecks = document.getElementById('repOutstandingChecks');
-
-  if (repRequiredChecks) repRequiredChecks.textContent = stats.totalChecksRequired;
-  if (repCompletedChecks) repCompletedChecks.textContent = stats.totalChecked;
-  if (repIssuesCount) repIssuesCount.textContent = stats.totalIssues;
-  if (repOutstandingChecks) repOutstandingChecks.textContent = stats.totalPending;
-
-  // Performance box updates
-  const perfChecked = document.getElementById('perfChecked');
-  const perfIssues = document.getElementById('perfIssues');
-  const perfMissed = document.getElementById('perfMissed');
-  const perfPct = document.getElementById('perfPct');
-
-  if (perfChecked) perfChecked.textContent = stats.totalChecked;
-  if (perfIssues) perfIssues.textContent = stats.totalIssues;
-  if (perfMissed) perfMissed.textContent = stats.totalPending;
-  if (perfPct) perfPct.textContent = `${stats.completionPct}%`;
-
-  // Render Checkpoint Report Table (16 Checkpoints x 8 Rounds Matrix)
-  const reportTableBody = document.getElementById('reportTableBody');
-  if (!reportTableBody) return;
-
-  const filterRoundVal = document.getElementById('filterRound') ? document.getElementById('filterRound').value : 'ALL';
-  const filterCpVal = document.getElementById('filterCheckpoint') ? document.getElementById('filterCheckpoint').value : 'ALL';
-  const filterStatusVal = document.getElementById('filterStatus') ? document.getElementById('filterStatus').value : 'ALL';
-
-  reportTableBody.innerHTML = '';
-
-  CHECKPOINTS.forEach(cpName => {
-    if (filterCpVal !== 'ALL' && filterCpVal !== cpName) return;
-
-    const tr = document.createElement('tr');
-
-    let rowHtml = `<td class="col-checkpoint">${cpName}</td>`;
-
-    let matchesFilter = true;
-
-    for (let r = 1; r <= 8; r++) {
-      if (filterRoundVal !== 'ALL' && parseInt(filterRoundVal, 10) !== r) {
-        // Skip display logic filtering if specific round selected
-      }
-
-      const item = patrolRounds[r][cpName];
-      let cellSymbol = '✓';
-      let statusClass = 'status-checked';
-
-      if (item.status === 'ISSUE') {
-        cellSymbol = '!';
-        statusClass = 'status-issue';
-      } else if (item.status === 'PENDING') {
-        cellSymbol = '—';
-        statusClass = 'status-pending';
-      }
-
-      rowHtml += `<td><span class="cell-status ${statusClass}">${cellSymbol}</span></td>`;
-    }
-
-    rowHtml += `<td><button type="button" class="btn-detail-link">View Details</button></td>`;
-    tr.innerHTML = rowHtml;
-
-    tr.addEventListener('click', () => {
-      openCheckpointDetailModal(cpName);
-    });
-
-    reportTableBody.appendChild(tr);
+  const tabBtns = document.querySelectorAll('#reportsTabNav .report-tab-btn');
+  tabBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.report === currentActiveReportTab);
   });
+
+  const contentContainer = document.getElementById('subReportContent');
+  if (!contentContainer) return;
+
+  switch (currentActiveReportTab) {
+    case 'daily-security':
+      contentContainer.innerHTML = renderDailySecurityReportHTML();
+      break;
+    case 'patrol':
+      contentContainer.innerHTML = renderPatrolReportHTML();
+      attachPatrolReportListeners();
+      break;
+    case 'vehicle-entry':
+      contentContainer.innerHTML = renderVehicleEntryReportHTML();
+      break;
+    case 'daily-checks':
+      contentContainer.innerHTML = renderDailyChecksReportHTML();
+      break;
+    case 'checkpoint':
+      contentContainer.innerHTML = renderCheckpointReportHTML();
+      attachCheckpointReportListeners();
+      break;
+    case 'gate-activity':
+      contentContainer.innerHTML = renderGateActivityReportHTML();
+      break;
+    case 'car-search':
+      contentContainer.innerHTML = renderCarSearchReportHTML();
+      break;
+    case 'jetty':
+      contentContainer.innerHTML = renderJettyReportHTML();
+      break;
+    case 'incident-issue':
+      contentContainer.innerHTML = renderIncidentIssueReportHTML();
+      break;
+    default:
+      contentContainer.innerHTML = renderDailySecurityReportHTML();
+  }
 }
 
-// Attach filter change listeners
-['filterDate', 'filterNight', 'filterRound', 'filterCheckpoint', 'filterOfficer', 'filterStatus'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) {
-    el.addEventListener('change', renderAdminReports);
+// Global click delegation for reports tab navigation
+document.addEventListener('click', (e) => {
+  const reportTab = e.target.closest('#reportsTabNav .report-tab-btn');
+  if (reportTab) {
+    currentActiveReportTab = reportTab.dataset.report;
+    renderAdminReports();
   }
 });
+
+/* SUB-REPORT 1: DAILY SECURITY REPORT */
+function renderDailySecurityReportHTML() {
+  const dayStats = getDayPatrolStats();
+  const nightStats = getPatrolStats();
+  const totalPatrolsCompleted = dayStats.completedRoundsCount + nightStats.completedRoundsCount;
+  const totalCheckpointsChecked = (dayStats.totalChecked + dayStats.totalIssues) + (nightStats.totalChecked + nightStats.totalIssues);
+
+  let totalVehicles = 0;
+  Object.values(eastGateVehicleTally).forEach(val => { totalVehicles += val; });
+
+  const allIssues = getAllReportedIssues();
+
+  return `
+    <div class="sub-report-panel">
+      <div class="reports-summary-row">
+        <div class="report-summary-card">
+          <span class="eyebrow">DAILY SECURITY REPORT</span>
+          <h3 style="margin-top:4px;">OPERATIONAL OVERVIEW</h3>
+          <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:14px; margin-top:16px;">
+            <div class="kpi-card" style="padding:16px;">
+              <span class="kpi-label">PATROLS</span>
+              <strong class="kpi-val navy-text">${totalPatrolsCompleted} / 11</strong>
+              <small class="kpi-sub">3 Day · 8 Night</small>
+            </div>
+            <div class="kpi-card" style="padding:16px;">
+              <span class="kpi-label">CHECKPOINTS</span>
+              <strong class="kpi-val navy-text">${totalCheckpointsChecked} / 167</strong>
+              <small class="kpi-sub">Day & Night total</small>
+            </div>
+            <div class="kpi-card" style="padding:16px;">
+              <span class="kpi-label">VEHICLES ENTERING</span>
+              <strong class="kpi-val blue-text">${totalVehicles}</strong>
+              <small class="kpi-sub">East Gate tally</small>
+            </div>
+            <div class="kpi-card" style="padding:16px;">
+              <span class="kpi-label">OPEN ISSUES</span>
+              <strong class="kpi-val amber-text">${allIssues.length}</strong>
+              <small class="kpi-sub">Central issue tracker</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-performance-card">
+          <span class="eyebrow">PATROL & CHECKPOINT STATUS</span>
+          <h3 style="margin-top:4px;">Patrol Completion Summary</h3>
+          <div class="summary-metrics-list">
+            <div class="metric-line">
+              <span>Day Patrol Completion</span>
+              <strong class="ok-text">${dayStats.completedRoundsCount} / 3 Patrols (${dayStats.completionPct}%)</strong>
+            </div>
+            <div class="metric-line">
+              <span>Night Patrol Completion</span>
+              <strong class="ok-text">${nightStats.completedRoundsCount} / 8 Patrols (${nightStats.completionPct}%)</strong>
+            </div>
+            <div class="metric-line">
+              <span>Required Checkpoint Checks</span>
+              <strong>167 (39 Day / 128 Night)</strong>
+            </div>
+            <div class="metric-line">
+              <span>Checkpoint Issues Logged</span>
+              <strong class="amber-text">${dayStats.totalIssues + nightStats.totalIssues}</strong>
+            </div>
+            <div class="metric-line">
+              <span>Missed Checkpoints</span>
+              <strong class="red-text">${dayStats.totalPending + nightStats.totalPending}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-heading" style="margin-top: 24px;">
+        <div>
+          <span class="eyebrow">INDEPENDENT DUTIES & GATES</span>
+          <h2>Daily Operations Status</h2>
+        </div>
+      </div>
+
+      <div class="patrol-stats-grid">
+        <div class="p-stat-box">
+          <span class="p-stat-label">Davyhulme Oil Checks</span>
+          <strong class="p-stat-val ${pumpOilState.status === 'COMPLETED' ? 'green-text' : 'amber-text'}">${pumpOilState.status}</strong>
+          <small class="p-stat-sub">5 Checks ${pumpOilState.completeTime ? `(${pumpOilState.completeTime})` : ''}</small>
+        </div>
+        <div class="p-stat-box">
+          <span class="p-stat-label">Car Park Check</span>
+          <strong class="p-stat-val ${carParkState.isCompleted ? (carParkState.status === 'OK' ? 'green-text' : 'amber-text') : 'muted'}">${carParkState.isCompleted ? carParkState.status : 'PENDING'}</strong>
+          <small class="p-stat-sub">${carParkState.isCompleted ? `Completed at ${carParkState.completeTime}` : 'Once Daily Duty'}</small>
+        </div>
+        <div class="p-stat-box">
+          <span class="p-stat-label">Jetty Patrol</span>
+          <strong class="p-stat-val ${dailyJettyPatrolState.status === 'COMPLETED' ? 'green-text' : 'blue-text'}">${dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT' ? 'VESSEL PRESENT' : dailyJettyPatrolState.status}</strong>
+          <small class="p-stat-sub">${dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT' ? 'Not required' : (dailyJettyPatrolState.completeTime ? `Completed ${dailyJettyPatrolState.completeTime}` : 'Daily Patrol')}</small>
+        </div>
+        <div class="p-stat-box">
+          <span class="p-stat-label">Total Vehicles Logged</span>
+          <strong class="p-stat-val blue-text">${totalVehicles}</strong>
+          <small class="p-stat-sub">East Gate Vehicle Tally</small>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* SUB-REPORT 2: PATROL REPORT */
+function renderPatrolReportHTML() {
+  const isDay = selectedReportPatrolMode === 'DAY';
+  const checkpointsList = isDay ? DAY_CHECKPOINTS : NIGHT_CHECKPOINTS;
+  const numRounds = isDay ? 3 : 8;
+  const roundsData = isDay ? dayPatrolRounds : patrolRounds;
+
+  let optionsHtml = '';
+  for (let r = 1; r <= numRounds; r++) {
+    optionsHtml += `<option value="${r}" ${r === selectedReportPatrolRound ? 'selected' : ''}>${getOrdinalPatrolName(r)}</option>`;
+  }
+
+  const selectedData = roundsData[selectedReportPatrolRound] || {};
+
+  let tableRowsHtml = '';
+  checkpointsList.forEach((cpName) => {
+    const item = selectedData[cpName] || { status: 'PENDING', time: '--:--', officer: 'Security Officer' };
+    let statusClass = 'badge-out';
+    if (item.status === 'CHECKED') statusClass = 'badge-in';
+    if (item.status === 'ISSUE') statusClass = 'badge-inactive';
+
+    let issueText = item.issueDetails ? `${item.issueDetails.severity}: ${item.issueDetails.issue}` : 'None';
+
+    tableRowsHtml += `
+      <tr>
+        <td style="font-weight: 700; color: var(--navy);">${cpName}</td>
+        <td><span class="${statusClass}">${item.status}</span></td>
+        <td>${item.time}</td>
+        <td>${item.officer}</td>
+        <td>${issueText}</td>
+      </tr>
+    `;
+  });
+
+  return `
+    <div class="sub-report-panel">
+      <div class="reports-filter-panel">
+        <h3>Patrol Report Selector</h3>
+        <div class="form-grid filter-grid">
+          <label>Shift / Patrol Mode
+            <select id="reportPatrolModeSelect">
+              <option value="DAY" ${isDay ? 'selected' : ''}>DAY PATROLS (3 Patrols / 13 Checkpoints)</option>
+              <option value="NIGHT" ${!isDay ? 'selected' : ''}>NIGHT PATROLS (8 Patrols / 16 Checkpoints)</option>
+            </select>
+          </label>
+          <label>Select Patrol
+            <select id="reportPatrolRoundSelect">
+              ${optionsHtml}
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">${selectedReportPatrolMode} PATROL RESULTS</span>
+          <h2>${getOrdinalPatrolName(selectedReportPatrolRound)} Checkpoints Detail</h2>
+        </div>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-data-table">
+          <thead>
+            <tr>
+              <th>Checkpoint</th>
+              <th>Status</th>
+              <th>Time</th>
+              <th>Officer</th>
+              <th>Issue Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRowsHtml}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function attachPatrolReportListeners() {
+  const modeSelect = document.getElementById('reportPatrolModeSelect');
+  const roundSelect = document.getElementById('reportPatrolRoundSelect');
+
+  if (modeSelect) {
+    modeSelect.addEventListener('change', () => {
+      selectedReportPatrolMode = modeSelect.value;
+      selectedReportPatrolRound = 1;
+      renderAdminReports();
+    });
+  }
+
+  if (roundSelect) {
+    roundSelect.addEventListener('change', () => {
+      selectedReportPatrolRound = parseInt(roundSelect.value, 10);
+      renderAdminReports();
+    });
+  }
+}
+
+/* SUB-REPORT 3: VEHICLE ENTRY REPORT */
+function renderVehicleEntryReportHTML() {
+  const activeClients = mockClients
+    .filter(c => c.status === 'ACTIVE')
+    .map(c => c.name.trim())
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+  const categories = ['VELOGY', ...activeClients];
+
+  let totalCount = 0;
+  let tableRowsHtml = '';
+
+  categories.forEach(cat => {
+    const key = cat.toUpperCase();
+    const count = eastGateVehicleTally[key] || 0;
+    totalCount += count;
+
+    tableRowsHtml += `
+      <tr>
+        <td style="font-weight: 700; color: var(--navy);">${cat} ${cat === 'VELOGY' ? '<span class="badge-active" style="margin-left:8px;">PINNED</span>' : ''}</td>
+        <td style="font-weight: 800; font-size: 16px;">${count}</td>
+      </tr>
+    `;
+  });
+
+  return `
+    <div class="sub-report-panel">
+      <div class="reports-filter-panel">
+        <h3>Vehicle Entry Filters</h3>
+        <div class="form-grid filter-grid" style="grid-template-columns: 1fr 1fr;">
+          <label>Date
+            <input type="date" id="vehicleReportDate" value="2026-08-21">
+          </label>
+          <label>Gate
+            <select id="vehicleReportGate">
+              <option value="East Gate">East Gate (Vehicle Tally)</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="admin-kpi-grid" style="grid-template-columns: 1fr; margin-bottom: 20px;">
+        <div class="kpi-card" style="text-align: center; padding: 20px;">
+          <span class="kpi-label">TOTAL VEHICLES ENTERING</span>
+          <strong class="kpi-val blue-text" style="font-size: 42px;">${totalCount}</strong>
+          <small class="kpi-sub">East Gate Vehicle Tally Total Today</small>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">COMPANY BREAKDOWN</span>
+          <h2>Vehicle Entries by Client</h2>
+        </div>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-data-table">
+          <thead>
+            <tr>
+              <th>Company / Active Yard Client</th>
+              <th>Vehicle Entries Tally Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRowsHtml}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+/* SUB-REPORT 4: DAILY CHECKS REPORT */
+function renderDailyChecksReportHTML() {
+  let completedCount = 0;
+  let outstandingCount = 0;
+  let issueCount = 0;
+
+  // Pump checks
+  if (pumpOilState.status === 'COMPLETED') completedCount++; else outstandingCount++;
+  // Car park check
+  if (carParkState.isCompleted) {
+    completedCount++;
+    if (carParkState.status === 'ISSUE') issueCount++;
+  } else {
+    outstandingCount++;
+  }
+  // Jetty daily check
+  if (dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT') {
+    completedCount++;
+  } else {
+    if (dailyJettyPatrolState.status === 'COMPLETED') completedCount++; else outstandingCount++;
+  }
+
+  return `
+    <div class="sub-report-panel">
+      <div class="reports-summary-row">
+        <div class="report-summary-card">
+          <span class="eyebrow">INDEPENDENT DUTIES</span>
+          <h3>Daily Checks Summary</h3>
+          <div class="summary-metrics-list">
+            <div class="metric-line">
+              <span>Completed Checks</span>
+              <strong class="ok-text">${completedCount} / 3</strong>
+            </div>
+            <div class="metric-line">
+              <span>Outstanding Checks</span>
+              <strong class="amber-text">${outstandingCount}</strong>
+            </div>
+            <div class="metric-line">
+              <span>Reported Issues</span>
+              <strong class="red-text">${issueCount}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-performance-card">
+          <span class="eyebrow">INDEPENDENT SCOPE</span>
+          <h3>Operational Note</h3>
+          <p class="muted" style="margin-top: 8px;">
+            Daily checks (Davyhulme Oil Checks, Car Park Check, and Jetty Patrol) are independent operational duties and are NOT classified or counted as site patrol checkpoints.
+          </p>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">DUTY BREAKDOWN</span>
+          <h2>Independent Daily Checks Status</h2>
+        </div>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-data-table">
+          <thead>
+            <tr>
+              <th>Duty Name</th>
+              <th>Type / Scope</th>
+              <th>Status</th>
+              <th>Completion Time</th>
+              <th>Details / Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight: 700; color: var(--navy);">Davyhulme Oil Checks</td>
+              <td>5 Pumps Oil Level Check</td>
+              <td><span class="${pumpOilState.status === 'COMPLETED' ? 'badge-in' : 'badge-out'}">${pumpOilState.status}</span></td>
+              <td>${pumpOilState.completeTime || '--:--'}</td>
+              <td>Pump levels: P1 (${pumpOilState.pumps[1]}), P2 (${pumpOilState.pumps[2]}), P3 (${pumpOilState.pumps[3]}), P4 (${pumpOilState.pumps[4]}), P5 (${pumpOilState.pumps[5]})</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 700; color: var(--navy);">Car Park Check</td>
+              <td>Once Daily Inspection</td>
+              <td><span class="${carParkState.isCompleted ? (carParkState.status === 'OK' ? 'badge-in' : 'badge-inactive') : 'badge-out'}">${carParkState.isCompleted ? carParkState.status : 'PENDING'}</span></td>
+              <td>${carParkState.completeTime || '--:--'}</td>
+              <td>${carParkState.remarks || 'No remarks recorded'}</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 700; color: var(--navy);">Jetty Patrol</td>
+              <td>Once Daily When No Vessel</td>
+              <td><span class="${dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT' ? 'badge-active' : (dailyJettyPatrolState.status === 'COMPLETED' ? 'badge-in' : 'badge-out')}">${dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT' ? 'VESSEL PRESENT' : dailyJettyPatrolState.status}</span></td>
+              <td>${dailyJettyPatrolState.completeTime || '--:--'}</td>
+              <td>${dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT' ? 'Patrol not required while vessel is present' : 'Standard daily Jetty patrol'}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+/* SUB-REPORT 5: CHECKPOINT REPORT */
+function renderCheckpointReportHTML() {
+  let tableRowsHtml = '';
+
+  CHECKPOINTS.forEach(cpName => {
+    let numChecks = 8;
+    let completed = 0;
+    let issues = 0;
+    let missed = 0;
+    let lastChecked = '--:--';
+
+    for (let r = 1; r <= 8; r++) {
+      const item = patrolRounds[r] ? patrolRounds[r][cpName] : null;
+      if (item) {
+        if (item.status === 'CHECKED') {
+          completed++;
+          lastChecked = item.time;
+        } else if (item.status === 'ISSUE') {
+          issues++;
+          lastChecked = item.time;
+        } else {
+          missed++;
+        }
+      }
+    }
+
+    tableRowsHtml += `
+      <tr style="cursor: pointer;" onclick="openCheckpointDetailModal('${cpName}')">
+        <td style="font-weight: 700; color: var(--navy);">${cpName}</td>
+        <td>${numChecks}</td>
+        <td class="ok-text" style="font-weight:700;">${completed}</td>
+        <td class="${issues > 0 ? 'amber-text' : ''}" style="font-weight:700;">${issues}</td>
+        <td class="${missed > 0 ? 'red-text' : ''}">${missed}</td>
+        <td>${lastChecked}</td>
+        <td><button type="button" class="btn-detail-link" onclick="event.stopPropagation(); openCheckpointDetailModal('${cpName}')">View History</button></td>
+      </tr>
+    `;
+  });
+
+  return `
+    <div class="sub-report-panel">
+      <div class="section-heading" style="margin-top:0;">
+        <div>
+          <span class="eyebrow">CHECKPOINT PERFORMANCE</span>
+          <h2>Checkpoint Performance Review</h2>
+          <p class="muted-small">Click any checkpoint row to review detailed inspection history and reported issues.</p>
+        </div>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-data-table">
+          <thead>
+            <tr>
+              <th>Checkpoint</th>
+              <th>Required Checks</th>
+              <th>Completed</th>
+              <th>Issues</th>
+              <th>Missed / Pending</th>
+              <th>Last Checked</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRowsHtml}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function attachCheckpointReportListeners() {
+  // Attached via onclick
+}
+
+/* SUB-REPORT 6: GATE ACTIVITY REPORT */
+function renderGateActivityReportHTML() {
+  let totalEastVehicles = 0;
+  Object.values(eastGateVehicleTally).forEach(val => totalEastVehicles += val);
+
+  const eastSearches = mockCarSearches.filter(cs => cs.gate === 'East Gate');
+  const westSearches = mockCarSearches.filter(cs => cs.gate === 'West Gate');
+
+  return `
+    <div class="sub-report-panel">
+      <div class="section-heading" style="margin-top:0;">
+        <div>
+          <span class="eyebrow">GATE OPERATIONS</span>
+          <h2>Gate Activity Overview</h2>
+        </div>
+      </div>
+
+      <div class="reports-summary-row">
+        <!-- East Gate Box -->
+        <div class="report-summary-card">
+          <span class="eyebrow">GATE E</span>
+          <h3>East Gate Operational Activity</h3>
+          <div class="summary-metrics-list">
+            <div class="metric-line">
+              <span>Staff Currently Marked IN</span>
+              <strong class="ok-text">${mockStaff.filter(s => s.status === 'IN' && s.lastAccess === 'East Gate').length}</strong>
+            </div>
+            <div class="metric-line">
+              <span>Vehicle Entries Today (Tally)</span>
+              <strong class="blue-text">${totalEastVehicles}</strong>
+            </div>
+            <div class="metric-line">
+              <span>Vehicle Searches Logged</span>
+              <strong>${eastSearches.length}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- West Gate Box -->
+        <div class="report-summary-card">
+          <span class="eyebrow">GATE W</span>
+          <h3>West Gate Operational Activity</h3>
+          <div class="summary-metrics-list">
+            <div class="metric-line">
+              <span>Staff Currently Marked IN</span>
+              <strong class="ok-text">${mockStaff.filter(s => s.status === 'IN' && s.lastAccess === 'West Gate').length}</strong>
+            </div>
+            <div class="metric-line">
+              <span>Vehicle Searches Logged</span>
+              <strong>${westSearches.length}</strong>
+            </div>
+            <div class="metric-line">
+              <span>Access Control Status</span>
+              <strong class="ok-text">Active</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">RECENT GATE SEARCHES</span>
+          <h2>Recent Car Searches at Gates</h2>
+        </div>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-data-table">
+          <thead>
+            <tr>
+              <th>Date / Time</th>
+              <th>Gate</th>
+              <th>Vehicle Reg</th>
+              <th>Driver & Company</th>
+              <th>Search Officer</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${mockCarSearches.length === 0 ? '<tr><td colspan="6" class="muted" style="text-align:center;">No car searches recorded.</td></tr>' :
+              mockCarSearches.map(cs => `
+                <tr>
+                  <td>${cs.dateTime.replace('T', ' ')}</td>
+                  <td><span class="badge-active">${cs.gate}</span></td>
+                  <td style="font-weight:700;">${cs.reg}</td>
+                  <td>${cs.driver} (${cs.company})</td>
+                  <td>${cs.officer}</td>
+                  <td><span class="${cs.result === 'Clear' ? 'badge-in' : 'badge-inactive'}">${cs.result}</span></td>
+                </tr>
+              `).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+/* SUB-REPORT 7: CAR SEARCH REPORT */
+function renderCarSearchReportHTML() {
+  const totalSearches = mockCarSearches.length;
+  const clearCount = mockCarSearches.filter(cs => cs.result === 'Clear').length;
+  const foundCount = mockCarSearches.filter(cs => cs.result === 'Item Found').length;
+  const refusedCount = mockCarSearches.filter(cs => cs.result === 'Refused').length;
+
+  return `
+    <div class="sub-report-panel">
+      <div class="reports-summary-row">
+        <div class="report-summary-card">
+          <span class="eyebrow">CAR SEARCH SUMMARY</span>
+          <h3>Vehicle Inspection Metrics</h3>
+          <div class="summary-metrics-list">
+            <div class="metric-line">
+              <span>Total Searches Conducted</span>
+              <strong>${totalSearches}</strong>
+            </div>
+            <div class="metric-line">
+              <span>Clear Result</span>
+              <strong class="ok-text">${clearCount}</strong>
+            </div>
+            <div class="metric-line">
+              <span>Items Found</span>
+              <strong class="amber-text">${foundCount}</strong>
+            </div>
+            <div class="metric-line">
+              <span>Refused Searches</span>
+              <strong class="red-text">${refusedCount}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-performance-card">
+          <span class="eyebrow">INSPECTION AREAS</span>
+          <h3>Inspected Areas Scope</h3>
+          <p class="muted" style="margin-top: 8px;">
+            Vehicle search records capture inspection across Exterior, Interior, Boot / Cargo Area, Under Vehicle, and Engine Area.
+          </p>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">CAR SEARCH LOG</span>
+          <h2>Vehicle Search Records</h2>
+        </div>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-data-table">
+          <thead>
+            <tr>
+              <th>Date / Time</th>
+              <th>Registration</th>
+              <th>Driver & Company</th>
+              <th>Gate</th>
+              <th>Officer</th>
+              <th>Result</th>
+              <th>Remarks / Inspected Areas</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${mockCarSearches.length === 0 ? '<tr><td colspan="7" class="muted" style="text-align:center;">No vehicle searches recorded.</td></tr>' :
+              mockCarSearches.map(cs => `
+                <tr>
+                  <td>${cs.dateTime.replace('T', ' ')}</td>
+                  <td style="font-weight:700; color:var(--navy);">${cs.reg}</td>
+                  <td>${cs.driver} (${cs.company})</td>
+                  <td>${cs.gate}</td>
+                  <td>${cs.officer}</td>
+                  <td><span class="${cs.result === 'Clear' ? 'badge-in' : 'badge-inactive'}">${cs.result}</span></td>
+                  <td>${cs.remarks} ${cs.areas ? `<br><small class="muted">Areas: ${cs.areas.join(', ')}</small>` : ''}</td>
+                </tr>
+              `).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+/* SUB-REPORT 8: JETTY REPORT */
+function renderJettyReportHTML() {
+  let completedPatrols = 0;
+  let jettyIssuesCount = 0;
+
+  ['DAY', 'NIGHT'].forEach(shift => {
+    for (let p = 1; p <= 10; p++) {
+      const patrol = jettyPatrolsState[shift] ? jettyPatrolsState[shift][p] : null;
+      if (patrol) {
+        if (patrol.isCompleted) completedPatrols++;
+        JETTY_TAG_POINTS.forEach(tp => {
+          if (patrol.tags[tp] === 'ISSUE') jettyIssuesCount++;
+        });
+      }
+    }
+  });
+
+  return `
+    <div class="sub-report-panel">
+      <div class="reports-summary-row">
+        <div class="report-summary-card">
+          <span class="eyebrow">JETTY OPERATIONAL SUMMARY</span>
+          <h3>Jetty Operations Metrics</h3>
+          <div class="summary-metrics-list">
+            <div class="metric-line">
+              <span>Total Jetty Patrols</span>
+              <strong>20 Patrols per 24 Hours (10 Day / 10 Night)</strong>
+            </div>
+            <div class="metric-line">
+              <span>Patrols Completed Today</span>
+              <strong class="ok-text">${completedPatrols} / 20</strong>
+            </div>
+            <div class="metric-line">
+              <span>Current Vessel Status</span>
+              <strong class="blue-text">${dailyJettyPatrolState.vesselStatus === 'VESSEL_PRESENT' ? 'VESSEL PRESENT' : 'NO VESSEL'}</strong>
+            </div>
+            <div class="metric-line">
+              <span>Visitor Searches Logged</span>
+              <strong>${mockVisitorSearches.length}</strong>
+            </div>
+            <div class="metric-line">
+              <span>Jetty Issues Logged</span>
+              <strong class="amber-text">${jettyIssuesCount}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-performance-card">
+          <span class="eyebrow">SEPARATE SITE SCOPE</span>
+          <h3>Dedicated Jetty Operations</h3>
+          <p class="muted" style="margin-top: 8px;">
+            Jetty operations are managed independently from Site Patrol and include dedicated 20-patrol rounds, vessel status tracking, and visitor entry searches.
+          </p>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">JETTY VISITOR SEARCHES</span>
+          <h2>Visitor Search Records</h2>
+        </div>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-data-table">
+          <thead>
+            <tr>
+              <th>Date / Time</th>
+              <th>Visitor Name</th>
+              <th>Company</th>
+              <th>Time In / Out</th>
+              <th>Search Officer</th>
+              <th>Checks Performed</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${mockVisitorSearches.length === 0 ? '<tr><td colspan="7" class="muted" style="text-align:center;">No visitor searches recorded.</td></tr>' :
+              mockVisitorSearches.map(vs => `
+                <tr>
+                  <td>${vs.dateTime.replace('T', ' ')}</td>
+                  <td style="font-weight:700; color:var(--navy);">${vs.name}</td>
+                  <td>${vs.company}</td>
+                  <td>${vs.timeIn} - ${vs.timeOut || 'Present'}</td>
+                  <td>${vs.officer}</td>
+                  <td>${vs.checks.join(', ')}</td>
+                  <td>${vs.remarks}</td>
+                </tr>
+              `).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+/* SUB-REPORT 9: INCIDENT / ISSUE REPORT */
+function renderIncidentIssueReportHTML() {
+  const issues = getAllReportedIssues();
+
+  return `
+    <div class="sub-report-panel">
+      <div class="section-heading" style="margin-top:0;">
+        <div>
+          <span class="eyebrow">CENTRAL ISSUE TRACKER</span>
+          <h2>Incident & Issue Report (${issues.length} Open)</h2>
+          <p class="muted-small">Central view aggregating reported issues from Site Patrol, Access Control, Car Search, Jetty, and Daily Checks.</p>
+        </div>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-data-table">
+          <thead>
+            <tr>
+              <th>Date / Time</th>
+              <th>Source Module</th>
+              <th>Location / Checkpoint</th>
+              <th>Officer</th>
+              <th>Issue Description</th>
+              <th>Severity</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${issues.length === 0 ? '<tr><td colspan="7" class="muted" style="text-align:center;">No active issues or incidents reported.</td></tr>' :
+              issues.map(iss => {
+                let sevBadge = 'badge-out';
+                if (iss.severity === 'HIGH') sevBadge = 'badge-inactive';
+                if (iss.severity === 'MEDIUM') sevBadge = 'badge-active';
+
+                return `
+                  <tr>
+                    <td>${iss.dateTime.replace('T', ' ')}</td>
+                    <td style="font-weight:700;">${iss.source}</td>
+                    <td style="font-weight:700; color:var(--navy);">${iss.location}</td>
+                    <td>${iss.officer}</td>
+                    <td>${iss.issue}</td>
+                    <td><span class="${sevBadge}">${iss.severity}</span></td>
+                    <td><span class="badge-active">${iss.status}</span></td>
+                  </tr>
+                `;
+              }).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
 
 /* ==========================================================================
    3. CHECKPOINT DETAIL MODAL / DRAWER
@@ -1494,8 +2363,33 @@ if (carSearchForm) {
     const regInput = document.getElementById('carReg');
     const regVal = regInput ? regInput.value.trim() : '';
 
+    const driverVal = document.getElementById('carDriver')?.value.trim() || 'Driver';
+    const companyVal = document.getElementById('carCompany')?.value.trim() || 'Company';
+    const gateVal = document.getElementById('carGate')?.value || 'East Gate';
+    const officerVal = document.getElementById('carOfficer')?.value || 'Security Officer';
+    const dtVal = document.getElementById('carDateTime')?.value || getLocalDateTimeString();
+    const remarksVal = document.getElementById('carRemarks')?.value || 'Vehicle search completed.';
+
     const selectedResult = document.querySelector('#carResultGrid button.selected');
     const resultVal = selectedResult ? selectedResult.dataset.result : 'Clear';
+
+    const selectedAreas = [];
+    document.querySelectorAll('#carAreasGrid button.selected').forEach(btn => {
+      selectedAreas.push(btn.dataset.area);
+    });
+
+    mockCarSearches.unshift({
+      id: `cs-${Date.now()}`,
+      dateTime: dtVal,
+      reg: regVal || 'UNREG',
+      driver: driverVal,
+      company: companyVal,
+      gate: gateVal,
+      officer: officerVal,
+      areas: selectedAreas,
+      result: resultVal,
+      remarks: remarksVal
+    });
 
     const toastType = resultVal === 'Clear' ? 'success' : resultVal === 'Item Found' ? 'warning' : 'danger';
     showToast(`Car Search completed for ${regVal || 'Vehicle'}. Result: ${resultVal}`, toastType);
@@ -1816,6 +2710,30 @@ if (visitorSearchForm) {
     const visNameInput = document.getElementById('visName');
     const visNameVal = visNameInput ? visNameInput.value.trim() : 'Visitor';
 
+    const visCompanyVal = document.getElementById('visCompany')?.value.trim() || 'Visitor Company';
+    const visTimeInVal = document.getElementById('visTimeIn')?.value || getTimeString();
+    const visTimeOutVal = document.getElementById('visTimeOut')?.value || '';
+    const visSearcherVal = document.getElementById('visSearcher')?.value || 'Security Officer';
+    const visDtVal = document.getElementById('visDateTime')?.value || getLocalDateTimeString();
+    const visRemarksVal = document.getElementById('visRemarks')?.value || 'Visitor search completed.';
+
+    const selectedChecks = [];
+    document.querySelectorAll('#visitorChecksGrid button.selected').forEach(btn => {
+      selectedChecks.push(btn.dataset.check);
+    });
+
+    mockVisitorSearches.unshift({
+      id: `vs-${Date.now()}`,
+      name: visNameVal,
+      company: visCompanyVal,
+      timeIn: visTimeInVal,
+      timeOut: visTimeOutVal,
+      officer: visSearcherVal,
+      dateTime: visDtVal,
+      checks: selectedChecks.length > 0 ? selectedChecks : ['Documentation Check'],
+      remarks: visRemarksVal
+    });
+
     showToast(`Visitor search completed for ${visNameVal}.`, 'success');
 
     setTimeout(() => {
@@ -2067,21 +2985,86 @@ if (confirmRemoveStaffBtn) {
 let currentClientStatusFilter = 'ALL';
 let pendingDeactivateClientId = null;
 
+function renderStaffOnSiteModalContent() {
+  const countEl = document.getElementById('modalStaffOnSiteCount');
+  const listEl = document.getElementById('staffOnSiteListContent');
+  if (!listEl) return;
+
+  const staffIn = mockStaff.filter(s => s.status === 'IN');
+  if (countEl) countEl.textContent = staffIn.length;
+
+  const companies = ['Velogy', 'Altrad', 'Pinnacle', 'Contractors'];
+  let html = '';
+
+  companies.forEach(company => {
+    const compMembers = staffIn.filter(s => s.company.toLowerCase() === company.toLowerCase());
+    html += `
+      <div class="staff-group-block">
+        <h4 class="staff-group-title">${company.toUpperCase()}</h4>
+        <ul class="staff-group-list">
+    `;
+    if (compMembers.length === 0) {
+      html += `<li class="muted-small" style="list-style:none; font-weight:normal;">• No staff currently marked IN</li>`;
+    } else {
+      compMembers.forEach(s => {
+        html += `<li>• ${s.name}</li>`;
+      });
+    }
+    html += `
+        </ul>
+      </div>
+    `;
+  });
+
+  listEl.innerHTML = html;
+}
+
+const staffOnSiteModal = document.getElementById('staffOnSiteModal');
+const openStaffOnSiteModalBtn = document.getElementById('openStaffOnSiteModalBtn');
+const closeStaffOnSiteModalBtn = document.getElementById('closeStaffOnSiteModalBtn');
+const closeStaffOnSiteBtn = document.getElementById('closeStaffOnSiteBtn');
+
+function openStaffOnSiteModal() {
+  renderStaffOnSiteModalContent();
+  if (staffOnSiteModal) staffOnSiteModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeStaffOnSiteModal() {
+  if (staffOnSiteModal) staffOnSiteModal.setAttribute('aria-hidden', 'true');
+}
+
+if (openStaffOnSiteModalBtn) openStaffOnSiteModalBtn.addEventListener('click', openStaffOnSiteModal);
+if (closeStaffOnSiteModalBtn) closeStaffOnSiteModalBtn.addEventListener('click', closeStaffOnSiteModal);
+if (closeStaffOnSiteBtn) closeStaffOnSiteBtn.addEventListener('click', closeStaffOnSiteModal);
+
 function renderAdminDashboard() {
   const staffInCount = mockStaff.filter(s => s.status === 'IN').length;
-  const staffOutCount = mockStaff.filter(s => s.status === 'OUT').length;
-  const totalStaffCount = mockStaff.length;
-  const activeClientsCount = mockClients.filter(c => c.status === 'ACTIVE').length;
+
+  const dayStats = getDayPatrolStats();
+  const nightStats = getPatrolStats();
+
+  const totalPatrolsCompleted = dayStats.completedRoundsCount + nightStats.completedRoundsCount;
+  const totalCheckpointsChecked = (dayStats.totalChecked + dayStats.totalIssues) + (nightStats.totalChecked + nightStats.totalIssues);
+
+  let totalVehicles = 0;
+  Object.values(eastGateVehicleTally).forEach(val => { totalVehicles += val; });
+
+  let totalOpenIssues = dayStats.totalIssues + nightStats.totalIssues;
+  if (carParkState.status === 'ISSUE') totalOpenIssues++;
 
   const kpiStaffIn = document.getElementById('kpiStaffIn');
-  const kpiStaffOut = document.getElementById('kpiStaffOut');
-  const kpiTotalStaff = document.getElementById('kpiTotalStaff');
-  const kpiActiveClients = document.getElementById('kpiActiveClients');
+  const kpiPatrols = document.getElementById('kpiPatrols');
+  const kpiCheckpoints = document.getElementById('kpiCheckpoints');
+  const kpiVehiclesEntering = document.getElementById('kpiVehiclesEntering');
+  const kpiOpenIssues = document.getElementById('kpiOpenIssues');
 
   if (kpiStaffIn) kpiStaffIn.textContent = staffInCount;
-  if (kpiStaffOut) kpiStaffOut.textContent = staffOutCount;
-  if (kpiTotalStaff) kpiTotalStaff.textContent = totalStaffCount;
-  if (kpiActiveClients) kpiActiveClients.textContent = activeClientsCount;
+  if (kpiPatrols) kpiPatrols.textContent = `${totalPatrolsCompleted} / 11`;
+  if (kpiCheckpoints) kpiCheckpoints.textContent = `${totalCheckpointsChecked} / 167`;
+  if (kpiVehiclesEntering) kpiVehiclesEntering.textContent = totalVehicles;
+  if (kpiOpenIssues) kpiOpenIssues.textContent = totalOpenIssues;
+
+  renderStaffOnSiteModalContent();
 }
 
 function renderClientManagement() {
