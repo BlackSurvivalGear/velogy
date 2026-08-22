@@ -74,23 +74,12 @@ const rolePermissions = {
     'officer-management'
   ],
   'team leader': [
-    'dashboard',
-    'patrol',
-    'access',
-    'gate-east',
-    'gate-west',
-    'car-search',
-    'control',
-    'jetty',
-    'jetty-patrol',
-    'visitor-search',
-    'incident-report',
-    'user-manual',
     'admin-dashboard',
     'reports',
     'officer-management',
     'staff-management',
-    'client-management'
+    'client-management',
+    'user-manual'
   ],
   manager: [
     'dashboard',
@@ -684,6 +673,9 @@ document.addEventListener('click', event => {
   const trigger = event.target.closest('[data-view]');
   if (trigger) {
     event.preventDefault();
+    if (trigger.dataset.reportTab) {
+      currentActiveReportTab = trigger.dataset.reportTab;
+    }
     showView(trigger.dataset.view);
   }
 });
@@ -2460,6 +2452,21 @@ function renderIncidentIssueReportHTML() {
                 else if (iss.status === 'READ') statusBadge = '<span class="badge-read">READ</span>';
                 else if (iss.status === 'RESOLVED') statusBadge = '<span class="badge-resolved">RESOLVED</span>';
 
+                const user = securityUsers.currentUser;
+                const role = user ? user.role.toLowerCase() : 'officer';
+                const canManage = (role === 'supervisor' || role === 'team leader' || role === 'manager');
+
+                let actionHtml = '';
+                if (iss.isIncidentReport && canManage) {
+                  if (iss.status === 'UNREAD') {
+                    actionHtml = `<div style="margin-top:4px;"><button type="button" class="table-action-btn btn-in" onclick="markIncidentRead('${iss.id}')">MARK READ</button></div>`;
+                  } else if (iss.status === 'READ') {
+                    actionHtml = `<div style="margin-top:4px;"><button type="button" class="table-action-btn btn-in" onclick="markIncidentResolved('${iss.id}')">MARK RESOLVED</button></div>`;
+                  } else if (iss.status === 'RESOLVED') {
+                    actionHtml = `<div style="margin-top:4px;"><button type="button" class="table-action-btn btn-danger" onclick="openDeleteIncidentModal('${iss.id}')">DELETE</button></div>`;
+                  }
+                }
+
                 let reportCell = iss.isIncidentReport ?
                   `<strong style="color:var(--navy);">${iss.reportNumber}</strong><br><small style="color:var(--muted);">${iss.issue}</small>` :
                   `<strong>${iss.issue}</strong>`;
@@ -2476,7 +2483,7 @@ function renderIncidentIssueReportHTML() {
                     <td style="font-weight:700; color:var(--navy);">${iss.location}</td>
                     <td>${iss.officer}</td>
                     <td><span class="${sevBadge}">${iss.severity}</span></td>
-                    <td>${statusBadge}</td>
+                    <td>${statusBadge}${actionHtml}</td>
                   </tr>
                 `;
               }).join('')
@@ -3937,7 +3944,9 @@ function handleSignInSubmit() {
 
   // Dynamically update UI and permissions for user role
   renderNavigationAndRoleUI();
-  showView('dashboard');
+  const allowed = rolePermissions[roleVal] || rolePermissions.officer;
+  const startView = allowed.includes('dashboard') ? 'dashboard' : 'admin-dashboard';
+  showView(startView);
 
   showToast(`Signed in as ${signedInName}`, 'success');
 }
@@ -4377,6 +4386,14 @@ if (incidentForm) {
   incidentForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
+    const user = securityUsers.currentUser || { name: 'Security Officer', role: 'officer' };
+    const role = user.role.toLowerCase();
+
+    if (role === 'team leader') {
+      showToast('Team Leaders do not have permission to submit Incident Reports.', 'danger');
+      return;
+    }
+
     const locationSelectVal = document.getElementById('incLocationSelect')?.value || 'Site';
     const otherLocationVal = document.getElementById('incOtherLocationInput')?.value.trim() || '';
     const typeVal = document.getElementById('incTypeSelect')?.value || 'Security';
@@ -4384,7 +4401,6 @@ if (incidentForm) {
     const descVal = document.getElementById('incDescription')?.value.trim() || '';
     const actionVal = document.getElementById('incActionTaken')?.value.trim() || '';
 
-    const user = securityUsers.currentUser || { name: 'Security Officer', role: 'officer' };
     const roleFormatted = user.role.charAt(0).toUpperCase() + user.role.slice(1);
 
     // Format Date & Time strings
@@ -4611,6 +4627,7 @@ function markIncidentRead(reportId) {
 
   showToast(`Report ${report.reportNumber} marked as READ.`, 'info');
   renderIncidentReportView();
+  renderAdminReports();
 }
 
 function markIncidentResolved(reportId) {
@@ -4618,7 +4635,7 @@ function markIncidentResolved(reportId) {
   const role = user ? user.role.toLowerCase() : 'officer';
 
   if (role !== 'supervisor' && role !== 'team leader' && role !== 'manager') {
-    showToast('Permission denied: Only Supervisors and Managers can mark reports Resolved.', 'danger');
+    showToast('Permission denied: Only Supervisors, Team Leaders and Managers can mark reports Resolved.', 'danger');
     return;
   }
 
@@ -4636,6 +4653,7 @@ function markIncidentResolved(reportId) {
 
   showToast(`Report ${report.reportNumber} marked as RESOLVED.`, 'success');
   renderIncidentReportView();
+  renderAdminReports();
 }
 
 // Delete Protection Modal Workflow
@@ -4695,6 +4713,7 @@ if (confirmDeleteIncidentBtn) {
       showToast(`Incident report ${reportNum} deleted successfully.`, 'warning');
       closeDeleteIncidentModal();
       renderIncidentReportView();
+      renderAdminReports();
     }
   });
 }

@@ -65,7 +65,8 @@
         <button class="nav-item" data-view="user-manual">User Manual</button>
         <div class="nav-section-title">ADMINISTRATION</div>
         <button class="nav-item" data-view="admin-dashboard">Admin Dashboard</button>
-        <button class="nav-item" data-view="reports">Admin Reports</button>
+        <button class="nav-item" data-view="reports">Reports</button>
+        <button class="nav-item" data-view="reports" data-report-tab="incident-issue">Incident &amp; Issue Reports</button>
         <button class="nav-item" data-view="officer-management">Security Users</button>
         <button class="nav-item" data-view="staff-management">Staff Management</button>
         <button class="nav-item" data-view="client-management">Client Management</button>
@@ -1343,7 +1344,27 @@
               <span class="manual-arrow">▼</span>
             </summary>
             <div class="manual-content-body">
-              <p>Team Leaders have full administrative access.</p>
+              <p><strong>Administrative role only.</strong></p>
+              <p>Team Leaders manage the administration side of the system rather than performing operational security duties.</p>
+              <h4>Team Leaders have access to:</h4>
+              <ul class="manual-list">
+                <li>Admin Dashboard</li>
+                <li>Reports</li>
+                <li>Incident &amp; Issue Report management</li>
+                <li>Security User Management</li>
+                <li>Staff Management</li>
+                <li>Client Management</li>
+                <li>User Manual</li>
+              </ul>
+              <h4>Team Leaders do NOT have access to:</h4>
+              <ul class="manual-list">
+                <li>Site Patrol</li>
+                <li>Access Control</li>
+                <li>Control</li>
+                <li>Jetty</li>
+                <li>Incident Report submission</li>
+                <li>Other operational security functions</li>
+              </ul>
               <h4>Current Team Leaders:</h4>
               <ul class="manual-list">
                 <li>Big Rick</li>
@@ -1352,17 +1373,6 @@
                 <li>Rick</li>
                 <li>Seun</li>
                 <li>Steve</li>
-              </ul>
-              <h4>Team Leaders can access:</h4>
-              <ul class="manual-list">
-                <li>All operational functions</li>
-                <li>Control</li>
-                <li>Incident Reports</li>
-                <li>Admin Dashboard</li>
-                <li>Reports</li>
-                <li>Security Users</li>
-                <li>Staff Management</li>
-                <li>Client Management</li>
               </ul>
             </div>
           </details>
@@ -1490,7 +1500,6 @@
               <ul class="manual-list">
                 <li>Controller</li>
                 <li>Supervisor</li>
-                <li>Team Leader</li>
                 <li>Manager</li>
               </ul>
               <p>The signed-in user's name is automatically carried into Control. Control provides the night vehicle tally.</p>
@@ -1552,13 +1561,11 @@
               <span class="manual-arrow">▼</span>
             </summary>
             <div class="manual-content-body">
-              <p><strong>All security users can submit an Incident Report.</strong></p>
-              <p>This includes:</p>
+              <p><strong>Incident Report submission is available to operational personnel:</strong></p>
               <ul class="manual-list">
                 <li>Officer</li>
                 <li>Controller</li>
                 <li>Supervisor</li>
-                <li>Team Leader</li>
                 <li>Manager</li>
               </ul>
               <p>Reports record the signed-in user's identity.</p>
@@ -1741,7 +1748,7 @@
                       <td>✓</td>
                       <td>✓</td>
                       <td>✓</td>
-                      <td>✓</td>
+                      <td class="muted">—</td>
                       <td>✓</td>
                     </tr>
                     <tr>
@@ -1749,7 +1756,7 @@
                       <td class="muted">—</td>
                       <td>✓</td>
                       <td>✓</td>
-                      <td>✓</td>
+                      <td class="muted">—</td>
                       <td>✓</td>
                     </tr>
                     <tr>
@@ -1757,7 +1764,7 @@
                       <td>✓</td>
                       <td>✓</td>
                       <td>✓</td>
-                      <td>✓</td>
+                      <td class="muted">—</td>
                       <td>✓</td>
                     </tr>
                     <tr>
@@ -1805,6 +1812,14 @@
                       <td class="muted">—</td>
                       <td class="muted">—</td>
                       <td class="muted">—</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700; color:var(--navy);">User Manual</td>
+                      <td>✓</td>
+                      <td>✓</td>
+                      <td>✓</td>
                       <td>✓</td>
                       <td>✓</td>
                     </tr>
