@@ -41,6 +41,45 @@ let mockClients = [
 let nextStaffId = 7;
 let nextClientId = 4;
 
+// LOCAL MOCK STATE FOR EAST GATE VEHICLE TALLY
+let eastGateVehicleTally = {
+  tip: 0,
+  denHartog: 0,
+  cission: 0,
+  velogy: 0
+};
+
+function renderEastGateVehicleTally() {
+  const tipEl = document.getElementById('tallyCountTip');
+  const denHartogEl = document.getElementById('tallyCountDenHartog');
+  const cissionEl = document.getElementById('tallyCountCission');
+  const velogyEl = document.getElementById('tallyCountVelogy');
+  const totalEl = document.getElementById('tallyTotalCount');
+
+  if (tipEl) tipEl.textContent = eastGateVehicleTally.tip;
+  if (denHartogEl) denHartogEl.textContent = eastGateVehicleTally.denHartog;
+  if (cissionEl) cissionEl.textContent = eastGateVehicleTally.cission;
+  if (velogyEl) velogyEl.textContent = eastGateVehicleTally.velogy;
+
+  const total = eastGateVehicleTally.tip + eastGateVehicleTally.denHartog + eastGateVehicleTally.cission + eastGateVehicleTally.velogy;
+  if (totalEl) totalEl.textContent = total;
+}
+
+function incrementVehicleTally(companyKey) {
+  if (eastGateVehicleTally.hasOwnProperty(companyKey)) {
+    eastGateVehicleTally[companyKey] += 1;
+    renderEastGateVehicleTally();
+    const companyDisplayNames = {
+      tip: 'TIP',
+      denHartog: 'DEN HARTOG',
+      cission: 'CISSION',
+      velogy: 'VELOGY'
+    };
+    const displayName = companyDisplayNames[companyKey] || companyKey.toUpperCase();
+    showToast(`Vehicle logged for ${displayName} (+1)`, 'success');
+  }
+}
+
 // Helper to return ordinal patrol names: 1 -> "1st Patrol", 2 -> "2nd Patrol", 3 -> "3rd Patrol", etc.
 function getOrdinalPatrolName(num) {
   const n = parseInt(num, 10);
@@ -305,6 +344,7 @@ function showView(id) {
     renderClientManagement();
   } else if (id === 'gate-east') {
     renderGateStaffView('gate-east', 'East Gate');
+    renderEastGateVehicleTally();
   } else if (id === 'gate-west') {
     renderGateStaffView('gate-west', 'West Gate');
   }
@@ -2353,3 +2393,4 @@ initializeDateTimeFields();
 updateTheme();
 renderPatrolDashboard();
 renderAdminDashboard();
+renderEastGateVehicleTally();

@@ -478,6 +478,40 @@
           </div>
         </div>
 
+        <!-- Vehicle Tally Panel (East Gate Only) -->
+        <div class="vehicle-tally-panel">
+          <div class="vehicle-tally-header">
+            <span class="eyebrow">VEHICLES ENTERING</span>
+            <h3>VEHICLE TALLY — TODAY</h3>
+          </div>
+          <div class="vehicle-tally-grid">
+            <div class="tally-card">
+              <span class="tally-company-label">TIP</span>
+              <span class="tally-count" id="tallyCountTip">0</span>
+              <button type="button" class="tally-btn" onclick="incrementVehicleTally('tip')">[ +1 ]</button>
+            </div>
+            <div class="tally-card">
+              <span class="tally-company-label">DEN HARTOG</span>
+              <span class="tally-count" id="tallyCountDenHartog">0</span>
+              <button type="button" class="tally-btn" onclick="incrementVehicleTally('denHartog')">[ +1 ]</button>
+            </div>
+            <div class="tally-card">
+              <span class="tally-company-label">CISSION</span>
+              <span class="tally-count" id="tallyCountCission">0</span>
+              <button type="button" class="tally-btn" onclick="incrementVehicleTally('cission')">[ +1 ]</button>
+            </div>
+            <div class="tally-card">
+              <span class="tally-company-label">VELOGY</span>
+              <span class="tally-count" id="tallyCountVelogy">0</span>
+              <button type="button" class="tally-btn" onclick="incrementVehicleTally('velogy')">[ +1 ]</button>
+            </div>
+          </div>
+          <div class="vehicle-tally-total">
+            <span class="total-label">TOTAL TALLY</span>
+            <strong class="total-val" id="tallyTotalCount">0</strong>
+          </div>
+        </div>
+
         <!-- Search & Filter Controls -->
         <div class="gate-controls-panel">
           <div class="search-box">
