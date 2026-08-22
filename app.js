@@ -514,21 +514,26 @@ function renderPatrolDashboard() {
 
   const daySection = document.getElementById('dayPatrolSection');
   const nightSection = document.getElementById('nightPatrolSection');
+  const dailyChecksContainer = document.querySelector('.daily-checks-container');
 
   if (daySection && nightSection) {
     if (currentPatrolMode === 'DAY') {
       daySection.style.display = 'block';
       nightSection.style.display = 'none';
       renderDayPatrolSection();
+      if (dailyChecksContainer) {
+        dailyChecksContainer.style.display = 'block';
+      }
+      renderDailyChecksSection();
     } else {
       daySection.style.display = 'none';
       nightSection.style.display = 'block';
       renderNightPatrolSection();
+      if (dailyChecksContainer) {
+        dailyChecksContainer.style.display = 'none';
+      }
     }
   }
-
-  // Always render Daily Checks Section below patrol controls
-  renderDailyChecksSection();
 }
 
 // 1A. DAY PATROL RENDER & LOGIC (3 Rounds x 13 Checkpoints = 39 Checks)
