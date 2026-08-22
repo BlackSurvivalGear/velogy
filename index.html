@@ -148,11 +148,6 @@
             <strong class="ok">Active</strong>
             <small id="dashWestSub">Access control operational</small>
           </div>
-          <div class="status-card">
-            <span>W2 Gate</span>
-            <strong class="ok">Active</strong>
-            <small id="dashW2Sub">Access control operational</small>
-          </div>
         </div>
       </section>
 
@@ -384,15 +379,6 @@
             </div>
             <b>→</b>
           </button>
-          <button class="operation-card" data-view="gate-w2">
-            <span class="operation-number">W2</span>
-            <div>
-              <span class="eyebrow">GATE</span>
-              <h3>W2 Gate</h3>
-              <span class="live"><i></i> Active</span>
-            </div>
-            <b>→</b>
-          </button>
           <button class="operation-card search-card" data-view="car-search">
             <span class="operation-number">CS</span>
             <div>
@@ -410,23 +396,44 @@
         <button class="back-button" data-view="access">← Back to Access Control</button>
         <div class="page-intro">
           <span class="eyebrow">ACCESS CONTROL</span>
-          <h2>East Gate</h2>
-          <p>Gate activity and access operations. <span class="live" style="display:inline-flex; margin-left:8px;"><i></i> Active</span></p>
+          <h2>EAST GATE</h2>
+          <p>STAFF CHECK-IN / CHECK-OUT</p>
         </div>
-        <div class="gate-actions" data-gate="East Gate">
-          <button class="primary-button" data-gate-action="New Entry">New Entry</button>
-          <button class="secondary-button" data-gate-action="New Exit">New Exit</button>
-          <button class="secondary-button" data-gate-action="Visitor">Visitor</button>
-          <button class="secondary-button" data-gate-action="Vehicle">Vehicle</button>
-          <button class="danger-button" data-gate-action="Access Denied">Access Denied</button>
-        </div>
-        <div class="activity-panel">
-          <h3>Recent activity</h3>
-          <div class="activity-list" id="eastGateActivity">
-            <p>18:42 · Vehicle entry</p>
-            <p>18:37 · Visitor admitted</p>
-            <p>18:31 · Access denied</p>
+
+        <!-- Counters Banner -->
+        <div class="gate-counters-panel">
+          <div class="gate-counter-card">
+            <span class="counter-label">STAFF ON SITE</span>
+            <strong class="counter-val green-text" id="eastStaffInCount">0</strong>
           </div>
+          <div class="gate-counter-card">
+            <span class="counter-label">STAFF OUT</span>
+            <strong class="counter-val muted" id="eastStaffOutCount">0</strong>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="gate-controls-panel">
+          <div class="search-box">
+            <input type="text" id="eastGateSearch" placeholder="Search staff..." oninput="renderGateStaffView('gate-east', 'East Gate')">
+          </div>
+          <div class="filter-row">
+            <div class="filter-group">
+              <span class="filter-label">Company:</span>
+              <div class="pill-filter-buttons" id="eastCompanyFilters">
+                <button type="button" class="filter-pill active" data-gate-company="ALL" onclick="setGateCompanyFilter('gate-east', 'ALL')">ALL</button>
+                <button type="button" class="filter-pill" data-gate-company="VELOGY" onclick="setGateCompanyFilter('gate-east', 'VELOGY')">VELOGY</button>
+                <button type="button" class="filter-pill" data-gate-company="ALTRAD" onclick="setGateCompanyFilter('gate-east', 'ALTRAD')">ALTRAD</button>
+                <button type="button" class="filter-pill" data-gate-company="PINNACLE" onclick="setGateCompanyFilter('gate-east', 'PINNACLE')">PINNACLE</button>
+                <button type="button" class="filter-pill" data-gate-company="CONTRACTORS" onclick="setGateCompanyFilter('gate-east', 'CONTRACTORS')">CONTRACTORS</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staff List Container -->
+        <div class="gate-staff-list" id="eastGateStaffList">
+          <!-- Dynamically populated by JS -->
         </div>
       </section>
 
@@ -435,48 +442,44 @@
         <button class="back-button" data-view="access">← Back to Access Control</button>
         <div class="page-intro">
           <span class="eyebrow">ACCESS CONTROL</span>
-          <h2>West Gate</h2>
-          <p>Gate activity and access operations. <span class="live" style="display:inline-flex; margin-left:8px;"><i></i> Active</span></p>
+          <h2>WEST GATE</h2>
+          <p>STAFF CHECK-IN / CHECK-OUT</p>
         </div>
-        <div class="gate-actions" data-gate="West Gate">
-          <button class="primary-button" data-gate-action="New Entry">New Entry</button>
-          <button class="secondary-button" data-gate-action="New Exit">New Exit</button>
-          <button class="secondary-button" data-gate-action="Visitor">Visitor</button>
-          <button class="secondary-button" data-gate-action="Vehicle">Vehicle</button>
-          <button class="danger-button" data-gate-action="Access Denied">Access Denied</button>
-        </div>
-        <div class="activity-panel">
-          <h3>Recent activity</h3>
-          <div class="activity-list" id="westGateActivity">
-            <p>18:40 · Contractor entry</p>
-            <p>18:26 · Vehicle exit</p>
-            <p>18:18 · Visitor admitted</p>
-          </div>
-        </div>
-      </section>
 
-      <!-- GATE W2 -->
-      <section id="gate-w2" class="view gate-view">
-        <button class="back-button" data-view="access">← Back to Access Control</button>
-        <div class="page-intro">
-          <span class="eyebrow">ACCESS CONTROL</span>
-          <h2>W2 Gate</h2>
-          <p>Gate activity and access operations. <span class="live" style="display:inline-flex; margin-left:8px;"><i></i> Active</span></p>
-        </div>
-        <div class="gate-actions" data-gate="W2 Gate">
-          <button class="primary-button" data-gate-action="New Entry">New Entry</button>
-          <button class="secondary-button" data-gate-action="New Exit">New Exit</button>
-          <button class="secondary-button" data-gate-action="Visitor">Visitor</button>
-          <button class="secondary-button" data-gate-action="Vehicle">Vehicle</button>
-          <button class="danger-button" data-gate-action="Access Denied">Access Denied</button>
-        </div>
-        <div class="activity-panel">
-          <h3>Recent activity</h3>
-          <div class="activity-list" id="w2GateActivity">
-            <p>18:44 · Vehicle entry</p>
-            <p>18:35 · Staff entry</p>
-            <p>18:12 · Vehicle exit</p>
+        <!-- Counters Banner -->
+        <div class="gate-counters-panel">
+          <div class="gate-counter-card">
+            <span class="counter-label">STAFF ON SITE</span>
+            <strong class="counter-val green-text" id="westStaffInCount">0</strong>
           </div>
+          <div class="gate-counter-card">
+            <span class="counter-label">STAFF OUT</span>
+            <strong class="counter-val muted" id="westStaffOutCount">0</strong>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="gate-controls-panel">
+          <div class="search-box">
+            <input type="text" id="westGateSearch" placeholder="Search staff..." oninput="renderGateStaffView('gate-west', 'West Gate')">
+          </div>
+          <div class="filter-row">
+            <div class="filter-group">
+              <span class="filter-label">Company:</span>
+              <div class="pill-filter-buttons" id="westCompanyFilters">
+                <button type="button" class="filter-pill active" data-gate-company="ALL" onclick="setGateCompanyFilter('gate-west', 'ALL')">ALL</button>
+                <button type="button" class="filter-pill" data-gate-company="VELOGY" onclick="setGateCompanyFilter('gate-west', 'VELOGY')">VELOGY</button>
+                <button type="button" class="filter-pill" data-gate-company="ALTRAD" onclick="setGateCompanyFilter('gate-west', 'ALTRAD')">ALTRAD</button>
+                <button type="button" class="filter-pill" data-gate-company="PINNACLE" onclick="setGateCompanyFilter('gate-west', 'PINNACLE')">PINNACLE</button>
+                <button type="button" class="filter-pill" data-gate-company="CONTRACTORS" onclick="setGateCompanyFilter('gate-west', 'CONTRACTORS')">CONTRACTORS</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staff List Container -->
+        <div class="gate-staff-list" id="westGateStaffList">
+          <!-- Dynamically populated by JS -->
         </div>
       </section>
 
@@ -503,7 +506,6 @@
               <select id="carGate">
                 <option>East Gate</option>
                 <option>West Gate</option>
-                <option>W2 Gate</option>
               </select>
             </label>
             <label>Search Officer

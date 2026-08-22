@@ -14,7 +14,6 @@ const titles = {
   reports: 'Admin Reports',
   'gate-east': 'East Gate',
   'gate-west': 'West Gate',
-  'gate-w2': 'W2 Gate',
   'car-search': 'Car Search',
   'jetty-patrol': 'Jetty Patrol',
   'visitor-search': 'Visitor Search',
@@ -25,10 +24,12 @@ const titles = {
 
 // INITIAL MOCK DATA FOR STAFF & CLIENTS
 let mockStaff = [
-  { id: 'staff-1', name: 'John Smith', company: 'Velogy', status: 'IN' },
-  { id: 'staff-2', name: 'David Brown', company: 'Altrad', status: 'OUT' },
-  { id: 'staff-3', name: 'Michael Cole', company: 'Pinnacle', status: 'IN' },
-  { id: 'staff-4', name: 'James Taylor', company: 'Contractors', status: 'IN' }
+  { id: 'staff-1', name: 'John Smith', company: 'Velogy', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-2', name: 'David Jones', company: 'Velogy', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-3', name: 'Michael Brown', company: 'Altrad', status: 'OUT', lastAccess: 'West Gate' },
+  { id: 'staff-4', name: 'James Wilson', company: 'Altrad', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-5', name: 'Robert Cole', company: 'Pinnacle', status: 'IN', lastAccess: 'East Gate' },
+  { id: 'staff-6', name: 'Steve Green', company: 'Contractors', status: 'OUT', lastAccess: 'West Gate' }
 ];
 
 let mockClients = [
@@ -37,7 +38,7 @@ let mockClients = [
   { id: 'client-3', name: 'CISSION', contact: 'Client Contact', status: 'ACTIVE', passwordStatus: 'ACTIVE', password: '••••••••', nextChangeDate: '01 September 2026' }
 ];
 
-let nextStaffId = 5;
+let nextStaffId = 7;
 let nextClientId = 4;
 
 // 16 REAL PATROL CHECKPOINTS
@@ -214,6 +215,10 @@ function showView(id) {
     renderStaffManagement();
   } else if (id === 'client-management') {
     renderClientManagement();
+  } else if (id === 'gate-east') {
+    renderGateStaffView('gate-east', 'East Gate');
+  } else if (id === 'gate-west') {
+    renderGateStaffView('gate-west', 'West Gate');
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -987,30 +992,124 @@ if (closeDetailModalBtn) closeDetailModalBtn.addEventListener('click', closeDeta
    4. ACCESS CONTROL & GATES MODULE
    ========================================================================== */
 
-document.querySelectorAll('.gate-actions button').forEach(button => {
-  button.addEventListener('click', () => {
-    const gateContainer = button.closest('.gate-actions');
-    const gateName = gateContainer ? gateContainer.dataset.gate : 'Gate';
-    const actionName = button.dataset.gateAction || button.textContent.trim();
+let gateCompanyFilters = {
+  'gate-east': 'ALL',
+  'gate-west': 'ALL'
+};
 
-    const gateId = button.closest('.view').id;
-    let activityListId = '';
-    if (gateId === 'gate-east') activityListId = 'eastGateActivity';
-    if (gateId === 'gate-west') activityListId = 'westGateActivity';
-    if (gateId === 'gate-w2') activityListId = 'w2GateActivity';
+function setGateCompanyFilter(gateViewId, companyName) {
+  gateCompanyFilters[gateViewId] = companyName;
 
-    const activityList = document.getElementById(activityListId);
-    if (activityList) {
-      const p = document.createElement('p');
-      p.className = 'new-entry';
-      p.textContent = `${getTimeString()} · ${actionName}`;
-      activityList.prepend(p);
-    }
+  const filterContainerId = gateViewId === 'gate-east' ? 'eastCompanyFilters' : 'westCompanyFilters';
+  const container = document.getElementById(filterContainerId);
+  if (container) {
+    container.querySelectorAll('.filter-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.gateCompany === companyName);
+    });
+  }
 
-    const toastType = actionName === 'Access Denied' ? 'danger' : 'success';
-    showToast(`${gateName}: ${actionName} recorded.`, toastType);
+  const gateName = gateViewId === 'gate-east' ? 'East Gate' : 'West Gate';
+  renderGateStaffView(gateViewId, gateName);
+}
+
+function renderGateStaffView(gateViewId, gateName) {
+  const isEast = gateViewId === 'gate-east';
+  const countInEl = document.getElementById(isEast ? 'eastStaffInCount' : 'westStaffInCount');
+  const countOutEl = document.getElementById(isEast ? 'eastStaffOutCount' : 'westStaffOutCount');
+  const searchInput = document.getElementById(isEast ? 'eastGateSearch' : 'westGateSearch');
+  const listContainer = document.getElementById(isEast ? 'eastGateStaffList' : 'westGateStaffList');
+
+  if (!listContainer) return;
+
+  // Calculate site totals
+  const totalIn = mockStaff.filter(s => s.status === 'IN').length;
+  const totalOut = mockStaff.filter(s => s.status === 'OUT').length;
+
+  if (countInEl) countInEl.textContent = totalIn;
+  if (countOutEl) countOutEl.textContent = totalOut;
+
+  const searchVal = (searchInput?.value || '').toLowerCase().trim();
+  const selectedCompany = gateCompanyFilters[gateViewId] || 'ALL';
+
+  // Filter staff list
+  const filteredStaff = mockStaff.filter(item => {
+    const matchSearch = !searchVal || item.name.toLowerCase().includes(searchVal) || item.company.toLowerCase().includes(searchVal);
+    const matchCompany = selectedCompany === 'ALL' || item.company.toUpperCase() === selectedCompany;
+    return matchSearch && matchCompany;
   });
-});
+
+  // Group staff by standard companies
+  const companies = ['VELOGY', 'ALTRAD', 'PINNACLE', 'CONTRACTORS'];
+  let html = '';
+
+  if (filteredStaff.length === 0) {
+    html = `<div class="admin-card muted" style="text-align:center; padding:24px;">No staff records found matching criteria.</div>`;
+  } else {
+    companies.forEach(company => {
+      // If company filter is set and does not match, skip section
+      if (selectedCompany !== 'ALL' && selectedCompany !== company) return;
+
+      const groupMembers = filteredStaff.filter(s => s.company.toUpperCase() === company);
+      if (groupMembers.length === 0) return;
+
+      html += `
+        <div class="company-group-section">
+          <h3 class="company-group-header">${company}</h3>
+          <div class="gate-staff-cards-grid">
+      `;
+
+      groupMembers.forEach(item => {
+        const isIn = item.status === 'IN';
+        const isOut = item.status === 'OUT';
+
+        html += `
+          <div class="staff-gate-card">
+            <div class="staff-gate-info">
+              <strong class="staff-gate-name">${item.name}</strong>
+              <span class="staff-gate-company">${item.company}</span>
+              <div class="staff-gate-last-access">
+                <span class="muted-small">Last Access:</span>
+                <strong>${item.lastAccess || 'None'}</strong>
+              </div>
+            </div>
+            <div class="in-out-toggle">
+              <button type="button" class="toggle-in-btn ${isIn ? 'active' : ''}" onclick="toggleGateStaffStatus('${item.id}', 'IN', '${gateName}', '${gateViewId}')">
+                ${isIn ? '● IN' : '○ IN'}
+              </button>
+              <button type="button" class="toggle-out-btn ${isOut ? 'active' : ''}" onclick="toggleGateStaffStatus('${item.id}', 'OUT', '${gateName}', '${gateViewId}')">
+                ${isOut ? '● OUT' : '○ OUT'}
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  listContainer.innerHTML = html;
+}
+
+function toggleGateStaffStatus(staffId, newStatus, gateName, gateViewId) {
+  const staff = mockStaff.find(s => s.id === staffId);
+  if (!staff) return;
+
+  if (staff.status === newStatus && staff.lastAccess === gateName) return;
+
+  staff.status = newStatus;
+  staff.lastAccess = gateName;
+
+  showToast(`${staff.name} (${staff.company}) marked ${newStatus} at ${gateName}.`, newStatus === 'IN' ? 'success' : 'info');
+
+  renderGateStaffView('gate-east', 'East Gate');
+  renderGateStaffView('gate-west', 'West Gate');
+  renderStaffManagement();
+  renderAdminDashboard();
+}
 
 /* ==========================================================================
    5. CAR SEARCH MODULE
