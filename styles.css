@@ -39,6 +39,7 @@ body, .sidebar, .main-content, .topbar, .module-card, .status-card, .operation-c
 .activity-panel, .action-panel, .site-patrol-summary-card, .subtle-patrol-mode-bar,
 .round-selector-panel, .check-card, .reports-filter-panel, .report-summary-card,
 .report-performance-card, .report-table-wrapper, .modal-content, .gate-counter-card,
+.vehicle-tally-panel, .tally-card, .tally-btn,
 .gate-controls-panel, .company-group-section, .staff-gate-card, .admin-controls-panel,
 .admin-table-wrapper, .admin-card, .kpi-card, .jetty-shift-panel, .breakdown-box,
 .p-stat-box, .perf-box, .daily-check-card, .pump-row, .vessel-notice-box, .detail-box,
@@ -101,6 +102,7 @@ body.night-theme .report-performance-card,
 body.night-theme .report-table-wrapper,
 body.night-theme .modal-content,
 body.night-theme .gate-counter-card,
+body.night-theme .vehicle-tally-panel,
 body.night-theme .gate-controls-panel,
 body.night-theme .company-group-section,
 body.night-theme .admin-controls-panel,
@@ -133,8 +135,27 @@ body.night-theme .report-performance-card h3,
 body.night-theme .company-group-header,
 body.night-theme .staff-gate-name,
 body.night-theme .modal-header h3,
-body.night-theme .admin-card-title {
+body.night-theme .admin-card-title,
+body.night-theme .vehicle-tally-header h3,
+body.night-theme .tally-company-label,
+body.night-theme .tally-count,
+body.night-theme .total-val {
   color: #f8fafc;
+}
+
+body.night-theme .tally-btn {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+body.night-theme .tally-btn:hover {
+  background: #0369a1;
+}
+
+body.night-theme .vehicle-tally-header,
+body.night-theme .vehicle-tally-total {
+  border-color: #1c2c44;
 }
 
 body.night-theme .arrow,
@@ -147,6 +168,7 @@ body.night-theme .p-stat-box,
 body.night-theme .perf-box,
 body.night-theme .pump-row,
 body.night-theme .staff-gate-card,
+body.night-theme .tally-card,
 body.night-theme .detail-box,
 body.night-theme .password-display-box,
 body.night-theme .vessel-notice-box,
@@ -1927,6 +1949,112 @@ nav {
   color: var(--muted);
 }
 
+/* Vehicle Tally Interface Styles (East Gate) */
+.vehicle-tally-panel {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+
+.vehicle-tally-header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 16px;
+}
+
+.vehicle-tally-header h3 {
+  margin: 4px 0 0;
+  font-size: 18px;
+  color: var(--navy);
+  font-weight: 800;
+}
+
+.vehicle-tally-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.tally-card {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.tally-company-label {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--navy);
+  text-transform: uppercase;
+}
+
+.tally-count {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.tally-btn {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--navy);
+  color: #ffffff;
+  border: 1px solid var(--navy);
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  min-height: 48px;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tally-btn:hover {
+  background: var(--navy-2);
+  transform: translateY(-1px);
+}
+
+.tally-btn:active {
+  transform: translateY(1px);
+}
+
+.vehicle-tally-total {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.total-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.total-val {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-top: 4px;
+}
+
 /* Gate Staff IN/OUT Interface Styles */
 .gate-counters-panel {
   display: grid;
@@ -2089,6 +2217,10 @@ nav {
 @media (max-width: 768px) {
   .gate-staff-cards-grid {
     grid-template-columns: 1fr;
+  }
+
+  .vehicle-tally-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
