@@ -42,42 +42,72 @@ let nextStaffId = 7;
 let nextClientId = 4;
 
 // LOCAL MOCK STATE FOR EAST GATE VEHICLE TALLY
+// Store tally count per normalized company key / name
 let eastGateVehicleTally = {
-  tip: 0,
-  denHartog: 0,
-  cission: 0,
-  velogy: 0
+  "VELOGY": 0
 };
 
 function renderEastGateVehicleTally() {
-  const tipEl = document.getElementById('tallyCountTip');
-  const denHartogEl = document.getElementById('tallyCountDenHartog');
-  const cissionEl = document.getElementById('tallyCountCission');
-  const velogyEl = document.getElementById('tallyCountVelogy');
+  const gridEl = document.getElementById('vehicleTallyGrid');
   const totalEl = document.getElementById('tallyTotalCount');
 
-  if (tipEl) tipEl.textContent = eastGateVehicleTally.tip;
-  if (denHartogEl) denHartogEl.textContent = eastGateVehicleTally.denHartog;
-  if (cissionEl) cissionEl.textContent = eastGateVehicleTally.cission;
-  if (velogyEl) velogyEl.textContent = eastGateVehicleTally.velogy;
+  // Gather active dynamic clients sorted alphabetically A-Z
+  const activeClients = mockClients
+    .filter(c => c.status === 'ACTIVE')
+    .map(c => c.name.trim())
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 
-  const total = eastGateVehicleTally.tip + eastGateVehicleTally.denHartog + eastGateVehicleTally.cission + eastGateVehicleTally.velogy;
-  if (totalEl) totalEl.textContent = total;
+  // Build the list of tally categories: VELOGY fixed first, then active clients
+  const tallyCategories = ['VELOGY', ...activeClients];
+
+  let totalSum = 0;
+
+  if (gridEl) {
+    gridEl.innerHTML = '';
+    tallyCategories.forEach(companyName => {
+      const normalizedKey = companyName.toUpperCase();
+      if (!eastGateVehicleTally.hasOwnProperty(normalizedKey)) {
+        eastGateVehicleTally[normalizedKey] = 0;
+      }
+      const count = eastGateVehicleTally[normalizedKey];
+      totalSum += count;
+
+      const card = document.createElement('div');
+      card.className = 'tally-card';
+      card.innerHTML = `
+        <span class="tally-company-label">${companyName}</span>
+        <span class="tally-count">${count}</span>
+        <button type="button" class="tally-btn">[ +1 ]</button>
+      `;
+
+      const btn = card.querySelector('.tally-btn');
+      btn.addEventListener('click', () => {
+        incrementVehicleTally(companyName);
+      });
+
+      gridEl.appendChild(card);
+    });
+  } else {
+    // If grid element not on current DOM view, still calculate sum across all categories
+    tallyCategories.forEach(companyName => {
+      const normalizedKey = companyName.toUpperCase();
+      totalSum += (eastGateVehicleTally[normalizedKey] || 0);
+    });
+  }
+
+  if (totalEl) {
+    totalEl.textContent = totalSum;
+  }
 }
 
-function incrementVehicleTally(companyKey) {
-  if (eastGateVehicleTally.hasOwnProperty(companyKey)) {
-    eastGateVehicleTally[companyKey] += 1;
-    renderEastGateVehicleTally();
-    const companyDisplayNames = {
-      tip: 'TIP',
-      denHartog: 'DEN HARTOG',
-      cission: 'CISSION',
-      velogy: 'VELOGY'
-    };
-    const displayName = companyDisplayNames[companyKey] || companyKey.toUpperCase();
-    showToast(`Vehicle logged for ${displayName} (+1)`, 'success');
+function incrementVehicleTally(companyName) {
+  const normalizedKey = companyName.toUpperCase();
+  if (!eastGateVehicleTally.hasOwnProperty(normalizedKey)) {
+    eastGateVehicleTally[normalizedKey] = 0;
   }
+  eastGateVehicleTally[normalizedKey] += 1;
+  renderEastGateVehicleTally();
+  showToast(`Vehicle logged for ${companyName.toUpperCase()} (+1)`, 'success');
 }
 
 // Helper to return ordinal patrol names: 1 -> "1st Patrol", 2 -> "2nd Patrol", 3 -> "3rd Patrol", etc.
@@ -2134,6 +2164,7 @@ function renderClientManagement() {
   }
 
   renderAdminDashboard();
+  renderEastGateVehicleTally();
 }
 
 // Search & Filter Attachments for Clients

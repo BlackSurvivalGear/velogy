@@ -13,17 +13,12 @@
   <div id="splashScreen" class="splash-screen" aria-hidden="false">
     <div class="splash-content">
       <img src="slogo.png" alt="ImoTech Security Solutions" class="splash-logo">
-      <div class="splash-text">
-        <h1 class="splash-title">ImoTech</h1>
-        <p class="splash-subtitle">SECURITY SOLUTIONS</p>
-      </div>
     </div>
   </div>
 
   <div class="app-shell">
     <aside class="sidebar" aria-label="Primary navigation">
       <div class="brand">
-        <img src="slogo.png" alt="ImoTech Security Solutions" class="brand-logo">
         <div class="brand-text">
           <strong>ImoTech</strong>
           <span>SECURITY SOLUTIONS</span>
@@ -484,27 +479,8 @@
             <span class="eyebrow">VEHICLES ENTERING</span>
             <h3>VEHICLE TALLY — TODAY</h3>
           </div>
-          <div class="vehicle-tally-grid">
-            <div class="tally-card">
-              <span class="tally-company-label">TIP</span>
-              <span class="tally-count" id="tallyCountTip">0</span>
-              <button type="button" class="tally-btn" onclick="incrementVehicleTally('tip')">[ +1 ]</button>
-            </div>
-            <div class="tally-card">
-              <span class="tally-company-label">DEN HARTOG</span>
-              <span class="tally-count" id="tallyCountDenHartog">0</span>
-              <button type="button" class="tally-btn" onclick="incrementVehicleTally('denHartog')">[ +1 ]</button>
-            </div>
-            <div class="tally-card">
-              <span class="tally-company-label">CISSION</span>
-              <span class="tally-count" id="tallyCountCission">0</span>
-              <button type="button" class="tally-btn" onclick="incrementVehicleTally('cission')">[ +1 ]</button>
-            </div>
-            <div class="tally-card">
-              <span class="tally-company-label">VELOGY</span>
-              <span class="tally-count" id="tallyCountVelogy">0</span>
-              <button type="button" class="tally-btn" onclick="incrementVehicleTally('velogy')">[ +1 ]</button>
-            </div>
+          <div class="vehicle-tally-grid" id="vehicleTallyGrid">
+            <!-- Dynamically populated by app.js -->
           </div>
           <div class="vehicle-tally-total">
             <span class="total-label">TOTAL TALLY</span>
