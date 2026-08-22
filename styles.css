@@ -528,6 +528,7 @@ body.night-theme .sign-in-header h2 {
   padding: 4px;
   gap: 4px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
 body.night-theme .security-level-tabs {
@@ -536,15 +537,16 @@ body.night-theme .security-level-tabs {
 }
 
 .security-level-tab {
-  flex: 1;
+  flex: 1 1 auto;
   border: none;
   background: transparent;
-  padding: 10px 8px;
+  padding: 10px 6px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--muted);
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .security-level-tab.active {
