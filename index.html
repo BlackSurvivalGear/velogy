@@ -490,6 +490,15 @@
             </div>
             <b>→</b>
           </button>
+          <button class="operation-card" data-view="control">
+            <span class="operation-number">C</span>
+            <div>
+              <span class="eyebrow">CONTROL</span>
+              <h3>Control</h3>
+              <p>Night vehicle tally.</p>
+            </div>
+            <b>→</b>
+          </button>
         </div>
       </section>
 
@@ -661,6 +670,46 @@
             <button type="submit" class="primary-button" id="completeCarSearchBtn">Complete Search</button>
           </div>
         </form>
+      </section>
+
+      <!-- CONTROL -->
+      <section id="control" class="view">
+        <button class="back-button" data-view="access">← Back to Access Control</button>
+        <div class="page-intro">
+          <span class="eyebrow">ACCESS CONTROL</span>
+          <h2>CONTROL</h2>
+          <p>NIGHT VEHICLE TALLY</p>
+        </div>
+
+        <!-- Controller Selector Panel -->
+        <div class="form-panel" style="margin-bottom: 24px; max-width: 100%;">
+          <div class="form-grid" style="grid-template-columns: 1fr; margin-bottom: 0;">
+            <label for="controlOperatorSelect">CONTROLLER
+              <select id="controlOperatorSelect">
+                <option value="" disabled selected>[ Select Controller ▼ ]</option>
+                <option value="Haseeb Ansar">Haseeb Ansar</option>
+                <option value="Steven Smith">Steven Smith</option>
+                <option value="Scot Smith">Scot Smith</option>
+                <option value="Antony Warbutton">Antony Warbutton</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <!-- Night Vehicle Tally Panel -->
+        <div class="vehicle-tally-panel">
+          <div class="vehicle-tally-header">
+            <span class="eyebrow">VEHICLES ENTERING</span>
+            <h3>NIGHT VEHICLE TALLY</h3>
+          </div>
+          <div class="vehicle-tally-grid" id="controlVehicleTallyGrid">
+            <!-- Dynamically populated by app.js -->
+          </div>
+          <div class="vehicle-tally-total">
+            <span class="total-label">TOTAL TALLY</span>
+            <strong class="total-val" id="controlTallyTotalCount">0</strong>
+          </div>
+        </div>
       </section>
 
       <!-- JETTY -->
