@@ -28,6 +28,7 @@
       <!-- Security Level Tabs -->
       <div class="security-level-tabs" id="securityLevelTabs">
         <button type="button" class="security-level-tab active" data-level="OFFICER">Officer</button>
+        <button type="button" class="security-level-tab" data-level="CONTROLLER">Controller</button>
         <button type="button" class="security-level-tab" data-level="SUPERVISOR">Supervisor</button>
         <button type="button" class="security-level-tab" data-level="MANAGER">Manager</button>
       </div>
@@ -57,11 +58,12 @@
         <button class="nav-item active" data-view="dashboard">Dashboard</button>
         <button class="nav-item" data-view="patrol">Site Patrol</button>
         <button class="nav-item" data-view="access">Access Control</button>
+        <button class="nav-item" data-view="control">Control</button>
         <button class="nav-item" data-view="jetty">Jetty</button>
         <div class="nav-section-title">ADMINISTRATION</div>
         <button class="nav-item" data-view="admin-dashboard">Admin Dashboard</button>
         <button class="nav-item" data-view="reports">Admin Reports</button>
-        <button class="nav-item" data-view="officer-management">Officer Management</button>
+        <button class="nav-item" data-view="officer-management">Security Users</button>
         <button class="nav-item" data-view="staff-management">Staff Management</button>
         <button class="nav-item" data-view="client-management">Client Management</button>
       </nav>
@@ -146,11 +148,11 @@
             <span class="arrow">→</span>
           </button>
           <button class="module-card" data-view="officer-management">
-            <div class="module-icon">OM</div>
+            <div class="module-icon">SU</div>
             <div>
               <span class="module-label">SECURITY USERS</span>
-              <h3>Officer Management</h3>
-              <p>Manage Security Officer accounts and sign-in permissions.</p>
+              <h3>Security Users</h3>
+              <p>Manage security user accounts and sign-in permissions.</p>
             </div>
             <span class="arrow">→</span>
           </button>
@@ -678,22 +680,11 @@
         <div class="page-intro">
           <span class="eyebrow">ACCESS CONTROL</span>
           <h2>CONTROL</h2>
-          <p>NIGHT VEHICLE TALLY</p>
-        </div>
-
-        <!-- Controller Selector Panel -->
-        <div class="form-panel" style="margin-bottom: 24px; max-width: 100%;">
-          <div class="form-grid" style="grid-template-columns: 1fr; margin-bottom: 0;">
-            <label for="controlOperatorSelect">CONTROLLER
-              <select id="controlOperatorSelect">
-                <option value="" disabled selected>[ Select Controller ▼ ]</option>
-                <option value="Haseeb Ansar">Haseeb Ansar</option>
-                <option value="Steven Smith">Steven Smith</option>
-                <option value="Scot Smith">Scot Smith</option>
-                <option value="Antony Warbutton">Antony Warbutton</option>
-              </select>
-            </label>
+          <div class="control-user-banner" style="margin-top: 12px; margin-bottom: 12px;">
+            <span id="controlUserRole" class="eyebrow" style="color: var(--blue); font-weight: 800; letter-spacing: 0.12em;">CONTROLLER</span>
+            <div id="controlUserName" style="font-size: 20px; font-weight: 800; margin-top: 2px;">Haseeb Ansar</div>
           </div>
+          <p>NIGHT VEHICLE TALLY</p>
         </div>
 
         <!-- Night Vehicle Tally Panel -->
@@ -1006,35 +997,21 @@
         </div>
       </section>
 
-      <!-- OFFICER MANAGEMENT -->
+      <!-- SECURITY USERS (OFFICER MANAGEMENT) -->
       <section id="officer-management" class="view">
         <div class="page-intro">
           <span class="eyebrow">ADMINISTRATION · SECURITY USERS</span>
-          <h2>Officer Management</h2>
+          <h2>Security Users</h2>
           <p>Manage security personnel authorised to sign into the security operations system.</p>
-        </div>
-
-        <!-- System User Hierarchy Summary -->
-        <div class="security-hierarchy-summary">
-          <div class="hierarchy-card">
-            <span class="eyebrow">SUPERVISOR</span>
-            <strong id="summarySupervisorName">Troy Oliv</strong>
-            <small class="muted">Security Supervisor</small>
-          </div>
-          <div class="hierarchy-card">
-            <span class="eyebrow">MANAGER</span>
-            <strong id="summaryManagerName">Seun Clegg</strong>
-            <small class="muted">Security Manager</small>
-          </div>
         </div>
 
         <!-- Controls Bar -->
         <div class="admin-controls-panel">
           <div class="controls-top">
             <div class="search-box">
-              <input type="text" id="officerSearchInput" placeholder="Search security officers...">
+              <input type="text" id="officerSearchInput" placeholder="Search security users...">
             </div>
-            <button type="button" class="primary-button" id="openAddOfficerModalBtn">+ ADD OFFICER</button>
+            <button type="button" class="primary-button" id="openAddOfficerModalBtn">+ ADD USER</button>
           </div>
         </div>
 
@@ -1043,7 +1020,7 @@
           <table class="admin-data-table">
             <thead>
               <tr>
-                <th>Officer Name</th>
+                <th>Name</th>
                 <th>Role / Security Level</th>
                 <th>Default Password</th>
                 <th style="text-align: right;">Action</th>
@@ -1326,40 +1303,48 @@
     </div>
   </div>
 
-  <!-- ADD OFFICER MODAL -->
+  <!-- ADD SECURITY USER MODAL -->
   <div id="addOfficerModal" class="modal-overlay" aria-hidden="true">
     <div class="modal-content" role="dialog" aria-labelledby="addOfficerModalTitle">
       <div class="modal-header">
-        <h3 id="addOfficerModalTitle">Add Officer</h3>
+        <h3 id="addOfficerModalTitle">Add Security User</h3>
         <button type="button" class="modal-close" id="closeAddOfficerModalBtn">&times;</button>
       </div>
       <form id="addOfficerForm" onsubmit="return false;">
         <div class="form-grid" style="grid-template-columns: 1fr; margin-bottom: 16px;">
-          <label>Officer Name
+          <label>Name
             <input type="text" id="officerNameInput" placeholder="Enter full name" required>
+          </label>
+          <label>Role
+            <select id="officerRoleSelect" required>
+              <option value="Officer">Officer</option>
+              <option value="Controller">Controller</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="Manager">Manager</option>
+            </select>
           </label>
         </div>
         <p class="muted-small">MVP Password: <strong>velogy2026</strong></p>
         <div class="form-actions" style="margin-top: 20px;">
           <button type="button" class="secondary-button" id="cancelAddOfficerBtn">Cancel</button>
-          <button type="submit" class="primary-button">Add Officer</button>
+          <button type="submit" class="primary-button">Add Security User</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- CONFIRM REMOVE OFFICER MODAL -->
+  <!-- CONFIRM REMOVE SECURITY USER MODAL -->
   <div id="confirmRemoveOfficerModal" class="modal-overlay" aria-hidden="true">
     <div class="modal-content" role="dialog" aria-labelledby="confirmRemoveOfficerTitle">
       <div class="modal-header">
         <h3 id="confirmRemoveOfficerTitle">Confirm Removal</h3>
         <button type="button" class="modal-close" id="closeRemoveOfficerModalBtn">&times;</button>
       </div>
-      <p>Remove this officer (<strong id="removeOfficerNameText">Officer</strong>) from the Security Officer list?</p>
+      <p>Remove this user (<strong id="removeOfficerNameText">User</strong>) from the Security Users list?</p>
       <p class="muted-small">This removes them from security sign-in operations. Site Staff records will remain unaffected.</p>
       <div class="form-actions" style="margin-top: 24px;">
         <button type="button" class="secondary-button" id="cancelRemoveOfficerBtn">Cancel</button>
-        <button type="button" class="danger-button" id="confirmRemoveOfficerBtn">Remove Officer</button>
+        <button type="button" class="danger-button" id="confirmRemoveOfficerBtn">Remove User</button>
       </div>
     </div>
   </div>
