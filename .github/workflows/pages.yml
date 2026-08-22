@@ -1,4 +1,4 @@
-name: Deploy iMotech Security Solutions to GitHub Pages
+name: Deploy ImoTech Security Solutions to GitHub Pages
 
 on:
   push:

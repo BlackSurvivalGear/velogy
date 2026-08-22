@@ -4,17 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#07111f">
-  <meta name="description" content="iMotech Security Solutions operations interface">
-  <title>iMotech Security Solutions</title>
+  <meta name="description" content="ImoTech Security Solutions operations interface">
+  <title>ImoTech Security Solutions</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- LOGO SPLASH SCREEN ON INITIAL LOAD -->
+  <div id="splashScreen" class="splash-screen" aria-hidden="false">
+    <div class="splash-content">
+      <img src="slogo.png" alt="ImoTech Security Solutions" class="splash-logo">
+      <div class="splash-text">
+        <h1 class="splash-title">ImoTech</h1>
+        <p class="splash-subtitle">SECURITY SOLUTIONS</p>
+      </div>
+    </div>
+  </div>
+
   <div class="app-shell">
     <aside class="sidebar" aria-label="Primary navigation">
       <div class="brand">
-        <img src="slogo.png" alt="iMotech Security Solutions" class="brand-logo">
+        <img src="slogo.png" alt="ImoTech Security Solutions" class="brand-logo">
         <div class="brand-text">
-          <strong>iMotech</strong>
+          <strong>ImoTech</strong>
           <span>SECURITY SOLUTIONS</span>
         </div>
       </div>
@@ -198,12 +209,20 @@
           </div>
         </div>
 
-        <!-- PATROL MODE SWITCHER -->
-        <div class="patrol-mode-header">
-          <div class="mode-toggle-group" id="patrolModeToggleGroup">
-            <button type="button" class="mode-tab active" data-patrol-mode="DAY">DAY PATROL (3 Rounds × 13 Checkpoints)</button>
-            <button type="button" class="mode-tab" data-patrol-mode="NIGHT">NIGHT PATROL (8 Rounds × 16 Checkpoints)</button>
+        <!-- SUBTLE PATROL MODE TOGGLE -->
+        <div class="subtle-patrol-mode-bar">
+          <div class="patrol-toggle-container">
+            <span class="patrol-toggle-label">PATROL SCHEDULE:</span>
+            <div class="subtle-patrol-toggle" id="patrolModeToggleGroup" role="radiogroup" aria-label="Patrol Schedule Toggle">
+              <button type="button" class="subtle-toggle-btn active" data-patrol-mode="DAY" aria-checked="true">
+                <span class="radio-dot">●</span> DAY
+              </button>
+              <button type="button" class="subtle-toggle-btn" data-patrol-mode="NIGHT" aria-checked="false">
+                <span class="radio-dot">○</span> NIGHT
+              </button>
+            </div>
           </div>
+          <span class="patrol-schedule-badge" id="patrolScheduleBadge">3 Day Rounds · 13 Checkpoints (39 Total Checks)</span>
         </div>
 
         <!-- DAY PATROL MODE CONTENT -->

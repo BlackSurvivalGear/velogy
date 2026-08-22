@@ -43,6 +43,75 @@ button {
   touch-action: manipulation;
 }
 
+/* Splash Screen Overlay */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  background-color: var(--navy);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+}
+
+.splash-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  animation: splashFadeIn 0.8s ease-out forwards;
+}
+
+.splash-logo {
+  max-width: 120px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.4));
+}
+
+.splash-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.splash-title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.splash-subtitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #38bdf8;
+  margin: 4px 0 0 0;
+}
+
+@keyframes splashFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* App Shell Layout */
 .app-shell {
   min-height: 100vh;
@@ -615,44 +684,83 @@ nav {
   color: var(--muted);
 }
 
-/* Patrol Mode Switcher Header */
-.patrol-mode-header {
-  margin-bottom: 24px;
-}
-
-.mode-toggle-group {
+/* Subtle Patrol Mode Toggle Bar */
+.subtle-patrol-mode-bar {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
   background: #ffffff;
-  padding: 6px;
-  border-radius: var(--radius);
   border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 18px;
+  margin-bottom: 24px;
   box-shadow: var(--shadow);
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.mode-tab {
-  flex: 1;
+.patrol-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.patrol-toggle-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.subtle-patrol-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.subtle-toggle-btn {
   background: transparent;
   border: none;
-  padding: 12px 16px;
-  font-size: 14px;
+  border-radius: 99px;
+  padding: 6px 14px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--muted);
-  border-radius: 10px;
-  min-height: 48px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   transition: all 0.15s ease;
-  text-align: center;
+  min-height: 34px;
 }
 
-.mode-tab:hover {
+.subtle-toggle-btn:hover {
   color: var(--navy);
-  background: #f8fafc;
 }
 
-.mode-tab.active {
+.subtle-toggle-btn.active {
   background: var(--navy);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(7, 17, 31, 0.18);
+  box-shadow: 0 2px 6px rgba(7, 17, 31, 0.18);
+}
+
+.subtle-toggle-btn .radio-dot {
+  font-size: 10px;
+  line-height: 1;
+}
+
+.patrol-schedule-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  padding: 6px 14px;
+  border-radius: 8px;
 }
 
 /* Day Patrol Rounds Grid */

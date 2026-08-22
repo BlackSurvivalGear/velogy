@@ -1,4 +1,4 @@
-// iMotech Security Solutions - Application Logic
+// ImoTech Security Solutions - Application Logic
 
 const views = [...document.querySelectorAll('.view')];
 const navItems = [...document.querySelectorAll('.nav-item')];
@@ -420,11 +420,26 @@ function getPatrolStats() {
 }
 
 function renderPatrolDashboard() {
-  // Update Mode Switcher Tabs UI
-  const modeTabs = document.querySelectorAll('#patrolModeToggleGroup .mode-tab');
-  modeTabs.forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.patrolMode === currentPatrolMode);
+  // Update Subtle Mode Toggle UI & Indicators
+  const modeBtns = document.querySelectorAll('#patrolModeToggleGroup [data-patrol-mode]');
+  modeBtns.forEach(btn => {
+    const isActive = btn.dataset.patrolMode === currentPatrolMode;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+    const dot = btn.querySelector('.radio-dot');
+    if (dot) {
+      dot.textContent = isActive ? '●' : '○';
+    }
   });
+
+  const scheduleBadge = document.getElementById('patrolScheduleBadge');
+  if (scheduleBadge) {
+    if (currentPatrolMode === 'DAY') {
+      scheduleBadge.textContent = '3 Day Rounds · 13 Checkpoints (39 Total Checks)';
+    } else {
+      scheduleBadge.textContent = '8 Night Rounds · 16 Checkpoints (128 Total Checks)';
+    }
+  }
 
   const daySection = document.getElementById('dayPatrolSection');
   const nightSection = document.getElementById('nightPatrolSection');
@@ -819,7 +834,7 @@ function renderDailyChecksSection() {
 
 // Mode Switcher Tab Click Listeners
 document.addEventListener('click', (e) => {
-  const modeTab = e.target.closest('#patrolModeToggleGroup .mode-tab');
+  const modeTab = e.target.closest('#patrolModeToggleGroup [data-patrol-mode]');
   if (modeTab) {
     currentPatrolMode = modeTab.dataset.patrolMode;
     renderPatrolDashboard();
@@ -2280,7 +2295,21 @@ if (changePasswordForm) {
   });
 }
 
+// Splash Screen Handler (2-second initial load overlay)
+function initSplashScreen() {
+  const splash = document.getElementById('splashScreen');
+  if (!splash) return;
+  setTimeout(() => {
+    splash.classList.add('fade-out');
+    splash.setAttribute('aria-hidden', 'true');
+    setTimeout(() => {
+      splash.style.display = 'none';
+    }, 600);
+  }, 2000);
+}
+
 // Initial Initialization
+initSplashScreen();
 initializeDateTimeFields();
 renderPatrolDashboard();
 renderAdminDashboard();
