@@ -60,6 +60,7 @@
         <button class="nav-item" data-view="access">Access Control</button>
         <button class="nav-item" data-view="control">Control</button>
         <button class="nav-item" data-view="jetty">Jetty</button>
+        <button class="nav-item" data-view="incident-report">Incident Report</button>
         <div class="nav-section-title">ADMINISTRATION</div>
         <button class="nav-item" data-view="admin-dashboard">Admin Dashboard</button>
         <button class="nav-item" data-view="reports">Admin Reports</button>
@@ -126,6 +127,15 @@
               <span class="module-label">SEPARATE SITE</span>
               <h3>Jetty</h3>
               <p>Manage Jetty patrols and visitor searches.</p>
+            </div>
+            <span class="arrow">→</span>
+          </button>
+          <button class="module-card incident-card" data-view="incident-report">
+            <div class="module-icon">04</div>
+            <div>
+              <span class="module-label">REPORTING</span>
+              <h3>Incident Report</h3>
+              <p>Submit and manage operational incident reports.</p>
             </div>
             <span class="arrow">→</span>
           </button>
@@ -1193,6 +1203,198 @@
         </div>
       </section>
 
+      <!-- INCIDENT REPORT -->
+      <section id="incident-report" class="view">
+        <div class="page-intro">
+          <span class="eyebrow">FUNCTION 04</span>
+          <h2>INCIDENT REPORT</h2>
+          <p>Submit security incident reports or manage submitted incidents.</p>
+        </div>
+
+        <!-- Incident Report Navigation Tabs (visible for Supervisors/Managers or when viewing management area) -->
+        <div class="incident-nav-tabs" id="incidentTabNav" style="display: none;">
+          <button type="button" class="incident-tab-btn active" data-tab="submit">Submit Incident Report</button>
+          <button type="button" class="incident-tab-btn" data-tab="manage">
+            Incident Reports
+            <span class="unread-count-badge" id="incidentNavUnreadBadge" style="display: none;">0 UNREAD</span>
+          </button>
+        </div>
+
+        <!-- SUBMIT INCIDENT REPORT FORM PANEL -->
+        <div id="incidentSubmitPanel" class="form-panel">
+          <form id="incidentForm" onsubmit="return false;">
+            <div class="form-grid">
+              <label>Location
+                <select id="incLocationSelect" required>
+                  <option value="Site">Site</option>
+                  <option value="East Gate">East Gate</option>
+                  <option value="West Gate">West Gate</option>
+                  <option value="Control">Control</option>
+                  <option value="Jetty">Jetty</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+
+              <div id="incOtherLocationContainer" style="display: none;">
+                <label>Specific Location
+                  <input type="text" id="incOtherLocationInput" placeholder="Enter location details...">
+                </label>
+              </div>
+
+              <label>Incident Type
+                <select id="incTypeSelect" required>
+                  <option value="Security">Security</option>
+                  <option value="Access Control">Access Control</option>
+                  <option value="Vehicle">Vehicle</option>
+                  <option value="Staff">Staff</option>
+                  <option value="Visitor">Visitor</option>
+                  <option value="Patrol">Patrol</option>
+                  <option value="Jetty">Jetty</option>
+                  <option value="Property">Property</option>
+                  <option value="Safety">Safety</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+
+              <label>Date / Time
+                <input type="datetime-local" id="incDateTime" required>
+              </label>
+            </div>
+
+            <!-- Automatically recorded session user banner -->
+            <div class="submitted-by-card" style="margin-bottom: 20px;">
+              <span class="eyebrow">SUBMITTED BY (SESSION USER)</span>
+              <div class="submitted-by-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 8px;">
+                <div>
+                  <span class="muted-small">Submitted By</span>
+                  <strong id="incSubmittedByName" style="display: block; color: var(--navy); font-size: 15px;">—</strong>
+                </div>
+                <div>
+                  <span class="muted-small">Role</span>
+                  <strong id="incSubmittedByRole" style="display: block; color: var(--navy); font-size: 15px;">—</strong>
+                </div>
+                <div>
+                  <span class="muted-small">Date</span>
+                  <strong id="incSubmittedByDate" style="display: block; color: var(--navy); font-size: 15px;">—</strong>
+                </div>
+                <div>
+                  <span class="muted-small">Time</span>
+                  <strong id="incSubmittedByTime" style="display: block; color: var(--navy); font-size: 15px;">—</strong>
+                </div>
+              </div>
+            </div>
+
+            <label style="margin-bottom: 16px;">Description
+              <textarea id="incDescription" rows="5" placeholder="Describe the incident..." required></textarea>
+            </label>
+
+            <label style="margin-bottom: 24px;">Action Taken
+              <textarea id="incActionTaken" rows="4" placeholder="Describe any immediate action taken..." required></textarea>
+            </label>
+
+            <div class="form-actions">
+              <button type="submit" class="primary-button" id="submitIncidentBtn" style="width: 100%; padding: 14px; font-size: 15px; font-weight: 800; min-height: 48px;">
+                SUBMIT INCIDENT REPORT
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- SUBMISSION CONFIRMATION PANEL -->
+        <div id="incidentConfirmationPanel" class="form-panel" style="display: none; text-align: center; padding: 40px 24px;">
+          <div class="confirmation-icon-box" style="width: 64px; height: 64px; background: var(--green-bg); color: var(--green); border-radius: 50%; display: grid; place-items: center; margin: 0 auto 16px; font-size: 32px; border: 1px solid #86efac;">✓</div>
+          <h2 style="color: var(--navy); font-size: 26px; margin: 0 0 8px;">Incident Report Submitted</h2>
+          <div style="font-size: 20px; font-weight: 800; color: var(--blue); margin-bottom: 24px;" id="confReportNumber">Report: INC-2026-0001</div>
+
+          <div class="submitted-by-card" style="max-width: 500px; margin: 0 auto 28px; text-align: left;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+              <div>
+                <span class="muted-small">Submitted By</span>
+                <strong id="confByName" style="display: block; color: var(--navy); font-size: 16px;">—</strong>
+              </div>
+              <div>
+                <span class="muted-small">Role</span>
+                <strong id="confByRole" style="display: block; color: var(--navy); font-size: 16px;">—</strong>
+              </div>
+              <div>
+                <span class="muted-small">Date</span>
+                <strong id="confByDate" style="display: block; color: var(--navy); font-size: 16px;">—</strong>
+              </div>
+              <div>
+                <span class="muted-small">Time</span>
+                <strong id="confByTime" style="display: block; color: var(--navy); font-size: 16px;">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions" style="justify-content: center;">
+            <button type="button" class="primary-button" id="submitAnotherIncidentBtn">Submit Another Report</button>
+          </div>
+        </div>
+
+        <!-- SUPERVISOR / MANAGER INCIDENT MANAGEMENT PANEL -->
+        <div id="incidentManagePanel" style="display: none;">
+          <!-- Status Metrics Bar -->
+          <div class="patrol-dashboard-summary" style="margin-bottom: 24px;">
+            <div class="patrol-summary-header">
+              <div>
+                <span class="eyebrow">MANAGEMENT OVERVIEW</span>
+                <h3 style="margin: 4px 0 0; color: var(--navy);">INCIDENT REPORTS</h3>
+              </div>
+              <span class="status-badge active" id="incUnreadHeaderBadge" style="font-size: 12px; padding: 6px 14px;">3 UNREAD</span>
+            </div>
+
+            <div class="patrol-stats-grid">
+              <div class="p-stat-box">
+                <span class="p-stat-label">UNREAD</span>
+                <strong class="p-stat-val amber-text" id="incCountUnread">0</strong>
+                <small class="p-stat-sub">Requires supervisor review</small>
+              </div>
+              <div class="p-stat-box">
+                <span class="p-stat-label">READ</span>
+                <strong class="p-stat-val blue-text" id="incCountRead">0</strong>
+                <small class="p-stat-sub">Under investigation</small>
+              </div>
+              <div class="p-stat-box">
+                <span class="p-stat-label">RESOLVED</span>
+                <strong class="p-stat-val green-text" id="incCountResolved">0</strong>
+                <small class="p-stat-sub">Dealt with / Eligible for delete</small>
+              </div>
+              <div class="p-stat-box">
+                <span class="p-stat-label">TOTAL REPORTS</span>
+                <strong class="p-stat-val navy-text" id="incCountTotal">0</strong>
+                <small class="p-stat-sub">All submitted reports</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls Panel (Filter & Search) -->
+          <div class="admin-controls-panel">
+            <div class="controls-top">
+              <div class="search-box">
+                <input type="text" id="incidentSearchInput" placeholder="Search reports by number, location, submitted by...">
+              </div>
+            </div>
+            <div class="filter-row">
+              <div class="filter-group">
+                <span class="filter-label">Filter Status:</span>
+                <div class="pill-filter-buttons" id="incidentStatusFilterGroup">
+                  <button type="button" class="filter-pill active" data-inc-filter="ALL">ALL</button>
+                  <button type="button" class="filter-pill" data-inc-filter="UNREAD">UNREAD</button>
+                  <button type="button" class="filter-pill" data-inc-filter="READ">READ</button>
+                  <button type="button" class="filter-pill" data-inc-filter="RESOLVED">RESOLVED</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Incident Reports Cards List -->
+          <div id="incidentReportsList" class="incident-reports-list-grid">
+            <!-- Populated dynamically by app.js -->
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -1241,6 +1443,22 @@
           <button type="submit" class="danger-button">Submit Issue Report</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- CONFIRM DELETE INCIDENT REPORT MODAL -->
+  <div id="confirmDeleteIncidentModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="confirmDeleteIncidentTitle">
+      <div class="modal-header">
+        <h3 id="confirmDeleteIncidentTitle">Confirm Delete</h3>
+        <button type="button" class="modal-close" id="closeDeleteIncidentModalBtn">&times;</button>
+      </div>
+      <p style="font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 8px;">Delete this resolved incident report?</p>
+      <p class="muted-small" style="margin-bottom: 20px;">Report Number: <strong id="deleteIncidentNumberText" style="color: var(--navy);">INC-2026-0001</strong></p>
+      <div class="form-actions" style="margin-top: 24px;">
+        <button type="button" class="secondary-button" id="cancelDeleteIncidentBtn">CANCEL</button>
+        <button type="button" class="danger-button" id="confirmDeleteIncidentBtn">DELETE</button>
+      </div>
     </div>
   </div>
 

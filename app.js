@@ -11,6 +11,7 @@ const titles = {
   patrol: 'Site Patrol',
   access: 'Access Control',
   jetty: 'Jetty',
+  'incident-report': 'Incident Report',
   reports: 'Admin Reports',
   'gate-east': 'East Gate',
   'gate-west': 'West Gate',
@@ -36,7 +37,8 @@ const rolePermissions = {
     'car-search',
     'jetty',
     'jetty-patrol',
-    'visitor-search'
+    'visitor-search',
+    'incident-report'
   ],
   controller: [
     'dashboard',
@@ -48,7 +50,8 @@ const rolePermissions = {
     'control',
     'jetty',
     'jetty-patrol',
-    'visitor-search'
+    'visitor-search',
+    'incident-report'
   ],
   supervisor: [
     'dashboard',
@@ -61,6 +64,7 @@ const rolePermissions = {
     'jetty',
     'jetty-patrol',
     'visitor-search',
+    'incident-report',
     'admin-dashboard',
     'reports',
     'officer-management'
@@ -76,6 +80,7 @@ const rolePermissions = {
     'jetty',
     'jetty-patrol',
     'visitor-search',
+    'incident-report',
     'admin-dashboard',
     'reports',
     'officer-management',
@@ -532,6 +537,8 @@ function showView(id) {
     renderPatrolDashboard();
   } else if (id === 'jetty-patrol') {
     renderJettyPatrolView();
+  } else if (id === 'incident-report') {
+    renderIncidentReportView();
   } else if (id === 'reports') {
     renderAdminReports();
   } else if (id === 'admin-dashboard') {
@@ -4003,6 +4010,565 @@ if (confirmRemoveOfficerBtn) {
       renderOfficerManagement();
       renderSignInForm();
       showToast(`User ${name} removed from Security Users list.`, 'warning');
+    }
+  });
+}
+
+/* ==========================================================================
+   11. INCIDENT REPORT MODULE (04 — INCIDENT REPORT)
+   ========================================================================== */
+
+let nextIncidentSeq = 8;
+let currentIncidentTab = 'submit'; // 'submit' | 'manage'
+let currentIncidentFilter = 'ALL';  // 'ALL' | 'UNREAD' | 'READ' | 'RESOLVED'
+let pendingDeleteIncidentId = null;
+
+let incidentReports = [
+  {
+    id: 'inc-1',
+    reportNumber: 'INC-2026-0001',
+    location: 'East Gate',
+    locationOther: '',
+    incidentType: 'Vehicle',
+    dateTime: '2026-08-20T14:30',
+    description: 'Commercial vehicle attempted site access without valid delivery manifest.',
+    actionTaken: 'Vehicle turned away at gate by security officer. Client contacted.',
+    submittedBy: 'Robert Lawal',
+    submittedByRole: 'Officer',
+    submittedDate: '20 August 2026',
+    submittedTime: '14:30',
+    status: 'RESOLVED',
+    readBy: 'Troy Oliv',
+    resolvedBy: 'Seun Clegg'
+  },
+  {
+    id: 'inc-2',
+    reportNumber: 'INC-2026-0002',
+    location: 'Site',
+    locationOther: '',
+    incidentType: 'Safety',
+    dateTime: '2026-08-21T09:15',
+    description: 'Spill recorded near warehouse 700 loading bay area.',
+    actionTaken: 'Area cordoned off and maintenance team alerted for cleanup.',
+    submittedBy: 'John Walsh',
+    submittedByRole: 'Officer',
+    submittedDate: '21 August 2026',
+    submittedTime: '09:15',
+    status: 'RESOLVED',
+    readBy: 'Troy Oliv',
+    resolvedBy: 'Troy Oliv'
+  },
+  {
+    id: 'inc-3',
+    reportNumber: 'INC-2026-0003',
+    location: 'Jetty',
+    locationOther: '',
+    incidentType: 'Jetty',
+    dateTime: '2026-08-21T16:00',
+    description: 'Minor perimeter fence warning light fault on Jetty walkway.',
+    actionTaken: 'Logged in maintenance book and reported to site engineer.',
+    submittedBy: 'Vio Roman',
+    submittedByRole: 'Officer',
+    submittedDate: '21 August 2026',
+    submittedTime: '16:00',
+    status: 'READ',
+    readBy: 'Troy Oliv',
+    resolvedBy: null
+  },
+  {
+    id: 'inc-4',
+    reportNumber: 'INC-2026-0004',
+    location: 'West Gate',
+    locationOther: '',
+    incidentType: 'Access Control',
+    dateTime: '2026-08-22T08:20',
+    description: 'Contractor attempted to use expired site badge for entry.',
+    actionTaken: 'Badge confiscated and contractor referred to admin office.',
+    submittedBy: 'Michelle Holder',
+    submittedByRole: 'Officer',
+    submittedDate: '22 August 2026',
+    submittedTime: '08:20',
+    status: 'READ',
+    readBy: 'Seun Clegg',
+    resolvedBy: null
+  },
+  {
+    id: 'inc-5',
+    reportNumber: 'INC-2026-0005',
+    location: 'Control',
+    locationOther: '',
+    incidentType: 'Security',
+    dateTime: '2026-08-22T18:10',
+    description: 'Unidentified vehicle parked near west boundary fence after hours.',
+    actionTaken: 'Controller dispatched mobile patrol to inspect. Vehicle moved on.',
+    submittedBy: 'Haseeb Ansar',
+    submittedByRole: 'Controller',
+    submittedDate: '22 August 2026',
+    submittedTime: '18:10',
+    status: 'UNREAD',
+    readBy: null,
+    resolvedBy: null
+  },
+  {
+    id: 'inc-6',
+    reportNumber: 'INC-2026-0006',
+    location: 'Other',
+    locationOther: 'Mess Hall / Rest Area',
+    incidentType: 'Staff',
+    dateTime: '2026-08-22T19:42',
+    description: 'Property dispute reported between sub-contractor personnel.',
+    actionTaken: 'Officer intervened, separated parties and notified shift supervisor.',
+    submittedBy: 'Robert Lawal',
+    submittedByRole: 'Officer',
+    submittedDate: '22 August 2026',
+    submittedTime: '19:42',
+    status: 'UNREAD',
+    readBy: null,
+    resolvedBy: null
+  },
+  {
+    id: 'inc-7',
+    reportNumber: 'INC-2026-0007',
+    location: 'East Gate',
+    locationOther: '',
+    incidentType: 'Vehicle',
+    dateTime: '2026-08-22T21:14',
+    description: 'Tailgating incident at East Gate egress barrier.',
+    actionTaken: 'Barrier closed manually, driver details recorded.',
+    submittedBy: 'Haseeb Ansar',
+    submittedByRole: 'Controller',
+    submittedDate: '22 August 2026',
+    submittedTime: '21:14',
+    status: 'UNREAD',
+    readBy: null,
+    resolvedBy: null
+  }
+];
+
+function getUnreadIncidentCount() {
+  return incidentReports.filter(r => r.status === 'UNREAD').length;
+}
+
+function getIncidentCounts() {
+  const unread = incidentReports.filter(r => r.status === 'UNREAD').length;
+  const read = incidentReports.filter(r => r.status === 'READ').length;
+  const resolved = incidentReports.filter(r => r.status === 'RESOLVED').length;
+  const total = incidentReports.length;
+  return { unread, read, resolved, total };
+}
+
+function renderIncidentReportView() {
+  const user = securityUsers.currentUser || { name: 'Security Officer', role: 'officer' };
+  const role = user.role.toLowerCase();
+  const canManage = (role === 'supervisor' || role === 'manager');
+
+  const tabNav = document.getElementById('incidentTabNav');
+  const submitPanel = document.getElementById('incidentSubmitPanel');
+  const managePanel = document.getElementById('incidentManagePanel');
+  const confirmationPanel = document.getElementById('incidentConfirmationPanel');
+
+  // 1. Navigation Tabs Visibility
+  if (tabNav) {
+    if (canManage) {
+      tabNav.style.display = 'flex';
+      const unreadCount = getUnreadIncidentCount();
+      const badge = document.getElementById('incidentNavUnreadBadge');
+      if (badge) {
+        badge.textContent = `${unreadCount} UNREAD`;
+        badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+      }
+
+      // Update active tab buttons
+      tabNav.querySelectorAll('.incident-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === currentIncidentTab);
+      });
+    } else {
+      tabNav.style.display = 'none';
+      currentIncidentTab = 'submit';
+    }
+  }
+
+  // 2. View Panels Switching
+  if (currentIncidentTab === 'manage' && canManage) {
+    if (submitPanel) submitPanel.style.display = 'none';
+    if (confirmationPanel) confirmationPanel.style.display = 'none';
+    if (managePanel) managePanel.style.display = 'block';
+    renderIncidentManagementList();
+  } else {
+    if (managePanel) managePanel.style.display = 'none';
+    // If we're not currently showing confirmation panel, show submission panel
+    if (confirmationPanel && confirmationPanel.style.display === 'block') {
+      if (submitPanel) submitPanel.style.display = 'none';
+    } else {
+      if (submitPanel) submitPanel.style.display = 'block';
+      if (confirmationPanel) confirmationPanel.style.display = 'none';
+      updateIncidentFormUserSession();
+    }
+  }
+}
+
+// Update "Submitted By" Session Details on Submission Form
+function updateIncidentFormUserSession() {
+  const user = securityUsers.currentUser || { name: 'Security Officer', role: 'officer' };
+  const roleFormatted = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+
+  const now = new Date();
+  const optionsDate = { day: '2-digit', month: 'Long', year: 'numeric' };
+  const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+  const timeStr = getTimeString();
+
+  const nameEl = document.getElementById('incSubmittedByName');
+  const roleEl = document.getElementById('incSubmittedByRole');
+  const dateEl = document.getElementById('incSubmittedByDate');
+  const timeEl = document.getElementById('incSubmittedByTime');
+
+  if (nameEl) nameEl.textContent = user.name;
+  if (roleEl) roleEl.textContent = roleFormatted;
+  if (dateEl) dateEl.textContent = dateStr;
+  if (timeEl) timeEl.textContent = timeStr;
+
+  const dtInput = document.getElementById('incDateTime');
+  if (dtInput && !dtInput.value) {
+    dtInput.value = getLocalDateTimeString();
+  }
+}
+
+// Location Dropdown "Other" Toggle
+const incLocationSelect = document.getElementById('incLocationSelect');
+const incOtherLocationContainer = document.getElementById('incOtherLocationContainer');
+
+if (incLocationSelect) {
+  incLocationSelect.addEventListener('change', () => {
+    if (incOtherLocationContainer) {
+      incOtherLocationContainer.style.display = incLocationSelect.value === 'Other' ? 'block' : 'none';
+    }
+  });
+}
+
+// Incident Submission Form Handler
+const incidentForm = document.getElementById('incidentForm');
+if (incidentForm) {
+  incidentForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const locationSelectVal = document.getElementById('incLocationSelect')?.value || 'Site';
+    const otherLocationVal = document.getElementById('incOtherLocationInput')?.value.trim() || '';
+    const typeVal = document.getElementById('incTypeSelect')?.value || 'Security';
+    const dateTimeVal = document.getElementById('incDateTime')?.value || getLocalDateTimeString();
+    const descVal = document.getElementById('incDescription')?.value.trim() || '';
+    const actionVal = document.getElementById('incActionTaken')?.value.trim() || '';
+
+    const user = securityUsers.currentUser || { name: 'Security Officer', role: 'officer' };
+    const roleFormatted = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+
+    // Format Date & Time strings
+    const dateObj = new Date(dateTimeVal);
+    const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    const timeStr = dateObj.toTimeString().slice(0, 5);
+
+    const reportNum = `INC-2026-${String(nextIncidentSeq++).padStart(4, '0')}`;
+
+    const newReport = {
+      id: `inc-${Date.now()}`,
+      reportNumber: reportNum,
+      location: locationSelectVal,
+      locationOther: locationSelectVal === 'Other' ? otherLocationVal : '',
+      incidentType: typeVal,
+      dateTime: dateTimeVal,
+      description: descVal,
+      actionTaken: actionVal,
+      submittedBy: user.name,
+      submittedByRole: roleFormatted,
+      submittedDate: dateStr,
+      submittedTime: timeStr,
+      status: 'UNREAD',
+      readBy: null,
+      resolvedBy: null
+    };
+
+    incidentReports.unshift(newReport);
+
+    // Update Confirmation View
+    const confReportNumber = document.getElementById('confReportNumber');
+    const confByName = document.getElementById('confByName');
+    const confByRole = document.getElementById('confByRole');
+    const confByDate = document.getElementById('confByDate');
+    const confByTime = document.getElementById('confByTime');
+
+    if (confReportNumber) confReportNumber.textContent = `Report: ${reportNum}`;
+    if (confByName) confByName.textContent = user.name;
+    if (confByRole) confByRole.textContent = roleFormatted;
+    if (confByDate) confByDate.textContent = dateStr;
+    if (confByTime) confByTime.textContent = timeStr;
+
+    // Toggle panels
+    const submitPanel = document.getElementById('incidentSubmitPanel');
+    const confirmationPanel = document.getElementById('incidentConfirmationPanel');
+    if (submitPanel) submitPanel.style.display = 'none';
+    if (confirmationPanel) confirmationPanel.style.display = 'block';
+
+    showToast(`Incident Report ${reportNum} submitted successfully.`, 'success');
+  });
+}
+
+// "Submit Another Report" Handler
+const submitAnotherIncidentBtn = document.getElementById('submitAnotherIncidentBtn');
+if (submitAnotherIncidentBtn) {
+  submitAnotherIncidentBtn.addEventListener('click', () => {
+    // Reset form fields
+    if (incidentForm) incidentForm.reset();
+    if (incOtherLocationContainer) incOtherLocationContainer.style.display = 'none';
+
+    const submitPanel = document.getElementById('incidentSubmitPanel');
+    const confirmationPanel = document.getElementById('incidentConfirmationPanel');
+
+    if (confirmationPanel) confirmationPanel.style.display = 'none';
+    if (submitPanel) submitPanel.style.display = 'block';
+
+    updateIncidentFormUserSession();
+  });
+}
+
+// Global click handler for Incident Report Tabs (Submit vs Manage)
+document.addEventListener('click', (e) => {
+  const tabBtn = e.target.closest('#incidentTabNav .incident-tab-btn');
+  if (tabBtn) {
+    currentIncidentTab = tabBtn.dataset.tab;
+    renderIncidentReportView();
+  }
+});
+
+// Render Incident Reports Management List (Supervisors/Managers)
+function renderIncidentManagementList() {
+  const counts = getIncidentCounts();
+
+  // Update Summary Counts
+  const countUnread = document.getElementById('incCountUnread');
+  const countRead = document.getElementById('incCountRead');
+  const countResolved = document.getElementById('incCountResolved');
+  const countTotal = document.getElementById('incCountTotal');
+  const headerBadge = document.getElementById('incUnreadHeaderBadge');
+
+  if (countUnread) countUnread.textContent = counts.unread;
+  if (countRead) countRead.textContent = counts.read;
+  if (countResolved) countResolved.textContent = counts.resolved;
+  if (countTotal) countTotal.textContent = counts.total;
+
+  if (headerBadge) {
+    headerBadge.textContent = `${counts.unread} UNREAD`;
+    headerBadge.className = counts.unread > 0 ? 'status-badge active' : 'status-badge neutral';
+  }
+
+  // Filter & Search Logic
+  const searchVal = (document.getElementById('incidentSearchInput')?.value || '').toLowerCase().trim();
+
+  let filtered = incidentReports.filter(item => {
+    const matchStatus = currentIncidentFilter === 'ALL' || item.status === currentIncidentFilter;
+    const matchSearch = !searchVal ||
+      item.reportNumber.toLowerCase().includes(searchVal) ||
+      item.location.toLowerCase().includes(searchVal) ||
+      (item.locationOther && item.locationOther.toLowerCase().includes(searchVal)) ||
+      item.incidentType.toLowerCase().includes(searchVal) ||
+      item.submittedBy.toLowerCase().includes(searchVal) ||
+      item.description.toLowerCase().includes(searchVal);
+
+    return matchStatus && matchSearch;
+  });
+
+  // Sort newest first
+  filtered.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+
+  const listContainer = document.getElementById('incidentReportsList');
+  if (!listContainer) return;
+
+  if (filtered.length === 0) {
+    listContainer.innerHTML = `<div class="form-panel muted" style="text-align: center; padding: 32px;">No incident reports found matching criteria.</div>`;
+    return;
+  }
+
+  let html = '';
+  filtered.forEach(item => {
+    const locDisplay = item.location === 'Other' && item.locationOther ? `Other (${item.locationOther})` : item.location;
+
+    let badgeClass = 'status-badge neutral';
+    if (item.status === 'UNREAD') badgeClass = 'status-badge active';
+    if (item.status === 'READ') badgeClass = 'status-badge neutral';
+    if (item.status === 'RESOLVED') badgeClass = 'status-badge completed';
+
+    let actionBtnHtml = '';
+    if (item.status === 'UNREAD') {
+      actionBtnHtml = `<button type="button" class="primary-button" onclick="markIncidentRead('${item.id}')">MARK AS READ</button>`;
+    } else if (item.status === 'READ') {
+      actionBtnHtml = `<button type="button" class="primary-button" onclick="markIncidentResolved('${item.id}')">MARK RESOLVED</button>`;
+    } else if (item.status === 'RESOLVED') {
+      actionBtnHtml = `<button type="button" class="danger-button" onclick="openDeleteIncidentModal('${item.id}')">DELETE REPORT</button>`;
+    }
+
+    html += `
+      <div class="incident-card ${item.status === 'UNREAD' ? 'unread-card' : ''}">
+        <div class="incident-card-header">
+          <div>
+            <span class="incident-number">${item.reportNumber}</span>
+            <div class="incident-meta-tags">
+              <span class="meta-tag-pill">${locDisplay}</span>
+              <span class="meta-tag-pill">${item.incidentType}</span>
+            </div>
+          </div>
+          <span class="${badgeClass}">${item.status}</span>
+        </div>
+
+        <div class="incident-card-body">
+          <div class="incident-submitted-bar">
+            <span class="muted-small">Submitted by:</span>
+            <strong>${item.submittedBy}</strong> (${item.submittedByRole})
+            <span class="incident-date-time">${item.submittedDate} — ${item.submittedTime}</span>
+          </div>
+
+          <div class="incident-text-block">
+            <strong>Description:</strong>
+            <p>${item.description}</p>
+          </div>
+
+          <div class="incident-text-block">
+            <strong>Action Taken:</strong>
+            <p>${item.actionTaken}</p>
+          </div>
+        </div>
+
+        <div class="incident-card-actions">
+          ${actionBtnHtml}
+        </div>
+      </div>
+    `;
+  });
+
+  listContainer.innerHTML = html;
+}
+
+// Search input handler for incident reports
+const incidentSearchInput = document.getElementById('incidentSearchInput');
+if (incidentSearchInput) {
+  incidentSearchInput.addEventListener('input', renderIncidentManagementList);
+}
+
+// Filter pills handler for incident reports
+document.querySelectorAll('#incidentStatusFilterGroup .filter-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#incidentStatusFilterGroup .filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentIncidentFilter = btn.dataset.incFilter;
+    renderIncidentManagementList();
+  });
+});
+
+// STATUS WORKFLOW ACTIONS
+function markIncidentRead(reportId) {
+  const user = securityUsers.currentUser;
+  const role = user ? user.role.toLowerCase() : 'officer';
+
+  if (role !== 'supervisor' && role !== 'manager') {
+    showToast('Permission denied: Only Supervisors and Managers can mark reports Read.', 'danger');
+    return;
+  }
+
+  const report = incidentReports.find(r => r.id === reportId);
+  if (!report) return;
+
+  if (report.status !== 'UNREAD') {
+    showToast('Invalid status transition.', 'warning');
+    return;
+  }
+
+  report.status = 'READ';
+  report.readBy = user.name;
+  report.readAt = getTimeString();
+
+  showToast(`Report ${report.reportNumber} marked as READ.`, 'info');
+  renderIncidentReportView();
+}
+
+function markIncidentResolved(reportId) {
+  const user = securityUsers.currentUser;
+  const role = user ? user.role.toLowerCase() : 'officer';
+
+  if (role !== 'supervisor' && role !== 'manager') {
+    showToast('Permission denied: Only Supervisors and Managers can mark reports Resolved.', 'danger');
+    return;
+  }
+
+  const report = incidentReports.find(r => r.id === reportId);
+  if (!report) return;
+
+  if (report.status !== 'READ') {
+    showToast('Invalid status transition: Report must be marked READ before RESOLVED.', 'warning');
+    return;
+  }
+
+  report.status = 'RESOLVED';
+  report.resolvedBy = user.name;
+  report.resolvedAt = getTimeString();
+
+  showToast(`Report ${report.reportNumber} marked as RESOLVED.`, 'success');
+  renderIncidentReportView();
+}
+
+// Delete Protection Modal Workflow
+const confirmDeleteIncidentModal = document.getElementById('confirmDeleteIncidentModal');
+const closeDeleteIncidentModalBtn = document.getElementById('closeDeleteIncidentModalBtn');
+const cancelDeleteIncidentBtn = document.getElementById('cancelDeleteIncidentBtn');
+const confirmDeleteIncidentBtn = document.getElementById('confirmDeleteIncidentBtn');
+
+function openDeleteIncidentModal(reportId) {
+  const user = securityUsers.currentUser;
+  const role = user ? user.role.toLowerCase() : 'officer';
+
+  if (role !== 'supervisor' && role !== 'manager') {
+    showToast('Permission denied: Only Supervisors and Managers can delete reports.', 'danger');
+    return;
+  }
+
+  const report = incidentReports.find(r => r.id === reportId);
+  if (!report) return;
+
+  // Enforce delete protection condition: status === 'RESOLVED'
+  if (report.status !== 'RESOLVED') {
+    showToast(`Cannot delete report ${report.reportNumber}: Report must be RESOLVED before deletion.`, 'danger');
+    return;
+  }
+
+  pendingDeleteIncidentId = reportId;
+  const numTextEl = document.getElementById('deleteIncidentNumberText');
+  if (numTextEl) numTextEl.textContent = report.reportNumber;
+
+  if (confirmDeleteIncidentModal) confirmDeleteIncidentModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeDeleteIncidentModal() {
+  if (confirmDeleteIncidentModal) confirmDeleteIncidentModal.setAttribute('aria-hidden', 'true');
+  pendingDeleteIncidentId = null;
+}
+
+if (closeDeleteIncidentModalBtn) closeDeleteIncidentModalBtn.addEventListener('click', closeDeleteIncidentModal);
+if (cancelDeleteIncidentBtn) cancelDeleteIncidentBtn.addEventListener('click', closeDeleteIncidentModal);
+
+if (confirmDeleteIncidentBtn) {
+  confirmDeleteIncidentBtn.addEventListener('click', () => {
+    if (pendingDeleteIncidentId) {
+      const report = incidentReports.find(r => r.id === pendingDeleteIncidentId);
+
+      // Programmatic Enforcement of Delete Protection Condition
+      if (!report || report.status !== 'RESOLVED') {
+        showToast('Delete rejected: Only resolved incident reports can be deleted.', 'danger');
+        closeDeleteIncidentModal();
+        return;
+      }
+
+      const reportNum = report.reportNumber;
+      incidentReports = incidentReports.filter(r => r.id !== pendingDeleteIncidentId);
+
+      showToast(`Incident report ${reportNum} deleted successfully.`, 'warning');
+      closeDeleteIncidentModal();
+      renderIncidentReportView();
     }
   });
 }
