@@ -15,6 +15,7 @@ const titles = {
   'gate-east': 'East Gate',
   'gate-west': 'West Gate',
   'car-search': 'Car Search',
+  control: 'Control',
   'jetty-patrol': 'Jetty Patrol',
   'visitor-search': 'Visitor Search',
   'admin-dashboard': 'Admin Dashboard',
@@ -33,6 +34,7 @@ const rolePermissions = {
     'gate-east',
     'gate-west',
     'car-search',
+    'control',
     'jetty',
     'jetty-patrol',
     'visitor-search'
@@ -44,6 +46,7 @@ const rolePermissions = {
     'gate-east',
     'gate-west',
     'car-search',
+    'control',
     'jetty',
     'jetty-patrol',
     'visitor-search',
@@ -58,6 +61,7 @@ const rolePermissions = {
     'gate-east',
     'gate-west',
     'car-search',
+    'control',
     'jetty',
     'jetty-patrol',
     'visitor-search',
@@ -107,9 +111,13 @@ let securityUsers = {
 let nextStaffId = 7;
 let nextClientId = 4;
 
-// LOCAL MOCK STATE FOR EAST GATE VEHICLE TALLY
-// Store tally count per normalized company key / name
+// LOCAL MOCK STATE FOR EAST GATE VEHICLE TALLY & CONTROL NIGHT VEHICLE TALLY
+// Store tally count per normalized company key / name separately for East Gate & Control
 let eastGateVehicleTally = {
+  "VELOGY": 0
+};
+
+let controlVehicleTally = {
   "VELOGY": 0
 };
 
@@ -176,6 +184,68 @@ function incrementVehicleTally(companyName) {
   showToast(`Vehicle logged for ${companyName.toUpperCase()} (+1)`, 'success');
 }
 
+function renderControlVehicleTally() {
+  const gridEl = document.getElementById('controlVehicleTallyGrid');
+  const totalEl = document.getElementById('controlTallyTotalCount');
+
+  // Gather active dynamic clients sorted alphabetically A-Z
+  const activeClients = mockClients
+    .filter(c => c.status === 'ACTIVE')
+    .map(c => c.name.trim())
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+  // Build the list of tally categories: VELOGY fixed first, then active clients A-Z
+  const tallyCategories = ['VELOGY', ...activeClients];
+
+  let totalSum = 0;
+
+  if (gridEl) {
+    gridEl.innerHTML = '';
+    tallyCategories.forEach(companyName => {
+      const normalizedKey = companyName.toUpperCase();
+      if (!controlVehicleTally.hasOwnProperty(normalizedKey)) {
+        controlVehicleTally[normalizedKey] = 0;
+      }
+      const count = controlVehicleTally[normalizedKey];
+      totalSum += count;
+
+      const card = document.createElement('div');
+      card.className = 'tally-card';
+      card.innerHTML = `
+        <span class="tally-company-label">${companyName}</span>
+        <span class="tally-count">${count}</span>
+        <button type="button" class="tally-btn">[ +1 ]</button>
+      `;
+
+      const btn = card.querySelector('.tally-btn');
+      btn.addEventListener('click', () => {
+        incrementControlVehicleTally(companyName);
+      });
+
+      gridEl.appendChild(card);
+    });
+  } else {
+    tallyCategories.forEach(companyName => {
+      const normalizedKey = companyName.toUpperCase();
+      totalSum += (controlVehicleTally[normalizedKey] || 0);
+    });
+  }
+
+  if (totalEl) {
+    totalEl.textContent = totalSum;
+  }
+}
+
+function incrementControlVehicleTally(companyName) {
+  const normalizedKey = companyName.toUpperCase();
+  if (!controlVehicleTally.hasOwnProperty(normalizedKey)) {
+    controlVehicleTally[normalizedKey] = 0;
+  }
+  controlVehicleTally[normalizedKey] += 1;
+  renderControlVehicleTally();
+  showToast(`Night vehicle logged for ${companyName.toUpperCase()} (+1)`, 'success');
+}
+
 // Helper to return ordinal patrol names: 1 -> "1st Patrol", 2 -> "2nd Patrol", 3 -> "3rd Patrol", etc.
 function getOrdinalPatrolName(num) {
   const n = parseInt(num, 10);
@@ -234,7 +304,9 @@ const CHECKPOINTS = NIGHT_CHECKPOINTS;
 // Theme state management helper
 function updateTheme() {
   const activeView = document.querySelector('.view.active-view')?.id;
-  const isNightTheme = (activeView === 'jetty-patrol' || activeView === 'jetty')
+  const isNightTheme = (activeView === 'control')
+    ? true
+    : (activeView === 'jetty-patrol' || activeView === 'jetty')
     ? currentJettyShift === 'NIGHT'
     : currentPatrolMode === 'NIGHT';
   document.body.classList.toggle('night-theme', isNightTheme);
@@ -455,6 +527,8 @@ function showView(id) {
     renderEastGateVehicleTally();
   } else if (id === 'gate-west') {
     renderGateStaffView('gate-west', 'West Gate');
+  } else if (id === 'control') {
+    renderControlVehicleTally();
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3295,6 +3369,7 @@ function renderClientManagement() {
 
   renderAdminDashboard();
   renderEastGateVehicleTally();
+  renderControlVehicleTally();
 }
 
 // Search & Filter Attachments for Clients
@@ -3882,3 +3957,4 @@ updateTheme();
 renderPatrolDashboard();
 renderAdminDashboard();
 renderEastGateVehicleTally();
+renderControlVehicleTally();
