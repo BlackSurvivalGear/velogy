@@ -41,8 +41,26 @@ let mockClients = [
 let nextStaffId = 7;
 let nextClientId = 4;
 
-// 16 REAL PATROL CHECKPOINTS
-const CHECKPOINTS = [
+// DEFINITIVE SITE PATROL CHECKPOINTS
+// 13 DAY PATROL CHECKPOINTS (No warehouse checkpoints)
+const DAY_CHECKPOINTS = [
+  "Garden Center",
+  "Daveyhulme",
+  "FLX Lamp Post",
+  "East Fence",
+  "Double Gates",
+  "Lone Worker Check",
+  "West Lot",
+  "Cooling Towers",
+  "Railhead",
+  "Flare",
+  "W5",
+  "Stores",
+  "W50"
+];
+
+// 16 NIGHT PATROL CHECKPOINTS (Includes 3 warehouse checkpoints)
+const NIGHT_CHECKPOINTS = [
   "Garden Center",
   "Daveyhulme",
   "FLX Lamp Post",
@@ -61,13 +79,58 @@ const CHECKPOINTS = [
   "W50"
 ];
 
-// INITIALIZE MOCK PATROL STATE (8 Rounds x 16 Checkpoints = 128 Total)
-// We set up realistic state matching the prompt examples (121 checked, 4 issues, 3 missed/pending for completed night or active night)
-let currentSelectedRound = 4; // Default active round view in UI
+// Alias CHECKPOINTS to NIGHT_CHECKPOINTS for backward compatibility with Night Patrol & Reports Matrix
+const CHECKPOINTS = NIGHT_CHECKPOINTS;
 
+// Active selected rounds for UI navigation
+let currentSelectedDayRound = 1; // Default active Day Patrol round view in UI
+let currentSelectedRound = 4;    // Default active Night Patrol round view in UI
+
+let dayPatrolRounds = {};
 let patrolRounds = {};
 
+function initMockDayPatrolData() {
+  dayPatrolRounds = {};
+  // Create 3 Day Patrol rounds x 13 Checkpoints = 39 Total Checkpoint Checks
+  for (let r = 1; r <= 3; r++) {
+    dayPatrolRounds[r] = {};
+    DAY_CHECKPOINTS.forEach((cpName, idx) => {
+      let status = 'PENDING';
+      let time = '--:--';
+      let officer = "Security Officer J. Vance";
+      let issueDetails = null;
+
+      // Mock completion status for Round 1 to show active/in-progress workflow
+      if (r === 1) {
+        if (idx < 8) {
+          status = 'CHECKED';
+          time = `0${7 + Math.floor(idx / 3)}:${15 + idx * 4}`.slice(-5);
+        } else if (cpName === "Flare") {
+          status = 'ISSUE';
+          time = '09:42';
+          issueDetails = {
+            issue: "Safety sign missing near flare stack base",
+            severity: "MEDIUM",
+            officer: "Security Officer J. Vance",
+            time: "09:42"
+          };
+        }
+      }
+
+      dayPatrolRounds[r][cpName] = {
+        name: cpName,
+        round: r,
+        status: status, // 'PENDING' | 'CHECKED' | 'ISSUE'
+        time: time,
+        officer: officer,
+        issueDetails: issueDetails
+      };
+    });
+  }
+}
+
 function initMockPatrolData() {
+  initMockDayPatrolData();
   patrolRounds = {};
 
   // Create 8 rounds
@@ -248,12 +311,44 @@ if (menuButton) {
 // Patrol Mode State ('DAY' | 'NIGHT')
 let currentPatrolMode = 'DAY';
 
-// Day Patrol State (3 Rounds)
-let dayPatrolState = {
-  1: { status: 'PENDING', startTime: null, completeTime: null },
-  2: { status: 'PENDING', startTime: null, completeTime: null },
-  3: { status: 'PENDING', startTime: null, completeTime: null }
-};
+function getDayPatrolStats() {
+  let totalChecksRequired = 3 * 13; // 39
+  let totalChecked = 0;
+  let totalIssues = 0;
+  let totalPending = 0;
+  let completedRoundsCount = 0;
+
+  for (let r = 1; r <= 3; r++) {
+    let roundPending = 0;
+
+    DAY_CHECKPOINTS.forEach(cpName => {
+      const item = dayPatrolRounds[r][cpName];
+      if (item.status === 'CHECKED') {
+        totalChecked++;
+      } else if (item.status === 'ISSUE') {
+        totalIssues++;
+      } else {
+        totalPending++;
+        roundPending++;
+      }
+    });
+
+    if (roundPending === 0) {
+      completedRoundsCount++;
+    }
+  }
+
+  const completionPct = (((totalChecked + totalIssues) / totalChecksRequired) * 100).toFixed(1);
+
+  return {
+    totalChecksRequired,
+    totalChecked,
+    totalIssues,
+    totalPending,
+    completedRoundsCount,
+    completionPct
+  };
+}
 
 // Daily Checks State (Independent from Patrol Rounds)
 let pumpOilState = {
@@ -350,65 +445,161 @@ function renderPatrolDashboard() {
   renderDailyChecksSection();
 }
 
-// 1A. DAY PATROL RENDER & LOGIC
+// 1A. DAY PATROL RENDER & LOGIC (3 Rounds x 13 Checkpoints = 39 Checks)
 function renderDayPatrolSection() {
-  const dayRoundsGrid = document.getElementById('dayRoundsGrid');
-  if (!dayRoundsGrid) return;
+  const dayStats = getDayPatrolStats();
 
-  dayRoundsGrid.innerHTML = '';
-
-  let completedRoundsCount = 0;
-
-  for (let r = 1; r <= 3; r++) {
-    const roundData = dayPatrolState[r];
-    if (roundData.status === 'COMPLETED') completedRoundsCount++;
-
-    const card = document.createElement('div');
-    card.className = `day-round-card ${roundData.status.toLowerCase()}`;
-
-    let statusBadge = `<span class="status-badge neutral">PENDING</span>`;
-    if (roundData.status === 'IN_PROGRESS') {
-      statusBadge = `<span class="status-badge active">IN PROGRESS (${roundData.startTime})</span>`;
-    } else if (roundData.status === 'COMPLETED') {
-      statusBadge = `<span class="status-badge completed">COMPLETED (${roundData.completeTime})</span>`;
-    }
-
-    card.innerHTML = `
-      <div class="day-round-header">
-        <div>
-          <span class="eyebrow">DAY PATROL</span>
-          <h4 style="margin: 2px 0 0; color: var(--navy); font-size: 18px;">Round ${r} of 3</h4>
-        </div>
-        ${statusBadge}
-      </div>
-      <div class="day-round-actions">
-        <button type="button" class="secondary-button" ${roundData.status !== 'PENDING' ? 'disabled' : ''} onclick="startDayRound(${r})">START</button>
-        <button type="button" class="primary-button" ${roundData.status === 'COMPLETED' ? 'disabled' : ''} onclick="completeDayRound(${r})">COMPLETE</button>
-      </div>
-    `;
-
-    dayRoundsGrid.appendChild(card);
-  }
-
+  // Update Day Patrol Summary Status Box
+  const dayStatRoundsCompleted = document.getElementById('dayStatRoundsCompleted');
+  const dayStatRoundsOutstanding = document.getElementById('dayStatRoundsOutstanding');
+  const dayStatChecksCompleted = document.getElementById('dayStatChecksCompleted');
+  const dayStatChecksOutstanding = document.getElementById('dayStatChecksOutstanding');
+  const dayStatCompletionPct = document.getElementById('dayStatCompletionPct');
+  const dayStatIssuesCount = document.getElementById('dayStatIssuesCount');
   const dayPatrolBadge = document.getElementById('dayPatrolBadge');
+
+  if (dayStatRoundsCompleted) dayStatRoundsCompleted.textContent = `${dayStats.completedRoundsCount} / 3`;
+  if (dayStatRoundsOutstanding) dayStatRoundsOutstanding.textContent = `${3 - dayStats.completedRoundsCount} rounds outstanding`;
+  if (dayStatChecksCompleted) dayStatChecksCompleted.textContent = `${dayStats.totalChecked + dayStats.totalIssues} / 39`;
+  if (dayStatChecksOutstanding) dayStatChecksOutstanding.textContent = `${dayStats.totalPending} checks remaining`;
+  if (dayStatCompletionPct) dayStatCompletionPct.textContent = `${dayStats.completionPct}%`;
+  if (dayStatIssuesCount) dayStatIssuesCount.textContent = `${dayStats.totalIssues}`;
+
   if (dayPatrolBadge) {
-    dayPatrolBadge.textContent = `${completedRoundsCount} / 3 ROUNDS COMPLETED`;
-    dayPatrolBadge.className = completedRoundsCount === 3 ? 'status-badge completed' : 'status-badge active';
+    dayPatrolBadge.textContent = `DAY ROUND ${currentSelectedDayRound} ACTIVE`;
+    dayPatrolBadge.className = dayStats.completedRoundsCount === 3 ? 'status-badge completed' : 'status-badge active';
+  }
+
+  // Render Day Patrol Round Selector Pills
+  const dayRoundPillsContainer = document.getElementById('dayRoundPillsContainer');
+  if (dayRoundPillsContainer) {
+    dayRoundPillsContainer.innerHTML = '';
+    for (let r = 1; r <= 3; r++) {
+      let rChecked = 0;
+      DAY_CHECKPOINTS.forEach(cp => {
+        if (dayPatrolRounds[r][cp].status !== 'PENDING') rChecked++;
+      });
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `round-pill ${r === currentSelectedDayRound ? 'active' : ''}`;
+      btn.dataset.dayRound = r;
+      btn.innerHTML = `Round ${r} <span class="pill-sub">${rChecked}/13</span>`;
+      btn.addEventListener('click', () => {
+        currentSelectedDayRound = r;
+        renderPatrolDashboard();
+      });
+      dayRoundPillsContainer.appendChild(btn);
+    }
+  }
+
+  // Render Active Day Round Header & Checkpoints
+  const dayActiveRoundTitle = document.getElementById('dayActiveRoundTitle');
+  const dayActiveRoundSub = document.getElementById('dayActiveRoundSub');
+  const dayCheckpointGrid = document.getElementById('dayCheckpointGrid');
+
+  if (dayActiveRoundTitle) dayActiveRoundTitle.textContent = `DAY PATROL ROUND ${currentSelectedDayRound}`;
+
+  let roundCheckedCount = 0;
+  let roundIssueCount = 0;
+  DAY_CHECKPOINTS.forEach(cp => {
+    if (dayPatrolRounds[currentSelectedDayRound][cp].status === 'CHECKED') roundCheckedCount++;
+    if (dayPatrolRounds[currentSelectedDayRound][cp].status === 'ISSUE') roundIssueCount++;
+  });
+
+  if (dayActiveRoundSub) {
+    dayActiveRoundSub.textContent = `${roundCheckedCount + roundIssueCount} / 13 checkpoints checked ${roundIssueCount > 0 ? `(${roundIssueCount} issue)` : ''}`;
+  }
+
+  if (dayCheckpointGrid) {
+    dayCheckpointGrid.innerHTML = '';
+    DAY_CHECKPOINTS.forEach((cpName, index) => {
+      const data = dayPatrolRounds[currentSelectedDayRound][cpName];
+      const card = document.createElement('div');
+
+      let stateClass = 'state-pending';
+      let badgeText = 'PENDING';
+      let metaText = 'Awaiting tag';
+      let btnLabel = 'TAG CHECKPOINT';
+
+      if (data.status === 'CHECKED') {
+        stateClass = 'state-checked';
+        badgeText = 'CHECKED';
+        metaText = `Checked ${data.time}`;
+        btnLabel = 'CHECKED ✓';
+      } else if (data.status === 'ISSUE') {
+        stateClass = 'state-issue';
+        badgeText = 'ISSUE';
+        metaText = `${data.issueDetails ? data.issueDetails.issue : 'Issue logged'} (${data.time})`;
+        btnLabel = 'VIEW ISSUE';
+      }
+
+      card.className = `check-card ${stateClass}`;
+      card.innerHTML = `
+        <div class="check-card-top">
+          <span class="check-card-num">${String(index + 1).padStart(2, '0')}</span>
+          <span class="check-card-badge">${badgeText}</span>
+        </div>
+        <strong>${cpName}</strong>
+        <div class="check-card-meta">${metaText}</div>
+        <button type="button" class="check-card-btn">${btnLabel}</button>
+      `;
+
+      const btn = card.querySelector('.check-card-btn');
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        handleDayCheckpointClick(currentSelectedDayRound, cpName);
+      });
+
+      card.addEventListener('click', () => {
+        handleDayCheckpointClick(currentSelectedDayRound, cpName);
+      });
+
+      dayCheckpointGrid.appendChild(card);
+    });
   }
 }
 
-function startDayRound(roundNum) {
-  dayPatrolState[roundNum].status = 'IN_PROGRESS';
-  dayPatrolState[roundNum].startTime = getTimeString();
-  showToast(`Day Patrol Round ${roundNum} started at ${dayPatrolState[roundNum].startTime}.`, 'info');
+function handleDayCheckpointClick(roundNum, cpName) {
+  const data = dayPatrolRounds[roundNum][cpName];
+  if (data.status === 'PENDING') {
+    data.status = 'CHECKED';
+    data.time = getTimeString();
+    data.officer = "Security Officer J. Vance";
+    showToast(`${cpName} tagged as CHECKED at ${data.time} (Day Round ${roundNum})`, 'success');
+  } else if (data.status === 'CHECKED') {
+    data.status = 'PENDING';
+    data.time = '--:--';
+    showToast(`${cpName} reset to PENDING`, 'info');
+  } else if (data.status === 'ISSUE') {
+    openCheckpointDetailModal(cpName);
+  }
   renderPatrolDashboard();
 }
 
-function completeDayRound(roundNum) {
-  dayPatrolState[roundNum].status = 'COMPLETED';
-  dayPatrolState[roundNum].completeTime = getTimeString();
-  showToast(`Day Patrol Round ${roundNum} completed at ${dayPatrolState[roundNum].completeTime}.`, 'success');
-  renderPatrolDashboard();
+// "Tag All Remaining" Button Action for Day Patrol
+const dayTagAllBtn = document.getElementById('dayTagAllBtn');
+if (dayTagAllBtn) {
+  dayTagAllBtn.addEventListener('click', () => {
+    DAY_CHECKPOINTS.forEach(cpName => {
+      const item = dayPatrolRounds[currentSelectedDayRound][cpName];
+      if (item.status === 'PENDING') {
+        item.status = 'CHECKED';
+        item.time = getTimeString();
+      }
+    });
+    showToast(`All remaining checkpoints for Day Patrol Round ${currentSelectedDayRound} tagged.`, 'success');
+    renderPatrolDashboard();
+  });
+}
+
+// "Report Issue" Button Action for Day Patrol
+const openDayIssueModalBtn = document.getElementById('openDayIssueModalBtn');
+if (openDayIssueModalBtn) {
+  openDayIssueModalBtn.addEventListener('click', () => {
+    populateIssueCheckpointSelect(currentPatrolMode);
+    if (issueRoundSelect) issueRoundSelect.value = currentSelectedDayRound;
+    if (issueModal) issueModal.setAttribute('aria-hidden', 'false');
+  });
 }
 
 // 1B. NIGHT PATROL RENDER & LOGIC (8 Rounds x 16 Checkpoints = 128 Checks)
@@ -746,20 +937,32 @@ const issueForm = document.getElementById('issueForm');
 const issueRoundSelect = document.getElementById('issueRoundSelect');
 const issueCheckpointSelect = document.getElementById('issueCheckpointSelect');
 
-function populateIssueCheckpointSelect() {
+function populateIssueCheckpointSelect(mode = 'NIGHT') {
   if (!issueCheckpointSelect) return;
   issueCheckpointSelect.innerHTML = '';
-  CHECKPOINTS.forEach(cp => {
+  const cpList = mode === 'DAY' ? DAY_CHECKPOINTS : NIGHT_CHECKPOINTS;
+  cpList.forEach(cp => {
     const opt = document.createElement('option');
     opt.value = cp;
     opt.textContent = cp;
     issueCheckpointSelect.appendChild(opt);
   });
+
+  if (issueRoundSelect) {
+    issueRoundSelect.innerHTML = '';
+    const numRounds = mode === 'DAY' ? 3 : 8;
+    for (let r = 1; r <= numRounds; r++) {
+      const opt = document.createElement('option');
+      opt.value = r;
+      opt.textContent = `Round ${r}`;
+      issueRoundSelect.appendChild(opt);
+    }
+  }
 }
 
 if (openIssueModalBtn) {
   openIssueModalBtn.addEventListener('click', () => {
-    populateIssueCheckpointSelect();
+    populateIssueCheckpointSelect(currentPatrolMode);
     if (issueRoundSelect) issueRoundSelect.value = currentSelectedRound;
     if (issueModal) issueModal.setAttribute('aria-hidden', 'false');
   });
@@ -781,22 +984,42 @@ if (issueForm) {
     const officerVal = document.getElementById('issueOfficerInput').value || 'Security Officer';
     const descVal = document.getElementById('issueDescInput').value || 'Issue reported';
 
-    patrolRounds[rVal][cpVal] = {
-      name: cpVal,
-      round: rVal,
-      status: 'ISSUE',
-      time: getTimeString(),
-      officer: officerVal,
-      issueDetails: {
-        issue: descVal,
-        severity: severityVal,
-        officer: officerVal,
-        time: getTimeString()
+    if (currentPatrolMode === 'DAY') {
+      if (dayPatrolRounds[rVal]) {
+        dayPatrolRounds[rVal][cpVal] = {
+          name: cpVal,
+          round: rVal,
+          status: 'ISSUE',
+          time: getTimeString(),
+          officer: officerVal,
+          issueDetails: {
+            issue: descVal,
+            severity: severityVal,
+            officer: officerVal,
+            time: getTimeString()
+          }
+        };
       }
-    };
+    } else {
+      if (patrolRounds[rVal]) {
+        patrolRounds[rVal][cpVal] = {
+          name: cpVal,
+          round: rVal,
+          status: 'ISSUE',
+          time: getTimeString(),
+          officer: officerVal,
+          issueDetails: {
+            issue: descVal,
+            severity: severityVal,
+            officer: officerVal,
+            time: getTimeString()
+          }
+        };
+      }
+    }
 
     closeIssueModal();
-    showToast(`Issue reported for Round ${rVal} — ${cpVal} (${severityVal} Severity)`, 'warning');
+    showToast(`Issue reported for ${currentPatrolMode} Patrol Round ${rVal} — ${cpVal} (${severityVal} Severity)`, 'warning');
     renderPatrolDashboard();
   });
 }

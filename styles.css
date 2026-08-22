@@ -518,6 +518,103 @@ nav {
    PATROL DASHBOARD & 16-CHECKPOINT WORKFLOW STYLES
    ========================================================================== */
 
+/* Site Patrol Definitive Summary Card */
+.site-patrol-summary-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+
+.site-patrol-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.breakdown-box {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.breakdown-box.day-box {
+  border-left: 4px solid var(--green);
+}
+
+.breakdown-box.night-box {
+  border-left: 4px solid var(--blue);
+}
+
+.breakdown-box.daily-box {
+  border-left: 4px solid var(--orange);
+}
+
+.breakdown-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-top: 4px;
+}
+
+.breakdown-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.breakdown-badge {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  width: fit-content;
+}
+
+.day-badge {
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid #bbf7d0;
+}
+
+.night-badge {
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid #bfdbfe;
+}
+
+.daily-item {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--line);
+}
+
+.daily-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.daily-item strong {
+  font-size: 13px;
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.daily-item span {
+  font-size: 11px;
+  color: var(--muted);
+}
+
 /* Patrol Mode Switcher Header */
 .patrol-mode-header {
   margin-bottom: 24px;
