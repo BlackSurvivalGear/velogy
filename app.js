@@ -69,6 +69,24 @@ const rolePermissions = {
     'reports',
     'officer-management'
   ],
+  'team leader': [
+    'dashboard',
+    'patrol',
+    'access',
+    'gate-east',
+    'gate-west',
+    'car-search',
+    'control',
+    'jetty',
+    'jetty-patrol',
+    'visitor-search',
+    'incident-report',
+    'admin-dashboard',
+    'reports',
+    'officer-management',
+    'staff-management',
+    'client-management'
+  ],
   manager: [
     'dashboard',
     'patrol',
@@ -118,6 +136,7 @@ let securityUsers = {
     { name: "Scot Smith", role: "controller" },
     { name: "Antony Warbutton", role: "controller" },
     { name: "Troy Oliv", role: "supervisor" },
+    { name: "Marcus Vance", role: "team leader" },
     { name: "Seun Clegg", role: "manager" }
   ],
   testPassword: "velogy2026",
@@ -3735,6 +3754,17 @@ function renderSignInForm() {
         <input type="password" id="signInPassword" class="sign-in-input" placeholder="••••••••" required>
       </div>
     `;
+  } else if (currentSecurityLevel === 'TEAM LEADER') {
+    const teamLeaders = securityUsers.users.filter(u => u.role === 'team leader');
+    const tlName = teamLeaders.length > 0 ? teamLeaders[0].name : "Marcus Vance";
+    container.innerHTML = `
+      <div class="sign-in-role-badge">TEAM LEADER</div>
+      <div class="sign-in-role-person">${tlName}</div>
+      <div class="sign-in-field-group" style="margin-top: 16px;">
+        <label for="signInPassword">Password</label>
+        <input type="password" id="signInPassword" class="sign-in-input" placeholder="••••••••" required>
+      </div>
+    `;
   } else if (currentSecurityLevel === 'MANAGER') {
     const managers = securityUsers.users.filter(u => u.role === 'manager');
     const mgrName = managers.length > 0 ? managers[0].name : "Seun Clegg";
@@ -3785,6 +3815,10 @@ function handleSignInSubmit() {
     const supervisors = securityUsers.users.filter(u => u.role === 'supervisor');
     signedInName = supervisors.length > 0 ? supervisors[0].name : "Troy Oliv";
     initials = 'SUP';
+  } else if (currentSecurityLevel === 'TEAM LEADER') {
+    const teamLeaders = securityUsers.users.filter(u => u.role === 'team leader');
+    signedInName = teamLeaders.length > 0 ? teamLeaders[0].name : "Marcus Vance";
+    initials = 'TL';
   } else if (currentSecurityLevel === 'MANAGER') {
     const managers = securityUsers.users.filter(u => u.role === 'manager');
     signedInName = managers.length > 0 ? managers[0].name : "Seun Clegg";
@@ -3873,6 +3907,11 @@ function renderOfficerManagement() {
     return !searchVal || u.name.toLowerCase().includes(searchVal) || u.role.toLowerCase().includes(searchVal);
   });
 
+  // Helper to format role names (e.g., 'team leader' -> 'Team Leader')
+  const formatRoleLabel = (roleStr) => {
+    return roleStr.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  };
+
   // Render Desktop Table
   if (tableBody) {
     tableBody.innerHTML = '';
@@ -3881,7 +3920,7 @@ function renderOfficerManagement() {
     } else {
       filteredUsers.forEach(u => {
         const tr = document.createElement('tr');
-        const roleLabel = u.role.charAt(0).toUpperCase() + u.role.slice(1);
+        const roleLabel = formatRoleLabel(u.role);
         tr.innerHTML = `
           <td style="font-weight: 700; color: var(--navy);">${u.name}</td>
           <td><span class="badge-active">${roleLabel}</span></td>
@@ -3904,7 +3943,7 @@ function renderOfficerManagement() {
       filteredUsers.forEach(u => {
         const card = document.createElement('div');
         card.className = 'admin-card';
-        const roleLabel = u.role.charAt(0).toUpperCase() + u.role.slice(1);
+        const roleLabel = formatRoleLabel(u.role);
         card.innerHTML = `
           <div class="admin-card-header">
             <div>
@@ -4160,7 +4199,7 @@ function getIncidentCounts() {
 function renderIncidentReportView() {
   const user = securityUsers.currentUser || { name: 'Security Officer', role: 'officer' };
   const role = user.role.toLowerCase();
-  const canManage = (role === 'supervisor' || role === 'manager');
+  const canManage = (role === 'supervisor' || role === 'team leader' || role === 'manager');
 
   const tabNav = document.getElementById('incidentTabNav');
   const submitPanel = document.getElementById('incidentSubmitPanel');
@@ -4466,7 +4505,7 @@ function markIncidentRead(reportId) {
   const user = securityUsers.currentUser;
   const role = user ? user.role.toLowerCase() : 'officer';
 
-  if (role !== 'supervisor' && role !== 'manager') {
+  if (role !== 'supervisor' && role !== 'team leader' && role !== 'manager') {
     showToast('Permission denied: Only Supervisors and Managers can mark reports Read.', 'danger');
     return;
   }
@@ -4491,7 +4530,7 @@ function markIncidentResolved(reportId) {
   const user = securityUsers.currentUser;
   const role = user ? user.role.toLowerCase() : 'officer';
 
-  if (role !== 'supervisor' && role !== 'manager') {
+  if (role !== 'supervisor' && role !== 'team leader' && role !== 'manager') {
     showToast('Permission denied: Only Supervisors and Managers can mark reports Resolved.', 'danger');
     return;
   }
@@ -4522,7 +4561,7 @@ function openDeleteIncidentModal(reportId) {
   const user = securityUsers.currentUser;
   const role = user ? user.role.toLowerCase() : 'officer';
 
-  if (role !== 'supervisor' && role !== 'manager') {
+  if (role !== 'supervisor' && role !== 'team leader' && role !== 'manager') {
     showToast('Permission denied: Only Supervisors and Managers can delete reports.', 'danger');
     return;
   }
